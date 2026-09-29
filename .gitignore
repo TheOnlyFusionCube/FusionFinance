@@ -50,3 +50,7 @@ scratchpad/
 scripts/_*.py
 .serena/cache/
 .vercel/
+
+# Packaging output
+build/
+dist/
