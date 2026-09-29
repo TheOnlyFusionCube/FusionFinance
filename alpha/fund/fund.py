@@ -114,7 +114,9 @@ class LLMFirstFund:
         forecast: dict | None,
         market_state: tuple[float, ...] | None,
         synthetic_world: bool = False,
+        jury=None,
     ) -> IdeaDecision:
+        """Run one ticker through the pipeline. ``jury(side)`` returns a committee vote."""
         originator_model = self.originator.model_id
         analyst_model = self.analyst.model_id
         contaminated = self.guard.is_contaminated(
@@ -165,7 +167,8 @@ class LLMFirstFund:
 
         p_meta = self.meta.predict(meta_features) if meta_features else None
         verdict = verify_idea(
-            receipt, forecast=forecast, p_llm=p_llm, p_meta=p_meta, thresholds=self.thresholds
+            receipt, forecast=forecast, p_llm=p_llm, p_meta=p_meta, thresholds=self.thresholds,
+            committee=jury(side) if jury is not None else None,
         )
         return self._record(IdeaDecision(
             stage=verdict.decision, reasons=verdict.reasons, receipt=receipt, verdict=verdict,

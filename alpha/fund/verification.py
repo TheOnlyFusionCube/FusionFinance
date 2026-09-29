@@ -59,6 +59,7 @@ class GateVerdict:
     strict_adjudication: str
     calibrated: bool
     extras: dict = field(default_factory=dict)
+    committee: dict | None = None
 
     def to_record(self) -> dict:
         return {
@@ -72,6 +73,7 @@ class GateVerdict:
             "ood_score": _round(self.ood_score),
             "strict_adjudication": self.strict_adjudication,
             "calibrated": self.calibrated,
+            "committee": self.committee,
         }
 
 
@@ -122,8 +124,14 @@ def verify_idea(
     p_llm: float,
     p_meta: float | None,
     thresholds: GateThresholds = GateThresholds(),
+    committee=None,
 ) -> GateVerdict:
-    """Adjudicate one desk-approved, evidence-valid idea against the ML channel."""
+    """Adjudicate one desk-cleared, evidence-valid idea against the ML channel.
+
+    With a ``committee`` vote that reached quorum, the committee's pooled side
+    probability is the ML channel (the market head sits on the committee as one
+    juror). Without quorum, the single market-head forecast decides as before.
+    """
 
     if not desk_cleared(receipt):
         raise ValueError("only desk-cleared, evidence-audited ideas reach the ML gate")
@@ -148,28 +156,45 @@ def verify_idea(
             ood_score=None if forecast is None else forecast.get("out_of_distribution_score"),
             strict_adjudication=strict,
             calibrated=thresholds.calibrated,
+            committee=None if committee is None else committee.to_record(),
         )
 
+    if forecast is not None:
+        ood = float(forecast.get("out_of_distribution_score", 1.0))
+        if not math.isfinite(ood) or ood > thresholds.ood_limit:
+            return verdict("abstain", (f"OUT_OF_DISTRIBUTION {ood:.2f}",), 0.5)
+    if committee is not None and committee.decision != "no_quorum":
+        if committee.side != side:
+            raise ValueError("committee vote was taken for the other side")
+        p_ml = committee.p_side
+        if committee.decision == "veto":
+            return verdict("vetoed", committee.reasons, p_ml, p_ml)
+        return _pool(verdict, p_llm, p_ml, p_meta, thresholds, basis_prefix="COMMITTEE")
     if forecast is None:
         return verdict("abstain", ("ML_VERIFIER_UNAVAILABLE",), 0.5)
-    ood = float(forecast.get("out_of_distribution_score", 1.0))
-    if not math.isfinite(ood) or ood > thresholds.ood_limit:
-        return verdict("abstain", (f"OUT_OF_DISTRIBUTION {ood:.2f}",), 0.5)
     p_ml = side_probability(forecast, horizon_key, side)
     if p_ml is None:
         return verdict("abstain", ("NO_ML_FORECAST_AT_HORIZON",), 0.5)
     if p_ml < thresholds.ml_veto_probability:
         return verdict("vetoed", (f"ML_CONTRADICTION p_side={p_ml:.2f}",), p_ml, p_ml)
+    return _pool(verdict, p_llm, p_ml, p_meta, thresholds, basis_prefix="MARKET_HEAD")
+
+
+def _pool(verdict, p_llm: float, p_ml: float, p_meta: float | None,
+          thresholds: GateThresholds, *, basis_prefix: str) -> GateVerdict:
+    # The meta-labeler is trained on market-head and dossier features, not on the
+    # committee, so a committee probability is independent evidence and is added.
+    committee_logit = _logit(p_ml) if basis_prefix == "COMMITTEE" else 0.0
     if p_meta is not None and p_meta < thresholds.meta_veto_probability:
         return verdict("vetoed", (f"META_LABEL_VETO p_correct={p_meta:.2f}",), p_meta, p_ml)
     if p_meta is not None:
         # The meta-labeler already conditions on the ML forecast, so it replaces
         # the ML term instead of being pooled with it a second time.
-        p_final = _sigmoid(0.5 * _logit(p_meta) + 0.5 * _logit(p_llm))
-        basis = "META_LABEL_ACTIVE"
+        p_final = _sigmoid(0.5 * _logit(p_meta) + 0.5 * _logit(p_llm) + committee_logit)
+        basis = f"{basis_prefix}+META_LABEL"
     else:
         p_final = _sigmoid(_logit(p_llm) + _logit(p_ml))
-        basis = "LLM_TRACK_RECORD_X_ML"
+        basis = f"{basis_prefix}+LLM_TRACK_RECORD"
     if p_final < thresholds.min_edge_probability:
         return verdict("abstain", (f"INSUFFICIENT_EDGE p={p_final:.2f}", basis), p_final, p_ml)
     return verdict("approved", ("ML_DID_NOT_FALSIFY", basis), p_final, p_ml)

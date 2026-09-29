@@ -14,7 +14,9 @@ research dossier (sealed, PIT) ─► LLM originator ─► idea or pass
                                         │
                 committed thesis + exact-quote / numeric / timestamp audit
                                         │
-      ML gate: walk-forward market verifier (calibrated side probability, OOD)
+      ML gate: verifier committee of twenty published methods that must earn
+               their vote out of sample (see verifier-committee.md), with the
+               walk-forward market head as one juror and its OOD guard
                + meta-labeler trained on the fund's own resolved LLM calls
                + Beta-Binomial LLM track record (recalibrates conviction)
                                         │
@@ -75,25 +77,27 @@ across runs.
 
 | Arm | Return | Sharpe | Max drawdown | Turnover | Costs |
 |---|---:|---:|---:|---:|---:|
-| `llm_only` (LLM decides) | +27.8% | 4.52 | −2.8% | 23.5 | 1.85% |
-| `llm_desk` (+ desk and evidence audit) | +26.0% | 4.43 | −2.6% | 22.1 | 1.70% |
-| `ml_only` (verifier trades alone) | −0.3% | −0.04 | −4.0% | 23.1 | 1.62% |
-| `fusion` (LLM-first + ML gate) | +24.6% | **5.28** | **−1.3%** | 18.5 | 1.44% |
+| `llm_only` (LLM decides) | +26.3% | 4.48 | −2.8% | 25.0 | 1.93% |
+| `llm_desk` (+ desk and evidence audit) | +23.3% | 4.02 | −2.4% | 24.4 | 1.86% |
+| `ml_only` (market head trades alone) | −0.3% | −0.04 | −4.0% | 23.1 | 1.62% |
+| `committee_only` (committee trades alone) | +24.7% | 4.49 | −2.7% | 15.5 | 1.23% |
+| `fusion_single` (LLM-first, market-head gate) | +22.7% | 4.35 | −1.6% | 21.9 | 1.66% |
+| `fusion` (LLM-first, committee gate) | **+26.9%** | **4.69** | −1.9% | 21.2 | 1.67% |
 
-Ideas the ML gate approved hit 68.1%; ideas it blocked hit 48.9% (all LLM
-ideas: 60.9%). Fusion gives up a little return for the best risk-adjusted
-result and half the drawdown.
+Ideas the gate approved hit 62.8%; ideas it blocked hit 49.2%. The gate passed
+90% of genuine ideas and 38% of hype ideas.
 
 **Narrative mode** (LLM reads raw text only, so it falls for promotion):
 
 | Arm | Return | Sharpe | Max drawdown |
 |---|---:|---:|---:|
 | `llm_only` | −6.9% | −3.26 | −7.6% |
-| `ml_only` | −0.3% | −0.04 | −4.0% |
-| `fusion` | −2.9% | −1.43 | −4.0% |
+| `fusion_single` | −2.9% | −1.43 | −4.0% |
+| `fusion` (committee) | **+1.1%** | **0.58** | **−1.6%** |
 
-The gate passed 56% of genuine ideas but only 27% of hype ideas. It cannot
-create an edge the LLM lacks, but it cuts the damage when the LLM is fooled.
+Committee-approved ideas hit 56.0% and blocked ideas 29.0%; the gate passed 59%
+of genuine ideas and 23% of hype. A verifier cannot create an edge the LLM
+lacks. What it does here is turn a fooled LLM's losing book into a roughly flat one.
 
 Read these numbers as evidence that the plumbing does what it claims, not as
 expected returns. The Sharpe ratios are high because the world plants strong,

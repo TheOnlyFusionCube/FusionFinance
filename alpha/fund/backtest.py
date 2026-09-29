@@ -1,14 +1,16 @@
 """Walk-forward ablation backtest for the LLM-first fund.
 
-Four arms see the same ideas, the same point-in-time data, the same risk book,
+Six arms see the same ideas, the same point-in-time data, the same risk book,
 and the same next-open execution kernel with costs and slippage:
 
-``llm_only``   every originated idea is traded (LLM decides, as in popular
-               persona- or debate-style agent funds);
-``llm_desk``   ideas must also survive the analyst desk and evidence audit;
-``ml_only``    the market verifier trades its own top forecasts, no LLM;
-``fusion``     LLM-first with the ML verification gate, meta-labeler, and
-               track-record recalibration.
+``llm_only``        every originated idea is traded (LLM decides, as in popular
+                    persona- or debate-style agent funds);
+``llm_desk``        ideas must also survive the analyst desk and evidence audit;
+``ml_only``         the single market verifier trades its own top forecasts;
+``committee_only``  the verifier committee trades its own consensus, no LLM;
+``fusion_single``   LLM-first, gated by the single market verifier;
+``fusion``          LLM-first, gated by the verifier committee's consensus, with
+                    meta-labeler and track-record recalibration.
 
 The ML verifier is retrained on a fixed cadence using only labels whose window
 closed before each decision. The meta-labeler and track record learn only from
@@ -35,6 +37,8 @@ from alpha.research.collectors.synthetic import world_records
 from alpha.research.dossier import build_dossier
 from alpha.research.offline import DossierAnalystProvider, DossierOriginator
 from alpha.research.store import ResearchStore
+from alpha.fund.verification import verify_idea
+from alpha.verifier.committee import Committee, ConsensusRules, JuryData, default_jurors
 from alpha.verifier.market_head import HORIZONS, MarketVerifier, structured_features
 from demo.contracts import (
     AssetBar,
@@ -46,7 +50,7 @@ from demo.contracts import (
 from demo.execution import simulate_portfolio
 from demo.metrics import compute_performance_metrics
 
-ARMS = ("llm_only", "llm_desk", "ml_only", "fusion")
+ARMS = ("llm_only", "llm_desk", "ml_only", "committee_only", "fusion_single", "fusion")
 _FEATURE_WARMUP = 252
 
 
@@ -69,6 +73,9 @@ class BacktestConfig:
     meta_min_samples: int = 40
     meta_regularization: float = 1.0
     snapshots: str = "dossier"          # "dossier" (research pipeline) or "narrative"
+    use_committee: bool = True
+    committee_rules: ConsensusRules = field(default_factory=ConsensusRules)
+    committee_min_probability: float = 0.53
     risk: RiskBook = field(default_factory=RiskBook)
     thresholds: GateThresholds = field(default_factory=GateThresholds)
 
@@ -80,6 +87,7 @@ class BacktestReport:
     ledger_head: str
     ledger_entries: int
     config: dict
+    committee: list[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -88,16 +96,17 @@ class BacktestReport:
             "arms": self.arms,
             "ideas": self.ideas,
             "ledger": {"entries": self.ledger_entries, "head": self.ledger_head},
+            "committee": self.committee,
         }
 
     def table(self) -> str:
-        header = f"{'arm':<10}{'return':>9}{'sharpe':>8}{'max_dd':>9}{'turnover':>10}{'costs':>9}"
+        header = f"{'arm':<16}{'return':>9}{'sharpe':>8}{'max_dd':>9}{'turnover':>10}{'costs':>9}"
         lines = [header, "-" * len(header)]
         for arm in ARMS:
             m = self.arms[arm]
             sharpe = "n/a" if m["sharpe_ratio"] is None else f"{m['sharpe_ratio']:+.2f}"
             lines.append(
-                f"{arm:<10}{m['total_return']:>+9.2%}{sharpe:>8}{m['max_drawdown']:>+9.2%}"
+                f"{arm:<16}{m['total_return']:>+9.2%}{sharpe:>8}{m['max_drawdown']:>+9.2%}"
                 f"{m['total_turnover']:>10.2f}{m['transaction_cost_pct']:>9.3%}"
             )
         ideas = self.ideas
@@ -120,6 +129,15 @@ class BacktestReport:
                 "ML gate pass rate by planted event kind: "
                 + ", ".join(f"{kind}={rate:.0%}" for kind, rate in sorted(by_kind.items()))
             )
+        if self.committee:
+            seated = sorted((r for r in self.committee if r["seated"]), key=lambda r: -r["weight"])
+            lines.append(
+                f"committee: {len(seated)} of {len(self.committee)} jurors seated at the end of the run"
+            )
+            for row in seated:
+                lines.append(
+                    f"  {row['juror']:<30}{row['family']:<13}IC {row['mean_ic']:+.3f}  t {row['ic_t']:+.1f}"
+                )
         return "\n".join(lines)
 
 
@@ -147,10 +165,8 @@ def run_backtest(
         raise ValueError("snapshots must be 'dossier' or 'narrative'")
     world = world or build_world(config.world)
     dossier_mode = config.snapshots == "dossier"
-    store = None
-    if dossier_mode:
-        store = ResearchStore()
-        store.add(world_records(world))
+    store = ResearchStore()
+    store.add(world_records(world))
     fund = LLMFirstFund(
         originator=originator or (DossierOriginator() if dossier_mode else DeterministicOriginator()),
         analyst=analyst or (DossierAnalystProvider() if dossier_mode else DeterministicOfflineProvider()),
@@ -201,12 +217,36 @@ def run_backtest(
     last_fit = -10**9
     decision_indices = list(range(first_decision, total - 1, config.rebalance_every))
 
+    horizon = config.committee_rules.horizon
+    committee = Committee(jurors=default_jurors(), rules=config.committee_rules) if config.use_committee else None
+    jury_data = JuryData(
+        dates=world.dates, closes=closes, volume=world.volume[tickers],
+        benchmark=world.closes[BENCHMARK], view_at=store.view, as_of_at=world.as_of,
+    )
+
+    def closed_label(i: int) -> pd.Series:
+        return labels_at(i)[horizon]
+
+    def closed_path(i: int) -> pd.DataFrame:
+        return closes.iloc[i + 1:i + horizon + 1]
+
+    if committee is not None:
+        # Burn-in: score the committee on the same clock before the first decision
+        # so every juror has an out-of-sample record when decisions begin.
+        start = first_decision - config.rebalance_every * ((first_decision - 253) // config.rebalance_every)
+        for index in range(start, first_decision, config.rebalance_every):
+            committee.observe(jury_data, index, labels=closed_label, paths=closed_path)
+
     for index in decision_indices:
         if index - last_fit >= config.retrain_every:
             verifier = _fit_verifier(config, world, index, features_at, labels_at)
             last_fit = index
         frame = features_at(index)
         forecasts = verifier.forecast_frame(frame) if verifier is not None else {}
+        if committee is not None:
+            jury_data.market_forecasts[index] = forecasts
+            committee.observe(jury_data, index, labels=closed_label, paths=closed_path)
+            jury_data.forget(index - 2 * config.committee_rules.max_training_dates * config.rebalance_every)
 
         newly = [(start, item) for start, item in pending if start + item.horizon_days < index]
         pending = [(start, item) for start, item in pending if start + item.horizon_days >= index]
@@ -232,7 +272,7 @@ def run_backtest(
         fund.meta.fit(resolved)
 
         as_of = world.as_of(index)
-        view = store.view(as_of) if store is not None else None
+        view = store.view(as_of) if dossier_mode else None
         decisions = []
         for ticker in tickers:
             state = tuple(float(v) for v in frame.loc[ticker]) if ticker in frame.index else None
@@ -256,6 +296,7 @@ def run_backtest(
                 forecast=forecasts.get(ticker),
                 market_state=state,
                 synthetic_world=True,
+                jury=(lambda side, t=ticker: committee.vote(t, side)) if committee is not None else None,
             )
             decisions.append(decision)
             if decision.side:
@@ -272,6 +313,8 @@ def run_backtest(
                 if item.side and item.stage != "desk_rejected"
             ]),
             "ml_only": config.risk.targets(_ml_only_ideas(config, forecasts)),
+            "committee_only": config.risk.targets(_committee_only_ideas(config, committee, forecasts)),
+            "fusion_single": config.risk.targets(_single_verifier_ideas(fund, decisions, forecasts)),
             "fusion": fund.size(decisions),
         }
         for arm, weights in arm_weights.items():
@@ -327,7 +370,9 @@ def run_backtest(
             "analyst_model": fund.analyst.model_id,
             "gate_calibrated": config.thresholds.calibrated,
             "snapshots": config.snapshots,
+            "committee": config.use_committee,
         },
+        committee=[] if committee is None else committee.roster(),
     )
     return report, fund
 
@@ -375,6 +420,37 @@ def _ml_only_ideas(config: BacktestConfig, forecasts: dict[str, dict]) -> list[S
     picks = sorted(longs, key=lambda item: -item[0])[: config.ml_only_per_side]
     picks += sorted(shorts, key=lambda item: -item[0])[: config.ml_only_per_side]
     return [idea for _, idea in picks]
+
+
+def _committee_only_ideas(config: BacktestConfig, committee, forecasts: dict) -> list[SizedIdea]:
+    if committee is None:
+        return []
+    consensus = committee.consensus_up()
+    key = f"{config.committee_rules.horizon}d"
+    longs = consensus[consensus >= config.committee_min_probability].sort_values(ascending=False)
+    shorts = consensus[consensus <= 1 - config.committee_min_probability].sort_values()
+    ideas = []
+    for side, picks in ((1, longs), (-1, shorts)):
+        for ticker, p_up in picks.iloc[: config.ml_only_per_side].items():
+            variance = forecasts.get(ticker, {}).get("aleatoric_var", {}).get(key)
+            volatility = (variance / config.committee_rules.horizon) ** 0.5 if variance else None
+            ideas.append(SizedIdea(ticker, side, p_up if side > 0 else 1 - p_up, volatility))
+    return ideas
+
+
+def _single_verifier_ideas(fund: LLMFirstFund, decisions: list[IdeaDecision], forecasts: dict) -> list[SizedIdea]:
+    """Replay the gate for desk-cleared ideas with the single market head only."""
+    ideas = []
+    for item in decisions:
+        if item.verdict is None or item.receipt is None:
+            continue
+        verdict = verify_idea(
+            item.receipt, forecast=forecasts.get(item.ticker), p_llm=item.p_llm,
+            p_meta=item.verdict.p_meta, thresholds=fund.thresholds,
+        )
+        if verdict.decision == "approved":
+            ideas.append(SizedIdea(item.ticker, item.side, verdict.p_final, item.daily_volatility))
+    return ideas
 
 
 def _sessions(world: SyntheticWorld, first: int) -> list[MarketSession]:

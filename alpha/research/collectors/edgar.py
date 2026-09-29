@@ -173,6 +173,10 @@ def parse_companyfacts(payload: dict, *, ticker: str, sector: str = "") -> list[
         "capex": DEFAULT_CONCEPT_MAP["capex"],
         "cash": DEFAULT_CONCEPT_MAP["cash"],
         "equity": DEFAULT_CONCEPT_MAP["equity"],
+        "gross_profit": DEFAULT_CONCEPT_MAP["gross_profit"],
+        "total_assets": DEFAULT_CONCEPT_MAP["total_assets"],
+        "current_assets": DEFAULT_CONCEPT_MAP["current_assets"],
+        "current_liabilities": DEFAULT_CONCEPT_MAP["current_liabilities"],
         **_EXTRA_CONCEPTS,
     }
     grouped: dict[tuple[str, str], dict[str, float]] = defaultdict(dict)

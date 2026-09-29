@@ -91,9 +91,12 @@ def world_records(world: SyntheticWorld, *, seed: int | None = None) -> list:
                 ticker=ticker, event_at=_day(world, max(0, index - 30)), available_at=_day(world, index),
                 source="synthetic-filings", period_end=world.dates[max(0, index - 30)].date(),
                 revenue=revenue, net_income=revenue * margin,
-                operating_cash_flow=revenue * (margin + 0.05), capex=revenue * 0.04,
+                operating_cash_flow=revenue * (margin + float(rng.uniform(-0.06, 0.12))),
+                capex=revenue * float(rng.uniform(0.02, 0.08)),
                 shares_outstanding=shares, total_debt=revenue * 0.3, cash=revenue * 0.1,
                 equity=revenue * 0.6, dividends_per_share=float(rng.choice([0.0, 0.5, 1.2])),
+                gross_profit=revenue * float(rng.uniform(0.25, 0.6)), total_assets=revenue * 1.4,
+                current_assets=revenue * 0.5, current_liabilities=revenue * float(rng.uniform(0.2, 0.45)),
                 revenue_growth_3y=growth, sector=sector_of[ticker],
             ))
         partner = world.tickers[(position + 7) % len(world.tickers)]

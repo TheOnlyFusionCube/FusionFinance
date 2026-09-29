@@ -24,6 +24,7 @@ test:
 		--cov=alpha.fund \
 		--cov=alpha.research \
 		--cov=alpha.filing_alpha \
+		--cov=alpha.verifier.committee \
 		--cov=alpha.verifier.contract \
 		--cov=alpha.verifier.evidence \
 		--cov=demo \

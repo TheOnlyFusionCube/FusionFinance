@@ -239,3 +239,21 @@ def test_backtest_runs_all_arms_through_the_shared_kernel(snapshots: str) -> Non
     payload = report.to_dict()
     assert payload["claim_status"] == "synthetic_mechanism_test_not_market_evidence"
     assert "fusion" in report.table()
+
+
+def test_ml_gate_defers_to_a_quorate_committee() -> None:
+    from alpha.verifier.committee import ConsensusVote
+
+    receipt = _approved_receipt()
+    veto = ConsensusVote("ACME", 1, "veto", 0.4, 0.2, 0.8, 5, 3, reasons=("COMMITTEE_VETO p_side=0.40",))
+    support = ConsensusVote("ACME", 1, "support", 0.58, 0.9, 0.1, 5, 3, reasons=("COMMITTEE_SUPPORT",))
+    no_quorum = ConsensusVote("ACME", 1, "no_quorum", 0.5, 0.0, 0.0, 1, 1)
+    vetoed = verify_idea(receipt, forecast=_forecast(0.3), p_llm=0.7, p_meta=None, committee=veto)
+    assert vetoed.decision == "vetoed" and vetoed.committee["decision"] == "veto"
+    approved = verify_idea(receipt, forecast=_forecast(0.8), p_llm=0.7, p_meta=None, committee=support)
+    assert approved.decision == "approved" and "COMMITTEE+LLM_TRACK_RECORD" in approved.reasons
+    fallback = verify_idea(receipt, forecast=_forecast(0.8), p_llm=0.7, p_meta=None, committee=no_quorum)
+    assert fallback.decision == "vetoed", "without quorum the single market head decides"
+    with pytest.raises(ValueError, match="other side"):
+        verify_idea(receipt, forecast=None, p_llm=0.7, p_meta=None,
+                    committee=ConsensusVote("ACME", -1, "support", 0.6, 1.0, 0.0, 5, 3))

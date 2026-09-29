@@ -23,6 +23,7 @@ ledger.
 
 - **[LLM-first fund: design, ablation, limits](docs/llm-first-fund.md)**
 - **[Research data collection and analysis pipeline](docs/research-pipeline.md)**
+- **[Verifier committee: twenty published methods, consensus rules, audit](docs/verifier-committee.md)**
 
 ## Quickstart
 
@@ -65,19 +66,21 @@ are the only evidence the LLM may cite.
 
 ## Synthetic ablation (mechanism test, not market evidence)
 
-| Arm (dossier mode) | Return | Sharpe | Max drawdown |
-|---|---:|---:|---:|
-| LLM decides alone | +27.8% | 4.52 | −2.8% |
-| LLM + desk + evidence audit | +26.0% | 4.43 | −2.6% |
-| ML verifier trades alone | −0.3% | −0.04 | −4.0% |
-| **LLM-first + ML verifier** | +24.6% | **5.28** | **−1.3%** |
+| Arm | Dossier mode | Narrative mode (LLM fooled by hype) |
+|---|---|---|
+| LLM decides alone | +26.3%, Sharpe 4.48 | −6.9%, Sharpe −3.26 |
+| Committee trades alone | +24.7%, Sharpe 4.49 | +24.7%, Sharpe 4.49 |
+| LLM-first + single ML verifier | +22.7%, Sharpe 4.35 | −2.9%, Sharpe −1.43 |
+| **LLM-first + verifier committee** | **+26.9%, Sharpe 4.69** | **+1.1%, Sharpe 0.58** |
 
-Ideas the ML gate approved hit 68% of the time; ideas it blocked hit 49%. When
-the LLM reads raw narrative only and is fooled by promotion, the gate passes
-56% of genuine ideas but only 27% of hype ideas, which cuts the loss from −6.9%
-to −2.9%. The world is fictional, so it is leakage-free for any LLM, but its
-signals are planted. Thresholds are uncalibrated. Details and caveats are in
-[the fund doc](docs/llm-first-fund.md).
+The committee seated only the four jurors that carry this world's planted
+catalyst signal (analyst revisions, opportunistic insiders, post-earnings
+drift, Gu–Kelly–Xiu trees; IC t-stats of 3.9 to 5.9). It refused votes to the
+anomalies the world does not contain. The gate passed 90% of genuine ideas and
+38% of hype ideas. The world is fictional, so it is leakage-free for any LLM,
+but its signals are planted and the thresholds are uncalibrated. See
+[the fund doc](docs/llm-first-fund.md) and
+[the committee doc](docs/verifier-committee.md).
 
 Research and paper-trading software only. Not financial advice, a profit
 guarantee, or an authorization for real-money execution.
@@ -267,6 +270,7 @@ Full evidence and caveats: [AMD Compute Usage](docs/amd-compute.md).
 ```text
 alpha/fund/     LLM-first fund: originator, ML gate, learning, sizing, ledger, backtest, CLI
 alpha/research/ PIT research pipeline: collectors, store, six skills, dossier, portfolio review
+alpha/verifier/committee/ twenty published-method jurors and the consensus protocol
 alpha/          focused filing, agent, verifier, and AMD-backed quantitative modules
 configs/        frozen controlled-comparison contract
 demo/           no-auth UI plus shared execution and metrics kernel

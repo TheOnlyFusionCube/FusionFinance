@@ -221,6 +221,10 @@ class Fundamentals(_Record):
     cash: float | None = Field(default=None, ge=0)
     equity: float | None = None
     ebitda: float | None = None
+    gross_profit: float | None = None
+    total_assets: float | None = Field(default=None, gt=0)
+    current_assets: float | None = Field(default=None, ge=0)
+    current_liabilities: float | None = Field(default=None, ge=0)
     dividends_per_share: float | None = Field(default=None, ge=0)
     eps: float | None = None
     revenue_growth_3y: float | None = None
