@@ -1,27 +1,97 @@
 # FusionFinance
 
-**Quantitative discipline meets agentic investigation—with evidence and risk gates between language and capital.**
+**An LLM-first hedge fund research system where an independent ML verifier, not the language model, approves capital.**
 
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0--only-2563eb.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
 [![Live demo](https://img.shields.io/badge/demo-live-16a34a.svg)](https://fusionfinance2.vercel.app)
 
-FusionFinance is an auditable autonomous-trading research system. Quantitative
-ML proposes opportunities. Agent roles investigate context and falsifiers. A
-deterministic evidence gate challenges citations and numbers. An independent
-market verifier and portfolio-risk layer are the required downstream capital
-gates. The checked-in agent runtime stops at a sealed evidence precheck; it does
-not claim that the full capital path is wired end to end.
+> **Research collects. The LLM originates. Agents investigate. Evidence challenges. ML verifies. Risk sizes.**
 
-> **ML proposes. Agents investigate. Evidence challenges. Risk decides.**
+FusionFinance puts a language model first: it reads a sealed, point-in-time
+research dossier and either originates a falsifiable trade idea or passes. An
+analyst desk and a deterministic evidence audit reject fabricated quotes,
+unreconciled numbers, future sources, and contradictions. An independent ML
+verifier then tries to falsify what survives. It combines a walk-forward market
+model, a meta-labeler trained on the fund's own resolved LLM calls, and the
+LLM's empirical track record, and it never sees LLM text, embeddings, or
+self-reported confidence. Only ideas the verifier cannot falsify are sized
+(fractional Kelly with volatility scaling and hard limits). They then run
+through the same next-open execution kernel, with costs, as every comparison
+arm. Every decision, passes and vetoes included, lands in a hash-chained
+ledger.
+
+- **[LLM-first fund: design, ablation, limits](docs/llm-first-fund.md)**
+- **[Research data collection and analysis pipeline](docs/research-pipeline.md)**
+
+## Quickstart
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+python -m pip install -e '.[dev]'          # add ,claude for the Claude provider
+
+make backtest                                # four-arm ablation on the synthetic world
+python -m alpha.fund research S12            # print a research dossier
+python -m alpha.fund review S01=0.5 S02=0.5  # five-lens portfolio review
+python -m alpha.fund collect AAPL MSFT --out data/store \
+  --user-agent "Your Name you@example.com"   # live SEC Form 4 + XBRL fundamentals
+python -m alpha.fund research AAPL --data data/store --benchmark SPY
+make test
+```
+
+Everything runs offline by default, using deterministic stand-ins for the LLM.
+`ClaudeProvider` (`claude-opus-5-5`, structured outputs, record/replay cache)
+swaps in a real model. See [running a real model](docs/llm-first-fund.md#running-a-real-model).
+
+## What the research pipeline collects and analyses
+
+Modelled on the research workflow Barebone AI publishes in its
+[resources library](https://barebone.ai/resources), and made point-in-time and
+auditable for backtesting:
+
+| Layer | Inputs | Output |
+|---|---|---|
+| News impact | articles, relationship graph | 0–10 impact, direction, second-order effects on suppliers and competitors |
+| Sentiment | analyst ratings and targets, social mentions | institutional and retail gauges, divergence, spam and crowding warnings |
+| Smart money | SEC Form 4, STOCK Act disclosures, 13F | discretionary insider cluster buys, buying the dip, committee-oversight flags, new fund positions |
+| Earnings | reports, estimates, transcripts | surprise, guidance, beat quality, priced-in risk, bottleneck language |
+| Valuation | XBRL fundamentals, prices, targets, peers | DCF with CAPM WACC, consensus, peer multiples, agreement across methods |
+| Technicals | daily bars | confirmed multi-resolution zones, trend, RSI, entry/stop/target, 0–100 confidence |
+| Convergence and portfolio | all of the above | watch/research/size tiers; growth, risk, income, sector, and momentum lenses |
+
+Every record carries both `event_at` and `available_at`. Every analysis runs
+on a view that cannot see the future, and the dossier's sentences and numbers
+are the only evidence the LLM may cite.
+
+## Synthetic ablation (mechanism test, not market evidence)
+
+| Arm (dossier mode) | Return | Sharpe | Max drawdown |
+|---|---:|---:|---:|
+| LLM decides alone | +27.8% | 4.52 | −2.8% |
+| LLM + desk + evidence audit | +26.0% | 4.43 | −2.6% |
+| ML verifier trades alone | −0.3% | −0.04 | −4.0% |
+| **LLM-first + ML verifier** | +24.6% | **5.28** | **−1.3%** |
+
+Ideas the ML gate approved hit 68% of the time; ideas it blocked hit 49%. When
+the LLM reads raw narrative only and is fooled by promotion, the gate passes
+56% of genuine ideas but only 27% of hype ideas, which cuts the loss from −6.9%
+to −2.9%. The world is fictional, so it is leakage-free for any LLM, but its
+signals are planted. Thresholds are uncalibrated. Details and caveats are in
+[the fund doc](docs/llm-first-fund.md).
+
+Research and paper-trading software only. Not financial advice, a profit
+guarantee, or an authorization for real-money execution.
+
+## Legacy hackathon submission
+
+The sections below describe the original hackathon submission, in which ML
+proposed and agents investigated. Its replay, evidence receipts, and claim
+boundaries are unchanged.
 
 **[Open the no-auth demo](https://fusionfinance2.vercel.app)** ·
 **[View the public repository](https://github.com/FusionCube18712/FusionFinance)**
 
 ![FusionFinance replay dashboard](docs/assets/dashboard.png)
-
-Research and paper-trading software only. Not financial advice, a profit
-guarantee, or an authorization for real-money execution.
 
 ## The experiment
 
@@ -195,6 +265,8 @@ Full evidence and caveats: [AMD Compute Usage](docs/amd-compute.md).
 ## Repository map
 
 ```text
+alpha/fund/     LLM-first fund: originator, ML gate, learning, sizing, ledger, backtest, CLI
+alpha/research/ PIT research pipeline: collectors, store, six skills, dossier, portfolio review
 alpha/          focused filing, agent, verifier, and AMD-backed quantitative modules
 configs/        frozen controlled-comparison contract
 demo/           no-auth UI plus shared execution and metrics kernel

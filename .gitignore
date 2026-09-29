@@ -7,6 +7,8 @@ governance/secrets/
 
 # Data caches (reproducible from source)
 data/cache/
+data/store/
+cache/
 data/*.parquet
 data/*.csv
 *.pkl

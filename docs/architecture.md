@@ -1,5 +1,10 @@
 # FusionFinance architecture
 
+> The current primary architecture is the LLM-first fund with an independent
+> ML verifier, described in [llm-first-fund.md](llm-first-fund.md) and fed by
+> the [research pipeline](research-pipeline.md). This page documents the
+> components it builds on and the original hackathon boundary.
+
 FusionFinance separates proposal generation, evidence checking, independent
 quantitative verification, and execution. The separation is deliberate: an LLM
 cannot approve its own claims, and no strategy arm receives different execution

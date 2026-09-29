@@ -9,6 +9,8 @@ research families and unused vendored frameworks are intentionally excluded.
 | Question | Canonical artifact |
 |---|---|
 | What does the project do? | Root [`README.md`](../README.md) and the [live demo](https://fusionfinance2.vercel.app) |
+| How does the LLM-first fund work, and what does the ablation show? | [`llm-first-fund.md`](llm-first-fund.md) |
+| How is research data collected and analysed? | [`research-pipeline.md`](research-pipeline.md) |
 | How are ML, agents, verification, and risk connected? | [`architecture.md`](architecture.md) |
 | Is the three-arm comparison fair? | [`methodology.md`](methodology.md) and [`../configs/fusionfinance-demo.json`](../configs/fusionfinance-demo.json) |
 | What is actually proven about AMD compute? | [`amd-compute.md`](amd-compute.md), [`../results/amd_compute.json`](../results/amd_compute.json), and `python scripts/verify_amd.py` |
