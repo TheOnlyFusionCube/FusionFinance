@@ -41,8 +41,10 @@ def _root() -> Path:
 
 def _config_copy(tmp_path: Path) -> Path:
     source = _root() / "configs" / "barebone-comparison-v1.json"
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload["evidence"]["tape_sha256"] = None
     destination = tmp_path / "barebone-comparison-v1.json"
-    destination.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    destination.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return destination
 
 
@@ -87,7 +89,7 @@ def test_barebone_tape_names_are_the_config_universe_plus_spy_and_qqq() -> None:
 
     assert len(config.experiment.universe) == 16
     assert names == (*config.experiment.universe, "SPY", "QQQ")
-    assert config.evidence.tape_sha256 is None
+    assert config.evidence.tape_sha256 not in (None, FAIR_RACE_TAPE_HASH)
     assert (
         hashlib.sha256((_root() / "results" / "metrics.json").read_bytes()).hexdigest()
         == _LEGACY_METRICS_SHA256
@@ -119,11 +121,14 @@ def test_submission_archive_skips_a_local_barebone_ohlcv_file() -> None:
     builder = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(builder)
     path = root / BAREBONE_OHLCV
-    path.write_text('{"bars": []}\n', encoding="utf-8")
+    created = not path.exists()
+    if created:
+        path.write_text('{"bars": []}\n', encoding="utf-8")
     try:
         assert path not in builder.collect_files()
     finally:
-        path.unlink()
+        if created:
+            path.unlink()
 
 
 def test_from_csv_locks_the_real_digest_and_writes_provenance_without_prices(
@@ -355,3 +360,31 @@ def test_provider_fetch_requires_an_env_key_and_parses_fixture_payloads(
     assert note.startswith("Polygon v2 aggs")
     assert rows[0]["adjclose"] == rows[0]["close"]
     assert rows[0]["ticker"] == "AAPL"
+
+
+def test_yfinance_frame_keeps_adj_close_and_refuses_a_gap() -> None:
+    import pandas as pd
+
+    from demo.barebone_tape import rows_from_yfinance_frame
+
+    index = pd.to_datetime(["2025-01-02", "2025-01-03"])
+    columns = pd.MultiIndex.from_product(
+        [["AAPL", "SPY"], ["Open", "High", "Low", "Close", "Adj Close", "Volume"]],
+        names=["Ticker", "Price"],
+    )
+    frame = pd.DataFrame(index=index, columns=columns, dtype=float)
+    for ticker, base in (("AAPL", 100.0), ("SPY", 500.0)):
+        frame[(ticker, "Open")] = base
+        frame[(ticker, "High")] = base + 1
+        frame[(ticker, "Low")] = base - 1
+        frame[(ticker, "Close")] = base
+        frame[(ticker, "Adj Close")] = base - 0.5
+        frame[(ticker, "Volume")] = 1000
+    parsed = rows_from_yfinance_frame(frame, ("AAPL", "SPY"))
+    assert parsed[0]["adjclose"] == 99.5
+    assert parsed[0]["close"] == 100.0
+    frame.loc[index[1], ("SPY", "Adj Close")] = float("nan")
+    with pytest.raises(ValueError, match="refusing to fill the gap"):
+        rows_from_yfinance_frame(frame, ("AAPL", "SPY"))
+    with pytest.raises(ValueError, match="no bars for QQQ"):
+        rows_from_yfinance_frame(frame, ("AAPL", "SPY", "QQQ"))

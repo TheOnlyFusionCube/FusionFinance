@@ -137,6 +137,7 @@ and fixture metrics are not a `barebone-comparison-v1` result.
 `comparable_performance_claim` stays false. This shell does not emit a ledger.
 
 `scripts/ingest_barebone_tape.py` can bind a local extract for that window.
+`--provider yfinance` reads Yahoo Finance daily bars through yfinance.
 `--provider tiingo` reads `TIINGO_API_KEY` and `--provider polygon` reads
 `POLYGON_API_KEY`. `--from-csv` reads a user dump and does not call a vendor.
 Adjusted close is stored when the source supplies it. A dump without

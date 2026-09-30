@@ -1,0 +1,38 @@
+{
+  "adjustment": "raw OHLC plus Yahoo Finance Adj Close via yfinance; no second adjustment is applied",
+  "bar_count": 4626,
+  "byte_sha256": "3bfacc31d366fd03c797c723686a5f528bd43b06e09284b8caca85709853caee",
+  "comparable_performance_claim": false,
+  "disclaimer": "not redistributed; local bind only. Yahoo Finance data is not for trading purposes and is not redistributed.",
+  "experiment_id": "barebone-comparison-v1",
+  "fetched_at": "2026-09-30T04:12:52Z",
+  "license_note": "not redistributed; local bind only",
+  "ohlcv": "evidence/market/barebone_window_ohlcv.json",
+  "provider": "Yahoo Finance via yfinance",
+  "schema": "fusionfinance-barebone-tape-provenance-v1",
+  "session_count": 257,
+  "tickers": [
+    "AAPL",
+    "AMZN",
+    "AVGO",
+    "BRK-B",
+    "COST",
+    "GOOGL",
+    "HD",
+    "JPM",
+    "LLY",
+    "META",
+    "MSFT",
+    "NFLX",
+    "NVDA",
+    "ORCL",
+    "TSLA",
+    "WMT",
+    "SPY",
+    "QQQ"
+  ],
+  "window": [
+    "2025-01-02",
+    "2026-01-12"
+  ]
+}

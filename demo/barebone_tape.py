@@ -17,10 +17,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from demo.barebone_comparison import (
     BAREBONE_EXPERIMENT_ID,
@@ -59,6 +59,15 @@ _POLYGON_ADJUSTMENT = (
     "Polygon v2 aggs with adjusted=true; the payload has no separate "
     "unadjusted close; adjclose equals close"
 )
+_YAHOO_PROVIDER = "Yahoo Finance via yfinance"
+_YAHOO_ADJUSTMENT = (
+    "raw OHLC plus Yahoo Finance Adj Close via yfinance; "
+    "no second adjustment is applied"
+)
+_YAHOO_DISCLAIMER = (
+    "not redistributed; local bind only. "
+    "Yahoo Finance data is not for trading purposes and is not redistributed."
+)
 _FETCHED_AT = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
 _OPENER = Callable[[urllib.request.Request], bytes]
 
@@ -82,6 +91,7 @@ class BareboneProvenance(_FrozenModel):
     bar_count: int = Field(gt=0)
     session_count: int = Field(gt=0)
     license_note: str
+    disclaimer: str = Field(min_length=1)
     comparable_performance_claim: bool
 
     @field_validator("schema_name")
@@ -101,7 +111,7 @@ class BareboneProvenance(_FrozenModel):
     @field_validator("provider")
     @classmethod
     def _provider(cls, value: str) -> str:
-        if value not in {"local-csv", "tiingo", "polygon"}:
+        if value not in {"local-csv", "tiingo", "polygon", _YAHOO_PROVIDER}:
             raise ValueError("provenance provider is not a local bind source")
         return value
 
@@ -142,6 +152,20 @@ class BareboneProvenance(_FrozenModel):
         if value is not False:
             raise ValueError("comparable_performance_claim must be false")
         return False
+
+    @model_validator(mode="after")
+    def _yahoo_disclaimer(self) -> "BareboneProvenance":
+        if self.provider != _YAHOO_PROVIDER:
+            return self
+        text = self.disclaimer.casefold()
+        if "not for trading" not in text or "not redistributed" not in text:
+            raise ValueError(
+                "Yahoo provenance must include the not-for-trading "
+                "and no-redistribute disclaimer"
+            )
+        if "tiingo" in text or "polygon" in text:
+            raise ValueError("Yahoo provenance must not name another vendor as the source")
+        return self
 
 
 def required_tickers(config: BareboneComparisonConfig) -> tuple[str, ...]:
@@ -289,6 +313,7 @@ def ingest_barebone_tape(
     refuse_software_mark_source(source)
     base = _repo_root() if root is None else root
     config = load_barebone_comparison_config(config_path)
+    disclaimer = BAREBONE_LICENSE_NOTE
     if source == "local-csv":
         if csv_path is None:
             raise ValueError("--from-csv is required for a local dump")
@@ -309,8 +334,15 @@ def ingest_barebone_tape(
         )
         vendor = "Tiingo daily prices" if source == "tiingo" else "Polygon v2 aggs"
         provider = source
+    elif source == "yfinance":
+        if adjustment != "auto":
+            raise ValueError("provider adjustment comes from the feed")
+        rows, note = fetch_yfinance_rows(required_tickers(config))
+        vendor = _YAHOO_PROVIDER
+        provider = _YAHOO_PROVIDER
+        disclaimer = _YAHOO_DISCLAIMER
     else:
-        raise ValueError("source must be local-csv, tiingo, or polygon")
+        raise ValueError("source must be local-csv, tiingo, polygon, or yfinance")
     document = assemble_ohlcv_document(config, rows, vendor=vendor, adjustment=note)
     payload = render_ohlcv_bytes(document)
     _refuse_fair_race_bytes(payload)
@@ -335,6 +367,7 @@ def ingest_barebone_tape(
             "bar_count": len(document["bars"]),
             "session_count": len(sessions),
             "license_note": BAREBONE_LICENSE_NOTE,
+            "disclaimer": disclaimer,
             "comparable_performance_claim": False,
         }
     )
@@ -407,6 +440,89 @@ def fetch_provider_rows(
     raise ValueError("provider must be tiingo or polygon")
 
 
+def fetch_yfinance_rows(
+    tickers: tuple[str, ...],
+    *,
+    download: Callable[..., object] | None = None,
+) -> tuple[list[dict[str, object]], str]:
+    """Download Yahoo daily bars through yfinance. Missing fields raise."""
+
+    start, end = BAREBONE_WINDOW
+    end_exclusive = (date.fromisoformat(end) + timedelta(days=1)).isoformat()
+    fetcher = download or _yfinance_download
+    try:
+        frame = fetcher(list(tickers), start, end_exclusive)
+    except Exception as exc:
+        message = str(exc).splitlines()[0][:200]
+        raise ValueError("yfinance price fetch failed: " + message) from None
+    return rows_from_yfinance_frame(frame, tickers), _YAHOO_ADJUSTMENT
+
+
+def rows_from_yfinance_frame(
+    frame: object, tickers: tuple[str, ...]
+) -> list[dict[str, object]]:
+    """Map a yfinance frame to bars. A NaN field is a gap, not a fill."""
+
+    import pandas as pd
+
+    if not isinstance(frame, pd.DataFrame) or frame.empty:
+        raise ValueError("yfinance returned no bars")
+    if not isinstance(frame.columns, pd.MultiIndex):
+        raise ValueError("yfinance frame is missing the ticker level")
+    present = {str(name) for name in frame.columns.get_level_values(0)}
+    missing = [ticker for ticker in tickers if ticker not in present]
+    if missing:
+        raise ValueError("yfinance returned no bars for " + ", ".join(missing))
+    rows: list[dict[str, object]] = []
+    for ticker in tickers:
+        sub = frame[ticker]
+        if "Adj Close" not in sub.columns:
+            raise ValueError(
+                f"yfinance bar for {ticker} has no Adj Close; refusing to invent an adjustment"
+            )
+        for label, record in sub.iterrows():
+            session = pd.Timestamp(label).date().isoformat()
+            values: dict[str, float] = {}
+            for field, key in (
+                ("Open", "open"),
+                ("High", "high"),
+                ("Low", "low"),
+                ("Close", "close"),
+                ("Adj Close", "adjclose"),
+                ("Volume", "volume"),
+            ):
+                if field not in sub.columns:
+                    raise ValueError(f"yfinance bar for {ticker} is missing {field}")
+                raw = record[field]
+                if pd.isna(raw):
+                    raise ValueError(
+                        f"yfinance bar for {ticker} on {session} is missing {field}; "
+                        "refusing to fill the gap"
+                    )
+                values[key] = float(raw)
+            rows.append({"date": session, "ticker": ticker, **values})
+    return rows
+
+
+def _yfinance_download(tickers: list[str], start: str, end: str) -> object:
+    import yfinance as yf
+
+    return yf.download(
+        tickers,
+        start=start,
+        end=end,
+        auto_adjust=False,
+        actions=False,
+        group_by="ticker",
+        threads=True,
+        progress=False,
+        repair=False,
+        keepna=True,
+        interval="1d",
+        timeout=60,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry. Prints the SHA-256 and never prints an API key."""
 
@@ -415,7 +531,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=None)
-    parser.add_argument("--provider", choices=("tiingo", "polygon"))
+    parser.add_argument("--provider", choices=("tiingo", "polygon", "yfinance"))
     parser.add_argument("--from-csv", type=Path, dest="csv_path")
     parser.add_argument("--adjustment", choices=("auto", "raw"), default="auto")
     parser.add_argument("--output", type=Path, default=None)

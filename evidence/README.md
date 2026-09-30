@@ -26,11 +26,13 @@ builder does not fill one.
 
 `barebone-comparison-v1` points at `market/barebone_window_ohlcv.json`. That
 file is gitignored and is not redistributed. `scripts/ingest_barebone_tape.py`
-can write it from Tiingo, Polygon, or a local CSV, then record the byte
-SHA-256 in `market/barebone_window_provenance.json`. The sidecar has no
-prices. The scaffold rejects this locked extract, and the fair-race tape
-hash, as a substitute. `tape_sha256` stays null until `--lock-config` stores
-the digest of a successful local ingest.
+can write it from Yahoo Finance via yfinance, Tiingo, Polygon, or a local CSV,
+then record the byte SHA-256 in `market/barebone_window_provenance.json`. The
+sidecar has no prices. A Yahoo bind names that provider and keeps Yahoo's
+not-for-trading and no-redistribute disclaimer. The OHLCV file stays
+gitignored. The scaffold rejects the fair-race extract, and the fair-race
+tape hash, as a substitute. `--lock-config` stores the digest of the file
+just written.
 
 ## `amd/`
 

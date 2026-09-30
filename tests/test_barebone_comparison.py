@@ -56,25 +56,41 @@ def test_barebone_comparison_v1_config_locks_the_window_risk_and_claim() -> None
     assert trading.max_position_weight == fair_race.max_position_weight
     assert trading.max_gross_leverage == fair_race.max_gross_leverage
     assert config.evidence.ohlcv == BAREBONE_OHLCV
-    assert config.evidence.tape_sha256 is None
-    assert not (root / BAREBONE_OHLCV).exists()
+    digest = config.evidence.tape_sha256
+    provenance = json.loads((root / "evidence/market/barebone_window_provenance.json").read_text())
+    assert isinstance(digest, str) and len(digest) == 64
+    assert digest != "3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05"
+    assert provenance["byte_sha256"] == digest
+    assert provenance["provider"] == "Yahoo Finance via yfinance"
+    assert "tiingo" not in provenance["provider"].casefold()
+    assert "polygon" not in provenance["provider"].casefold()
+    assert "not for trading" in provenance["disclaimer"].casefold()
+    assert "not redistributed" in provenance["disclaimer"].casefold()
+    assert provenance["comparable_performance_claim"] is False
+    assert {"open", "high", "low", "close", "adjclose", "volume", "bars"}.isdisjoint(provenance)
+    ohlcv = root / BAREBONE_OHLCV
+    if ohlcv.is_file():
+        assert hashlib.sha256(ohlcv.read_bytes()).hexdigest() == digest
     assert not (root / "results" / "barebone_comparison_ledger.json").exists()
     assert (
         hashlib.sha256((root / "results" / "metrics.json").read_bytes()).hexdigest()
         == _LEGACY_METRICS_SHA256
     )
-    refuse_barebone_performance_claim(config, False)
+    with pytest.raises(ValueError, match="keeps comparable_performance_claim false"):
+        refuse_barebone_performance_claim(config, True)
 
 
 def test_barebone_comparison_v1_refuses_a_true_claim_without_a_locked_tape() -> None:
-    config = load_barebone_comparison_config()
     payload = _payload()
+    payload["evidence"]["tape_sha256"] = None
     payload["comparable_performance_claim"] = True
 
-    with pytest.raises(ValueError, match="without a locked tape_sha256"):
-        refuse_barebone_performance_claim(config, True)
     with pytest.raises(ValueError, match="comparable_performance_claim must be false"):
         validate_barebone_payload(payload)
+    payload["comparable_performance_claim"] = False
+    unlocked = validate_barebone_payload(payload)
+    with pytest.raises(ValueError, match="without a locked tape_sha256"):
+        refuse_barebone_performance_claim(unlocked, True)
 
 
 def test_barebone_comparison_v1_refuses_a_true_claim_after_a_hash_is_locked(
@@ -114,11 +130,11 @@ def test_barebone_comparison_v1_refuses_the_fair_race_ohlcv_path() -> None:
         validate_barebone_payload(payload)
 
 
-def test_barebone_comparison_v1_evidence_fails_closed_when_missing() -> None:
+def test_barebone_comparison_v1_evidence_fails_closed_when_missing(tmp_path: Path) -> None:
     config = load_barebone_comparison_config()
 
     with pytest.raises(FileNotFoundError, match="barebone-comparison evidence is missing"):
-        require_barebone_evidence(config)
+        require_barebone_evidence(config, root=tmp_path)
 
 
 def test_barebone_comparison_v1_evidence_fails_closed_when_the_hash_is_unlocked(
@@ -127,7 +143,9 @@ def test_barebone_comparison_v1_evidence_fails_closed_when_the_hash_is_unlocked(
     evidence = tmp_path / BAREBONE_OHLCV
     evidence.parent.mkdir(parents=True)
     evidence.write_bytes(b"present-but-unlocked\n")
-    config = load_barebone_comparison_config()
+    payload = _payload()
+    payload["evidence"]["tape_sha256"] = None
+    config = validate_barebone_payload(payload)
 
     with pytest.raises(ValueError, match="unlocked evidence tape"):
         require_barebone_evidence(config, root=tmp_path)
