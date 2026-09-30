@@ -31,6 +31,7 @@ from demo.controlled import (
     run_controlled_arm,
     run_three_arms,
 )
+from demo.pure_ml import amd_evidence_sha256, walk_forward_filing_proposals
 from demo.execution import (
     assert_post_cost_bound,
     reconcile_simulation,
@@ -1003,6 +1004,11 @@ def _locked_three_arm_state() -> dict[str, object]:
         if index % config.rebalance_frequency_sessions == 0
         and index + config.execution_lag_sessions < len(dates)
     ]
+    decision_dates = tuple(dates[index] for index in clock)
+    manifest = walk_forward_filing_proposals(config, decision_dates)
+    proposals = {
+        row["decision_session"]: row for row in manifest["proposals"]
+    }
     pure_ml: list[ArmInput] = []
     pure_llm: list[ArmInput] = []
     fusion: list[ArmInput] = []
@@ -1010,6 +1016,7 @@ def _locked_three_arm_state() -> dict[str, object]:
     for ordinal, index in enumerate(clock):
         decision = dates[index]
         ticker = config.universe[ordinal % len(config.universe)]
+        proposal = proposals[decision.isoformat()]
         outcome = f"{dates[index + config.execution_lag_sessions].isoformat()}T21:00:00Z"
         receipt = _seal_locked_receipt(ticker, decision)
         kind = ("approve", "reject", "research_only")[ordinal % 3]
@@ -1017,8 +1024,8 @@ def _locked_three_arm_state() -> dict[str, object]:
             ArmInput(
                 strategy_id="pure_ml",
                 decision_session=decision,
-                ticker=ticker,
-                structured_weight=0.05,
+                ticker=str(proposal["ticker"]),
+                structured_weight=float(proposal["structured_weight"]),
             )
         )
         pure_llm.append(
@@ -1065,6 +1072,7 @@ def _locked_three_arm_state() -> dict[str, object]:
         "thresholds": thresholds,
         "clock": clock,
         "seals": seals,
+        "pure_ml_manifest": manifest,
         "by_name": {run.lineage.strategy_id: run for run in arms},
     }
 
@@ -1078,7 +1086,7 @@ def locked_three_arm_ledger() -> dict[str, object]:
     thresholds = state["thresholds"]
     clock = state["clock"]
     by_name = state["by_name"]
-    return {
+    document = {
         "schema": "fusionfinance-controlled-three-arm-ledger-v1",
         "claim_status": "controlled_software_ledger",
         "comparable_performance_claim": False,
@@ -1087,8 +1095,9 @@ def locked_three_arm_ledger() -> dict[str, object]:
             "2026-02-02 through 2026-07-09, rebalanced every 10 sessions. "
             "LLM arms use the desk's first orchestrator seal. Fusion uses the "
             "pre-window calibration artifact and still requires a market head. "
-            "Prices are deterministic software marks. This is not a "
-            "performance claim."
+            "Pure ML weights are walk-forward filing ridge scores clipped to "
+            "the position cap and hash-bound to the AMD receipts. Prices are "
+            "deterministic software marks. This is not a performance claim."
         ),
         "window": [config.start_date.isoformat(), config.end_date.isoformat()],
         "session_count": len(dates),
@@ -1108,6 +1117,33 @@ def locked_three_arm_ledger() -> dict[str, object]:
             for name in ("pure_ml", "pure_llm", "fusion")
         },
     }
+    _bind_pure_ml_proposals(document, state["pure_ml_manifest"])
+    return document
+
+
+def _bind_pure_ml_proposals(document: dict[str, object], manifest: dict[str, object]) -> None:
+    arm = document["arms"]["pure_ml"]
+    arm["model_binding"] = {
+        "model": manifest["model"],
+        "ridge_alpha": manifest["ridge_alpha"],
+        "horizon_sessions": manifest["horizon_sessions"],
+        "proposal_manifest_hash": manifest["proposal_manifest_hash"],
+        "amd_evidence_sha256": manifest["amd_evidence_sha256"],
+        "amd_compute_sha256": manifest["amd_compute_sha256"],
+        "weight_rule": (
+            "structured_weight is the walk-forward filing ridge score "
+            "clipped to max_position_weight"
+        ),
+    }
+    by_session = {row["decision_session"]: row for row in manifest["proposals"]}
+    for decision in arm["decisions"]:
+        proposal = by_session[decision["decision_session"]]
+        decision["model_score"] = proposal["model_score"]
+        decision["train_rows"] = proposal["train_rows"]
+        if decision["ticker"] != proposal["ticker"]:
+            raise AssertionError("pure_ml ticker does not match the model score")
+        if not math.isclose(decision["target_weight"], proposal["structured_weight"]):
+            raise AssertionError("executed pure_ml weight does not match the model score clip")
 
 
 def _seal_locked_receipt(ticker: str, decision: date) -> DecisionReceipt:
@@ -1247,14 +1283,17 @@ def locked_three_arm_metrics() -> dict[str, object]:
         "description": (
             "Fixture metrics from the controlled three-arm software tape. "
             "Prices are deterministic software marks, the LLM desk is the "
-            "offline lexical provider, and pure ML uses a fixed 0.05 weight. "
-            "Not a capital performance claim."
+            "offline lexical provider, and pure ML weights are walk-forward "
+            "filing ridge scores clipped to the position cap. Not a capital "
+            "performance claim."
         ),
         "source_ledger": _THREE_ARM_LEDGER.as_posix(),
         "fixture_context": {
             "prices": "deterministic software marks",
             "llm_provider": "fusionfinance-offline-lexical-v1",
-            "pure_ml_weight": 0.05,
+            "pure_ml_model": state["pure_ml_manifest"]["model"],
+            "proposal_manifest_hash": state["pure_ml_manifest"]["proposal_manifest_hash"],
+            "amd_compute_sha256": state["pure_ml_manifest"]["amd_compute_sha256"],
         },
         "window": [config.start_date.isoformat(), config.end_date.isoformat()],
         "session_count": len(dates),
@@ -1303,6 +1342,41 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         assert arm["strategy_id"] == name
     assert document["arms"]["fusion"]["admitted_count"] > 0
     assert document["arms"]["pure_llm"]["admitted_count"] == 12
+    pure = document["arms"]["pure_ml"]
+    binding = pure["model_binding"]
+    assert binding["model"] == "alpha.filing_alpha.fit_fusion_model"
+    assert binding["amd_evidence_sha256"] == amd_evidence_sha256(root)
+    assert (
+        binding["amd_compute_sha256"]
+        == binding["amd_evidence_sha256"]["results/amd_compute.json"]
+    )
+    assert len(binding["proposal_manifest_hash"]) == 64
+    cap = config.max_position_weight
+    scores = [row["model_score"] for row in pure["decisions"]]
+    weights = [row["target_weight"] for row in pure["decisions"]]
+    tickers = [row["ticker"] for row in pure["decisions"]]
+    train_rows = [row["train_rows"] for row in pure["decisions"]]
+    assert len(set(scores)) == len(scores)
+    assert len(set(tickers)) > 1
+    assert not any(math.isclose(weight, 0.05) for weight in weights)
+    assert train_rows == sorted(train_rows) and train_rows[0] < train_rows[-1]
+    for row in pure["decisions"]:
+        clipped = min(cap, max(-cap, row["model_score"]))
+        assert row["admitted"] is True
+        assert math.isclose(row["target_weight"], clipped)
+    # On this software tape every ridge score exceeds the position cap, so
+    # the executed weight is the cap while the score and the held name vary.
+    assert all(score > cap for score in scores)
+    assert all(math.isclose(weight, cap) for weight in weights)
+    rebuilt = walk_forward_filing_proposals(
+        config,
+        [date.fromisoformat(row["decision_session"]) for row in pure["decisions"]],
+    )
+    assert rebuilt["proposal_manifest_hash"] == binding["proposal_manifest_hash"]
+    for row, proposal in zip(pure["decisions"], rebuilt["proposals"], strict=True):
+        assert row["ticker"] == proposal["ticker"]
+        assert math.isclose(row["model_score"], proposal["model_score"])
+        assert math.isclose(row["target_weight"], proposal["structured_weight"])
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(document))
 
 
@@ -1332,6 +1406,15 @@ def test_checked_in_fixture_metrics_match_the_three_arm_ledger() -> None:
     assert document["claim_status"] == _FIXTURE_METRICS_STATUS
     assert document["comparable_performance_claim"] is False
     assert document["source_ledger"] == _THREE_ARM_LEDGER.as_posix()
+    assert "pure_ml_weight" not in document["fixture_context"]
+    assert (
+        document["fixture_context"]["proposal_manifest_hash"]
+        == ledger["arms"]["pure_ml"]["model_binding"]["proposal_manifest_hash"]
+    )
+    assert (
+        document["fixture_context"]["amd_compute_sha256"]
+        == ledger["arms"]["pure_ml"]["model_binding"]["amd_compute_sha256"]
+    )
     assert hashlib.sha256(legacy_path.read_bytes()).hexdigest() == _LEGACY_METRICS_SHA256
     legacy = json.loads(legacy_path.read_text(encoding="utf-8"))
     assert legacy["fusion"]["sharpe"] != document["arms"]["fusion"]["statistics"]["sharpe_ratio"]

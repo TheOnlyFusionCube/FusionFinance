@@ -114,8 +114,9 @@ a pre-window calibration receipt, and still requires a market head. That
 three-arm file is a software ledger, not a performance claim. Fixture
 statistics from that same wealth path are checked in at
 [`results/controlled_three_arm_metrics.json`](../results/controlled_three_arm_metrics.json).
-They use the software marks, the offline lexical desk, and the fixed pure-ML
-weight. `comparable_performance_claim` stays false.
+They use the software marks and the offline lexical desk. Pure ML weights
+are walk-forward filing ridge scores, clipped to the position cap and
+hash-bound to the AMD receipts. `comparable_performance_claim` stays false.
 
 ## Reproduction checks
 
