@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -899,7 +901,12 @@ def test_checked_in_software_ledger_matches_the_sealed_endpoint_run() -> None:
 
 
 _THREE_ARM_LEDGER = Path("results/controlled_three_arm_ledger.json")
+_THREE_ARM_METRICS = Path("results/controlled_three_arm_metrics.json")
 _CALIBRATION_ARTIFACT = Path("results/fusion_policy_calibration.json")
+_FIXTURE_METRICS_STATUS = "controlled_software_fixture_metrics"
+_LEGACY_METRICS_SHA256 = (
+    "e7e5055ce9b4409d7941a71929f66261416b8d3c3f62423190edafd5bf5b1411"
+)
 
 
 def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
@@ -983,9 +990,7 @@ def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
     assert ood.admitted_count == 0
 
 
-def locked_three_arm_ledger() -> dict[str, object]:
-    """Full locked-window three-arm software ledger. Not a performance claim."""
-
+def _locked_three_arm_state() -> dict[str, object]:
     config = load_locked_config()
     sessions = locked_software_tape(config)
     dates = locked_weekday_sessions(config)
@@ -1054,7 +1059,25 @@ def locked_three_arm_ledger() -> dict[str, object]:
         benchmark_marks=marks,
         thresholds=thresholds,
     )
-    by_name = {run.lineage.strategy_id: run for run in arms}
+    return {
+        "config": config,
+        "dates": dates,
+        "thresholds": thresholds,
+        "clock": clock,
+        "seals": seals,
+        "by_name": {run.lineage.strategy_id: run for run in arms},
+    }
+
+
+def locked_three_arm_ledger() -> dict[str, object]:
+    """Full locked-window three-arm software ledger. Not a performance claim."""
+
+    state = _locked_three_arm_state()
+    config = state["config"]
+    dates = state["dates"]
+    thresholds = state["thresholds"]
+    clock = state["clock"]
+    by_name = state["by_name"]
     return {
         "schema": "fusionfinance-controlled-three-arm-ledger-v1",
         "claim_status": "controlled_software_ledger",
@@ -1079,7 +1102,7 @@ def locked_three_arm_ledger() -> dict[str, object]:
             "provider": "fusionfinance-offline-lexical-v1",
             "seal": "orchestrator_first_commit",
         },
-        "seals": seals,
+        "seals": state["seals"],
         "arms": {
             name: _arm_ledger(by_name[name])
             for name in ("pure_ml", "pure_llm", "fusion")
@@ -1172,6 +1195,73 @@ def _arm_ledger(run) -> dict[str, object]:
     }
 
 
+def locked_three_arm_metrics() -> dict[str, object]:
+    """Fixture metrics for the locked three-arm software tape. Not a claim."""
+
+    state = _locked_three_arm_state()
+    config = state["config"]
+    dates = state["dates"]
+    by_name = state["by_name"]
+    arms: dict[str, object] = {}
+    for name in ("pure_ml", "pure_llm", "fusion"):
+        run = by_name[name]
+        assert run.block_reason is None
+        assert run.metrics is not None and run.result is not None and run.ledger is not None
+        statistics = run.metrics.model_dump(mode="json")
+        values = [point.portfolio_value for point in run.result.points]
+        sessions = [point.session.isoformat() for point in run.result.points]
+        if statistics["trade_count"] != run.ledger.trade_count:
+            raise AssertionError("metrics trade count does not match the ledger")
+        if not math.isclose(
+            statistics["total_turnover"],
+            run.ledger.total_turnover,
+            rel_tol=1e-12,
+            abs_tol=1e-9,
+        ):
+            raise AssertionError("metrics turnover does not match the ledger")
+        if not math.isclose(
+            statistics["transaction_costs"],
+            run.ledger.transaction_costs,
+            rel_tol=1e-12,
+            abs_tol=1e-9,
+        ):
+            raise AssertionError("metrics costs do not match the ledger")
+        if not math.isclose(statistics["total_return"], values[-1] / values[0] - 1.0):
+            raise AssertionError("cumulative return does not match the wealth path")
+        arms[name] = {
+            "strategy_id": name,
+            "claim_status": _FIXTURE_METRICS_STATUS,
+            "comparable_performance_claim": False,
+            "config_hash": run.lineage.config_hash,
+            "tape_hash": run.lineage.tape_hash,
+            "lineage_hash": run.lineage.lineage_hash,
+            "experiment_hash": run.lineage.experiment_hash,
+            "portfolio_sessions": sessions,
+            "portfolio_values": values,
+            "statistics": statistics,
+        }
+    return {
+        "schema": "fusionfinance-controlled-three-arm-metrics-v1",
+        "claim_status": _FIXTURE_METRICS_STATUS,
+        "comparable_performance_claim": False,
+        "description": (
+            "Fixture metrics from the controlled three-arm software tape. "
+            "Prices are deterministic software marks, the LLM desk is the "
+            "offline lexical provider, and pure ML uses a fixed 0.05 weight. "
+            "Not a capital performance claim."
+        ),
+        "source_ledger": _THREE_ARM_LEDGER.as_posix(),
+        "fixture_context": {
+            "prices": "deterministic software marks",
+            "llm_provider": "fusionfinance-offline-lexical-v1",
+            "pure_ml_weight": 0.05,
+        },
+        "window": [config.start_date.isoformat(), config.end_date.isoformat()],
+        "session_count": len(dates),
+        "arms": arms,
+    }
+
+
 def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     root = Path(__file__).resolve().parents[1]
     path = root / _THREE_ARM_LEDGER
@@ -1214,6 +1304,62 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     assert document["arms"]["fusion"]["admitted_count"] > 0
     assert document["arms"]["pure_llm"]["admitted_count"] == 12
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(document))
+
+
+def test_checked_in_fixture_metrics_match_the_three_arm_ledger() -> None:
+    root = Path(__file__).resolve().parents[1]
+    metrics_path = root / _THREE_ARM_METRICS
+    ledger_path = root / _THREE_ARM_LEDGER
+    legacy_path = root / "results" / "metrics.json"
+    rendered = _json_text(locked_three_arm_metrics())
+    document = json.loads(rendered)
+    checked = json.loads(metrics_path.read_text(encoding="utf-8"))
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    required = (
+        "sharpe_ratio",
+        "annualized_return",
+        "total_return",
+        "annualized_volatility",
+        "max_drawdown",
+        "sortino_ratio",
+        "total_turnover",
+        "transaction_costs",
+        "trade_count",
+    )
+
+    assert metrics_path.read_text(encoding="utf-8") == rendered
+    assert checked == document
+    assert document["claim_status"] == _FIXTURE_METRICS_STATUS
+    assert document["comparable_performance_claim"] is False
+    assert document["source_ledger"] == _THREE_ARM_LEDGER.as_posix()
+    assert hashlib.sha256(legacy_path.read_bytes()).hexdigest() == _LEGACY_METRICS_SHA256
+    legacy = json.loads(legacy_path.read_text(encoding="utf-8"))
+    assert legacy["fusion"]["sharpe"] != document["arms"]["fusion"]["statistics"]["sharpe_ratio"]
+    for name, arm in document["arms"].items():
+        ledger_arm = ledger["arms"][name]
+        statistics = arm["statistics"]
+        values = arm["portfolio_values"]
+        assert arm["claim_status"] == _FIXTURE_METRICS_STATUS
+        assert arm["comparable_performance_claim"] is False
+        assert arm["config_hash"] == ledger_arm["config_hash"]
+        assert arm["tape_hash"] == ledger_arm["tape_hash"]
+        assert arm["experiment_hash"] == ledger_arm["experiment_hash"]
+        assert len(arm["config_hash"]) == 64
+        assert len(arm["tape_hash"]) == 64
+        assert len(arm["experiment_hash"]) == 64
+        assert arm["portfolio_sessions"] == ledger_arm["benchmark_sessions"]
+        assert len(values) == document["session_count"] == 114
+        assert statistics["trade_count"] == ledger_arm["trade_count"]
+        assert math.isclose(statistics["total_turnover"], ledger_arm["total_turnover"])
+        assert math.isclose(
+            statistics["transaction_costs"], ledger_arm["transaction_costs"]
+        )
+        assert math.isclose(statistics["total_return"], values[-1] / values[0] - 1.0)
+        assert statistics["starting_value"] == values[0]
+        assert statistics["ending_value"] == values[-1]
+        for key in required:
+            assert statistics[key] is not None
+            assert isinstance(statistics[key], (int, float))
 
 
 def _legacy_sessions():

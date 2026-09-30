@@ -111,7 +111,11 @@ rebalanced every 10 sessions, is checked in at
 Fusion uses
 [`results/fusion_policy_calibration.json`](../results/fusion_policy_calibration.json),
 a pre-window calibration receipt, and still requires a market head. That
-three-arm file is a software ledger, not a performance claim.
+three-arm file is a software ledger, not a performance claim. Fixture
+statistics from that same wealth path are checked in at
+[`results/controlled_three_arm_metrics.json`](../results/controlled_three_arm_metrics.json).
+They use the software marks, the offline lexical desk, and the fixed pure-ML
+weight. `comparable_performance_claim` stays false.
 
 ## Reproduction checks
 
