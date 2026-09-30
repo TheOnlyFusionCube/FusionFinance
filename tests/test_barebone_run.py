@@ -6,7 +6,9 @@ import hashlib
 import json
 import math
 import shutil
-from datetime import date
+from datetime import date, timedelta
+
+import numpy as np
 from pathlib import Path
 
 import pandas as pd
@@ -28,7 +30,11 @@ from demo.barebone_run import (
 )
 from demo.barebone_tape import required_tickers
 from demo.controlled import load_locked_config
-from demo.pure_ml import walk_forward_filing_proposals
+from demo.pure_ml import (
+    MOMENTUM_LOOKBACK_SESSIONS,
+    _score_momentum,
+    walk_forward_filing_proposals,
+)
 
 _LOCKED_TAPE_SHA256 = (
     "3bfacc31d366fd03c797c723686a5f528bd43b06e09284b8caca85709853caee"
@@ -191,6 +197,87 @@ def test_walk_forward_stays_in_cash_when_the_tape_has_no_label() -> None:
     assert proposal["fusion_targets"] == []
 
 
+def _dated_panel(config, closes: list[list[float]]) -> pd.DataFrame:
+    origin = date(2024, 1, 2)
+    rows = []
+    for index, cross_section in enumerate(closes):
+        day = origin + timedelta(days=index)
+        for ticker, close in zip(config.universe, cross_section, strict=True):
+            rows.append(
+                {
+                    "date": pd.Timestamp(day),
+                    "ticker": ticker,
+                    "session_index": index,
+                    "close": float(close),
+                    "trail_return": 0.0,
+                    "filing_signal_decayed": 0.0,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def test_momentum_uses_only_prices_through_the_decision_and_skips_thin_history() -> None:
+    config = load_locked_config()
+    sessions = 80
+    closes = [
+        [100.0 * (1.0 + 0.001 * (offset + 1) * (index + 1)) for offset in range(len(config.universe))]
+        for index in range(sessions)
+    ]
+    panel = _dated_panel(config, closes)
+    decision = date(2024, 1, 2) + timedelta(days=70)
+    original = _score_momentum(config, panel, decision)
+    assert original["insufficient_history"] is False
+    assert len(original["cross_section"]) == len(config.universe)
+    shifted = closes.copy()
+    shifted[71] = [price * 3.0 for price in shifted[71]]
+    changed_future = _score_momentum(config, _dated_panel(config, shifted), decision)
+    assert changed_future["cross_section"] == original["cross_section"]
+    shifted_now = [row[:] for row in closes]
+    shifted_now[70] = [price * 1.5 for price in shifted_now[70]]
+    changed_now = _score_momentum(config, _dated_panel(config, shifted_now), decision)
+    assert changed_now["cross_section"] != original["cross_section"]
+    early = date(2024, 1, 2) + timedelta(days=10)
+    thin = _score_momentum(config, panel, early)
+    assert thin["insufficient_history"] is True
+    assert thin["cross_section"] == []
+    assert thin["lookback_sessions"] == MOMENTUM_LOOKBACK_SESSIONS
+
+
+def test_momentum_skill_gate_keeps_a_positive_score_in_cash() -> None:
+    config = load_locked_config()
+    names = len(config.universe)
+    sessions = 80
+    closes = [[0.0 for _name in range(names)] for _session in range(sessions)]
+    for index in range(MOMENTUM_LOOKBACK_SESSIONS + 1):
+        for offset in range(names):
+            closes[index][offset] = 100.0 * np.exp(0.01 * (offset - 8) * (index + 1) / 30.0)
+    for index in range(MOMENTUM_LOOKBACK_SESSIONS + 1, sessions):
+        for offset in range(names):
+            momentum = np.log(
+                closes[index - 1][offset] / closes[index - 1 - MOMENTUM_LOOKBACK_SESSIONS][offset]
+            )
+            closes[index][offset] = closes[index - 1][offset] * float(np.exp(-0.5 * momentum))
+    panel = _dated_panel(config, closes)
+    early = date(2024, 1, 2) + timedelta(days=10)
+    live = date(2024, 1, 2) + timedelta(days=70)
+    manifest = walk_forward_filing_proposals(
+        config,
+        (early, live),
+        panel=panel,
+        tape_dates=tuple(date(2024, 1, 2) + timedelta(days=index) for index in range(sessions)),
+        scorebook="momentum",
+    )
+    thin, scored = manifest["proposals"]
+    assert thin["insufficient_history"] is True
+    assert thin["skill_pass"] is False
+    assert thin["targets"] == []
+    assert scored["skill_pass"] is False
+    assert scored["oos_skill"] is not None and scored["oos_skill"] <= 0.0
+    assert scored["targets"] == []
+    assert any(float(item["score"]) > 0.0 for item in scored["cross_section"])
+    assert scored["fusion_targets"]
+
+
 def test_barebone_parser_refuses_gaps_weekends_and_extra_names() -> None:
     config = load_barebone_comparison_config()
     weekend = _payload_for((date(2025, 1, 4),))
@@ -228,7 +315,11 @@ def test_short_tape_runs_the_three_arms_without_a_claim(tmp_path: Path) -> None:
     refuse_fair_race_as_barebone_comparison(ledger)
     refuse_fair_race_as_barebone_comparison(metrics)
     assert ledger["arms"]["pure_ml"]["admitted_count"] == 0
-    assert ledger["arms"]["pure_ml"]["oos_skill"][0]["untrained"] is True
+    assert ledger["arms"]["pure_ml"]["oos_skill"][0]["insufficient_history"] is True
+    binding = ledger["arms"]["pure_ml"]["model_binding"]
+    assert binding["scorebook"] == "momentum"
+    assert binding["lookback_sessions"] == 63
+    assert binding["price"] == "adjclose"
     assert ledger["arms"]["pure_llm"]["admitted_count"] == 1
     assert ledger["arms"]["pure_llm"]["total_turnover"] > 0.0
     assert metrics["secondary_benchmark"]["ticker"] == "QQQ"
@@ -313,7 +404,19 @@ def test_checked_in_barebone_three_arm_matches_the_locked_yahoo_tape() -> None:
         assert math.isclose(statistics["total_return"], values[-1] / values[0] - 1.0)
     assert metrics["secondary_benchmark"]["ticker"] == "QQQ"
     skill = ledger["arms"]["pure_ml"]["oos_skill"]
-    assert any(row.get("untrained") is True for row in skill)
+    binding = ledger["arms"]["pure_ml"]["model_binding"]
+    assert binding["scorebook"] == "momentum"
+    assert binding["lookback_sessions"] == 63
+    assert binding["transform"] == "log_return_minus_cross_sectional_median"
+    assert ledger["arms"]["pure_ml"]["config_hash"] == (
+        "526d6eabc37eab8650876991e3822987eb857621c36d84069d2888c1b6c1b9b4"
+    )
+    assert any(row.get("insufficient_history") is True for row in skill)
+    for row in skill:
+        if row.get("insufficient_history") is True or (
+            row["oos_skill"] is not None and float(row["oos_skill"]) <= 0.0
+        ):
+            assert row["sized"] is False
     sized_when_failed = [
         row
         for row in ledger["arms"]["pure_ml"]["decisions"]

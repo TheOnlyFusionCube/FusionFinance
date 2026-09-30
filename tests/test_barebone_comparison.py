@@ -49,6 +49,8 @@ def test_barebone_comparison_v1_config_locks_the_window_risk_and_claim() -> None
     assert trading.max_position_weight == 0.1
     assert trading.max_gross_leverage == 1.0
     assert trading.benchmark_ticker == "SPY"
+    assert config.scorebook == "momentum"
+    assert config.momentum_lookback_sessions == 63
     assert config.secondary_benchmark_ticker == "QQQ"
     assert config.secondary_benchmark_ticker not in trading.universe
     assert trading.benchmark_ticker not in trading.universe
@@ -221,6 +223,18 @@ def test_barebone_comparison_v1_refuses_a_leverage_unlock_and_a_shifted_window()
         validate_barebone_payload(shifted)
     with pytest.raises(ValueError, match="experiment_id must be barebone-comparison-v1"):
         validate_barebone_payload(borrowed)
+    unlocked_lookback = _payload()
+    unlocked_lookback["momentum_lookback_sessions"] = 21
+    with pytest.raises(ValueError, match="locked at 63"):
+        validate_barebone_payload(unlocked_lookback)
+    ridge = _payload()
+    ridge["scorebook"] = "ridge"
+    ridge["momentum_lookback_sessions"] = None
+    assert validate_barebone_payload(ridge).scorebook == "ridge"
+    missing_scorebook = _payload()
+    del missing_scorebook["scorebook"]
+    with pytest.raises(ValueError, match="scorebook is required"):
+        validate_barebone_payload(missing_scorebook)
 
 
 def test_barebone_comparison_v1_rejects_malformed_evidence_and_documents() -> None:

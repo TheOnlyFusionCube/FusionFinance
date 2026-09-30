@@ -24,6 +24,8 @@
   ],
   "benchmark_ticker": "SPY",
   "secondary_benchmark_ticker": "QQQ",
+  "scorebook": "momentum",
+  "momentum_lookback_sessions": 63,
   "rebalance_frequency_sessions": 10,
   "execution_lag_sessions": 1,
   "transaction_cost_bps": 5.0,

@@ -18,6 +18,11 @@ from typing import Self
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from demo.contracts import ExperimentConfig
+from demo.pure_ml import (
+    MOMENTUM_LOOKBACK_SESSIONS,
+    SCOREBOOK_MOMENTUM,
+    SCOREBOOK_RIDGE,
+)
 
 
 class _FrozenModel(BaseModel):
@@ -57,6 +62,8 @@ _TOP_LEVEL_KEYS = frozenset(
     + (
         "comparable_performance_claim",
         "secondary_benchmark_ticker",
+        "scorebook",
+        "momentum_lookback_sessions",
         "evidence",
     )
 )
@@ -105,6 +112,8 @@ class BareboneComparisonConfig(_FrozenModel):
 
     experiment: ExperimentConfig
     secondary_benchmark_ticker: str | None
+    scorebook: str
+    momentum_lookback_sessions: int | None = None
     comparable_performance_claim: bool = Field(default=False)
     evidence: BareboneEvidence
 
@@ -161,6 +170,13 @@ class BareboneComparisonConfig(_FrozenModel):
             secondary == experiment.benchmark_ticker or secondary in experiment.universe
         ):
             raise ValueError("secondary benchmark must stay outside the tradable book")
+        if self.scorebook not in {SCOREBOOK_RIDGE, SCOREBOOK_MOMENTUM}:
+            raise ValueError("scorebook must be ridge or momentum")
+        if self.scorebook == SCOREBOOK_MOMENTUM:
+            if self.momentum_lookback_sessions != MOMENTUM_LOOKBACK_SESSIONS:
+                raise ValueError("momentum lookback is locked at 63 sessions")
+        elif self.momentum_lookback_sessions is not None:
+            raise ValueError("ridge scorebook does not take a momentum lookback")
         return self
 
     def as_experiment_config(self) -> ExperimentConfig:
@@ -201,6 +217,8 @@ def validate_barebone_payload(payload: Mapping[str, object]) -> BareboneComparis
         raise ValueError("comparable_performance_claim must be false")
     if "secondary_benchmark_ticker" not in payload:
         raise ValueError("secondary_benchmark_ticker is required")
+    if "scorebook" not in payload:
+        raise ValueError("scorebook is required")
     evidence = payload.get("evidence")
     if not isinstance(evidence, Mapping):
         raise ValueError("evidence path is required")
@@ -221,6 +239,8 @@ def validate_barebone_payload(payload: Mapping[str, object]) -> BareboneComparis
     return BareboneComparisonConfig(
         experiment=experiment,
         secondary_benchmark_ticker=payload.get("secondary_benchmark_ticker"),
+        scorebook=str(payload.get("scorebook")),
+        momentum_lookback_sessions=payload.get("momentum_lookback_sessions"),
         comparable_performance_claim=False,
         evidence=BareboneEvidence.model_validate(dict(evidence)),
     )

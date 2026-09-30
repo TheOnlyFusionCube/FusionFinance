@@ -136,13 +136,16 @@ hash `3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05` and
 and fixture metrics are not a `barebone-comparison-v1` result.
 `comparable_performance_claim` stays false. A locked local tape can run the
 same controlled three-arm path, including the multi-name book and the pure-ML
-out-of-sample skill gate. The results are
-`results/barebone_three_arm_ledger.json` and
+out-of-sample skill gate. On this experiment `scorebook` is `momentum`: the
+pure-ML score is the 63-session log return of adjusted close, minus the
+cross-sectional median at the decision session. A name without that history
+is excluded and not filled. The next-session residual is only the skill
+label. Skill at or below zero leaves the rebalance in cash. The ridge
+scorebook remains available for tests and is still the fair-race default.
+The results are `results/barebone_three_arm_ledger.json` and
 `results/barebone_three_arm_metrics.json`. Both record that file's
 `tape_sha256` and keep the claim false. The ledger does not carry Sharpe or
-return fields. Rebalances with no completed pre-decision label stay in cash,
-because the extract starts on the window start and no earlier price is
-invented. QQQ is a secondary adjusted-close index, not a tradable name.
+return fields. QQQ is a secondary adjusted-close index, not a tradable name.
 `make test` rebuilds those results when the gitignored extract is present and
 checks the checked-in JSON when it is absent. The fair-race three-arm files
 are left in place.

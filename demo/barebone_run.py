@@ -78,7 +78,7 @@ _PERFORMANCE_KEYS = frozenset(
     }
 )
 
-_STATE: dict[tuple[str, str], dict[str, object]] = {}
+_STATE: dict[tuple[str, str, str], dict[str, object]] = {}
 
 
 @dataclass(frozen=True, slots=True)
@@ -304,7 +304,7 @@ def barebone_three_arm_state(root: Path | None = None) -> dict[str, object]:
 
     base = _repo_root() if root is None else root
     market = load_barebone_market(base)
-    key = (str(base.resolve()), market.tape_sha256)
+    key = (str(base.resolve()), market.tape_sha256, market.config.scorebook)
     cached = _STATE.get(key)
     if cached is not None:
         return cached
@@ -330,6 +330,7 @@ def barebone_three_arm_state(root: Path | None = None) -> dict[str, object]:
         panel=market.panel,
         tape_dates=dates,
         cash_when_untrained=True,
+        scorebook=market.config.scorebook,
     )
     proposals = {row["decision_session"]: row for row in manifest["proposals"]}
     pure_ml: list[ArmInput] = []
@@ -494,6 +495,8 @@ def _oos_skill_log(manifest: Mapping[str, object]) -> list[dict[str, object]]:
         }
         if row.get("untrained") is True:
             entry["untrained"] = True
+        if row.get("insufficient_history") is True:
+            entry["insufficient_history"] = True
         rows.append(entry)
     return rows
 
@@ -503,16 +506,34 @@ def _bind_pure_ml(document: dict[str, object], manifest: Mapping[str, object]) -
     if not isinstance(arms, dict):
         raise ValueError("barebone ledger is missing arms")
     arm = arms["pure_ml"]
-    arm["model_binding"] = {
-        "model": manifest["model"],
-        "ridge_alpha": manifest["ridge_alpha"],
-        "horizon_sessions": manifest["horizon_sessions"],
-        "proposal_manifest_hash": manifest["proposal_manifest_hash"],
-        "amd_evidence_sha256": manifest["amd_evidence_sha256"],
-        "amd_compute_sha256": manifest["amd_compute_sha256"],
-        "oos_skill_threshold": manifest["oos_skill_threshold"],
-        "oos_skill": manifest["oos_skill"],
-        "weight_rule": (
+    if manifest.get("scorebook") == "momentum":
+        weight_rule = (
+            "the score is the 63-session log return of adjusted close "
+            "(Yahoo adjclose) minus the cross-sectional median at the "
+            "decision session. Names without that history are excluded and "
+            "not filled. Prices after the decision session are not features. "
+            "An expanding Spearman skill of those scores versus the "
+            "next-session residual must be strictly above "
+            "oos_skill_threshold before sizing; a pair is used only once "
+            "its outcome session is already before the decision. "
+            "Non-positive skill leaves the book in cash. When the gate "
+            "passes, positive scores share max_gross_leverage in proportion "
+            "to score, each name capped at max_position_weight, then scaled "
+            "so post-cost gross leverage stays inside the cap"
+        )
+        binding = {
+            "model": manifest["model"],
+            "scorebook": manifest["scorebook"],
+            "lookback_sessions": manifest["lookback_sessions"],
+            "price": manifest["price"],
+            "transform": manifest["transform"],
+            "proposal_manifest_hash": manifest["proposal_manifest_hash"],
+            "oos_skill_threshold": manifest["oos_skill_threshold"],
+            "oos_skill": manifest["oos_skill"],
+            "weight_rule": weight_rule,
+        }
+    else:
+        weight_rule = (
             "an expanding walk-forward Spearman skill of held-out "
             "fit_fusion_model scores versus next-session residual returns "
             "must be strictly above oos_skill_threshold before sizing; "
@@ -521,8 +542,20 @@ def _bind_pure_ml(document: dict[str, object], manifest: Mapping[str, object]) -
             "scores share max_gross_leverage in proportion to score, each "
             "name capped at max_position_weight, then scaled so post-cost "
             "gross leverage stays inside the cap"
-        ),
-    }
+        )
+        binding = {
+            "model": manifest["model"],
+            "scorebook": "ridge",
+            "ridge_alpha": manifest["ridge_alpha"],
+            "horizon_sessions": manifest["horizon_sessions"],
+            "proposal_manifest_hash": manifest["proposal_manifest_hash"],
+            "amd_evidence_sha256": manifest["amd_evidence_sha256"],
+            "amd_compute_sha256": manifest["amd_compute_sha256"],
+            "oos_skill_threshold": manifest["oos_skill_threshold"],
+            "oos_skill": manifest["oos_skill"],
+            "weight_rule": weight_rule,
+        }
+    arm["model_binding"] = binding
     arm["oos_skill"] = _oos_skill_log(manifest)
     by_session = {
         row["decision_session"]: row
@@ -535,6 +568,8 @@ def _bind_pure_ml(document: dict[str, object], manifest: Mapping[str, object]) -
             raise ValueError("pure_ml sized a book when OOS skill failed the gate")
         if proposal.get("untrained") is True:
             raise ValueError("pure_ml sized a book with no pre-decision training rows")
+        if proposal.get("insufficient_history") is True:
+            raise ValueError("pure_ml sized a book without 63 sessions of history")
         match = next(
             target
             for target in proposal["targets"]
@@ -579,18 +614,19 @@ def barebone_three_arm_ledger(root: Path | None = None) -> dict[str, object]:
             "Software ledger for the locked barebone-comparison-v1 window "
             "2025-01-02 through 2026-01-12, rebalanced every 10 sessions. "
             "Prices are the local Yahoo Finance tape after scaling OHLC by "
-            "Adj Close over Close. The tape starts on the window start, so "
-            "a rebalance with no completed pre-decision label stays in cash. "
-            "No price is filled. LLM arms use the desk's first orchestrator "
-            "seal. Fusion uses the pre-window calibration artifact and still "
-            "requires a market head. Pure ML sizes a multi-name book only "
-            "after an expanding walk-forward out-of-sample skill check on "
-            "held-out names. Non-positive skill leaves that rebalance in "
-            "cash. When the gate passes, positive walk-forward scores share "
-            "the gross budget under the locked position and gross caps. "
-            "Market-approved fusion uses the same score book without that "
-            "skill gate. QQQ is a secondary price index on the metrics file, "
-            "not a tradable name. This is not a performance claim."
+            "Adj Close over Close. Pure ML scores are the 63-session log "
+            "return of that adjusted close, minus the cross-sectional median "
+            "at the decision. A name without 63 earlier sessions is excluded "
+            "and not filled. The next-session residual is the skill label, "
+            "not a feature. Pure ML sizes a multi-name book only when the "
+            "expanding Spearman skill of those scores is strictly above zero. "
+            "Non-positive skill leaves that rebalance in cash. When the gate "
+            "passes, positive scores share the gross budget under the locked "
+            "position and gross caps. Market-approved fusion uses the same "
+            "momentum scores without that skill gate. LLM arms use the desk's "
+            "first orchestrator seal. Fusion still requires a market head. "
+            "QQQ is a secondary price index on the metrics file, not a "
+            "tradable name. This is not a performance claim."
         ),
         "tape_sha256": market.tape_sha256,
         "price_source": {
@@ -622,6 +658,27 @@ def barebone_three_arm_ledger(root: Path | None = None) -> dict[str, object]:
     _bind_pure_ml(document, state["manifest"])
     _refuse_claim_document(document)
     return document
+
+
+def _fixture_context(
+    market: BareboneMarket, manifest: Mapping[str, object]
+) -> dict[str, object]:
+    context: dict[str, object] = {
+        "prices": f"{BAREBONE_OHLCV} adjusted OHLC",
+        "ohlcv_sha256": market.tape_sha256,
+        "market_data": _market_provenance(market),
+        "llm_provider": "fusionfinance-offline-lexical-v1",
+        "pure_ml_model": manifest["model"],
+        "proposal_manifest_hash": manifest["proposal_manifest_hash"],
+        "scorebook": market.config.scorebook,
+    }
+    if manifest.get("scorebook") == "momentum":
+        context["lookback_sessions"] = manifest["lookback_sessions"]
+        context["price"] = manifest["price"]
+        context["transform"] = manifest["transform"]
+    else:
+        context["amd_compute_sha256"] = manifest["amd_compute_sha256"]
+    return context
 
 
 def barebone_three_arm_metrics(root: Path | None = None) -> dict[str, object]:
@@ -682,26 +739,19 @@ def barebone_three_arm_metrics(root: Path | None = None) -> dict[str, object]:
         "comparable_performance_claim": False,
         "description": (
             "Fixture metrics from the barebone-comparison-v1 controlled tape. "
-            "Prices are the local Yahoo Finance extract, the LLM desk is the "
-            "offline lexical provider, and pure ML sizes a multi-name "
-            "score-proportional book only when expanding out-of-sample skill "
-            "is strictly above the locked threshold. Rebalances without a "
-            "completed pre-decision label stay in cash. Market-approved "
-            "fusion uses that score book without the skill gate. QQQ is a "
-            "secondary adjusted-close index, not an executed book. Not a "
-            "capital performance claim."
+            "Prices are the local Yahoo Finance extract. Pure ML scores are "
+            "63-session adjusted-close momentum, demeaned by the "
+            "cross-sectional median, and the book is sized only when "
+            "expanding Spearman skill versus the next-session residual is "
+            "strictly above zero. Thin history stays in cash and is not "
+            "filled. Market-approved fusion uses those momentum scores "
+            "without the skill gate. The LLM desk is the offline lexical "
+            "provider. QQQ is a secondary adjusted-close index, not an "
+            "executed book. Not a capital performance claim."
         ),
         "tape_sha256": market.tape_sha256,
         "source_ledger": LEDGER_RELATIVE,
-        "fixture_context": {
-            "prices": f"{BAREBONE_OHLCV} adjusted OHLC",
-            "ohlcv_sha256": market.tape_sha256,
-            "market_data": _market_provenance(market),
-            "llm_provider": "fusionfinance-offline-lexical-v1",
-            "pure_ml_model": manifest["model"],
-            "proposal_manifest_hash": manifest["proposal_manifest_hash"],
-            "amd_compute_sha256": manifest["amd_compute_sha256"],
-        },
+        "fixture_context": _fixture_context(market, manifest),
         "window": [trading.start_date.isoformat(), trading.end_date.isoformat()],
         "session_count": len(dates),
         "max_position_weight": trading.max_position_weight,

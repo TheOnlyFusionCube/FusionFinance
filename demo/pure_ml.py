@@ -32,6 +32,11 @@ _HORIZON_SESSIONS = 10
 _RIDGE_ALPHA = 10.0
 _OOS_SKILL_THRESHOLD = 0.0
 _MIN_OOS_PAIRS = 8
+SCOREBOOK_RIDGE = "ridge"
+SCOREBOOK_MOMENTUM = "momentum"
+MOMENTUM_LOOKBACK_SESSIONS = 63
+MOMENTUM_PRICE = "adjclose"
+MOMENTUM_TRANSFORM = "log_return_minus_cross_sectional_median"
 _AMD_PATHS = (
     "evidence/amd/environment.json",
     "evidence/amd/hardware.json",
@@ -78,13 +83,17 @@ def walk_forward_filing_proposals(
     panel: pd.DataFrame | None = None,
     tape_dates: tuple[date, ...] | None = None,
     cash_when_untrained: bool = False,
+    scorebook: str = SCOREBOOK_RIDGE,
 ) -> dict[str, object]:
-    """Score each locked rebalance from an expanding pre-decision ridge fit.
+    """Score each locked rebalance and apply the out-of-sample skill gate.
 
+    The default scorebook is the fair-race ridge fit. ``scorebook="momentum"``
+    uses the locked 63-session adjusted-close momentum feature instead.
     The default tape is the fair-race evidence extract. A caller may pass
     ``panel`` and ``tape_dates`` for another locked extract. ``cash_when_untrained``
-    records an empty book when that extract has no completed pre-decision
-    label. It does not invent a price.
+    records an empty book when the ridge extract has no completed
+    pre-decision label. It does not invent a price. Momentum with fewer
+    than 63 sessions of history stays in cash and is not filled.
     """
 
     if not decision_dates:
@@ -106,20 +115,28 @@ def walk_forward_filing_proposals(
         raise ValueError("pure-ML decisions must be unique")
     if list(decision_dates) != sorted(decision_dates):
         raise ValueError("pure-ML decisions must be chronological")
-    oos_pairs = _expanding_oos_pairs(panel, config)
+    if scorebook == SCOREBOOK_RIDGE:
+        oos_pairs = _expanding_oos_pairs(panel, config)
+    elif scorebook == SCOREBOOK_MOMENTUM:
+        oos_pairs = _momentum_oos_pairs(panel, config)
+    else:
+        raise ValueError(f"unknown pure-ML scorebook: {scorebook}")
     proposals: list[dict[str, object]] = []
     previous_ml: dict[str, float] = {}
     previous_fusion: dict[str, float] = {}
     for decision in decision_dates:
-        try:
-            scored = _score_decision(config, panel, decision)
-        except ValueError as exc:
-            if not (
-                cash_when_untrained
-                and str(exc).startswith("no pre-decision training rows")
-            ):
-                raise
-            scored = _untrained_decision(decision)
+        if scorebook == SCOREBOOK_MOMENTUM:
+            scored = _score_momentum(config, panel, decision)
+        else:
+            try:
+                scored = _score_decision(config, panel, decision)
+            except ValueError as exc:
+                if not (
+                    cash_when_untrained
+                    and str(exc).startswith("no pre-decision training rows")
+                ):
+                    raise
+                scored = _untrained_decision(decision)
         scores = {
             str(item["ticker"]): float(item["score"])
             for item in scored["cross_section"]
@@ -129,7 +146,7 @@ def walk_forward_filing_proposals(
         )
         skill, pair_count = _skill_before(oos_pairs, decision_index)
         skill_pass = skill_allows_book(skill, _OOS_SKILL_THRESHOLD)
-        if scored.get("untrained") is True:
+        if scored.get("untrained") is True or scored.get("insufficient_history") is True:
             skill_pass = False
         fusion_book = allocate_positive_score_book(scores, config, previous_fusion)
         ml_book = (
@@ -156,18 +173,35 @@ def walk_forward_filing_proposals(
         proposals.append(scored)
         previous_ml = dict(ml_book)
         previous_fusion = dict(fusion_book)
-    amd = amd_evidence_sha256(root)
-    payload = {
-        "schema": "fusionfinance-pure-ml-proposal-manifest-v1",
-        "model": "alpha.filing_alpha.fit_fusion_model",
-        "ridge_alpha": _RIDGE_ALPHA,
-        "horizon_sessions": _HORIZON_SESSIONS,
-        "oos_skill_threshold": _OOS_SKILL_THRESHOLD,
-        "oos_skill": "spearman_ic of held-out names versus next-session residual return",
-        "amd_evidence_sha256": amd,
-        "amd_compute_sha256": amd["results/amd_compute.json"],
-        "proposals": proposals,
-    }
+    if scorebook == SCOREBOOK_MOMENTUM:
+        payload = {
+            "schema": "fusionfinance-momentum-scorebook-v1",
+            "model": "demo.pure_ml.cross_sectional_momentum",
+            "scorebook": SCOREBOOK_MOMENTUM,
+            "lookback_sessions": MOMENTUM_LOOKBACK_SESSIONS,
+            "price": MOMENTUM_PRICE,
+            "transform": MOMENTUM_TRANSFORM,
+            "oos_skill_threshold": _OOS_SKILL_THRESHOLD,
+            "oos_skill": (
+                "spearman_ic of point-in-time momentum scores versus "
+                "next-session residual return, using only pairs whose "
+                "outcome session is already before the decision"
+            ),
+            "proposals": proposals,
+        }
+    else:
+        amd = amd_evidence_sha256(root)
+        payload = {
+            "schema": "fusionfinance-pure-ml-proposal-manifest-v1",
+            "model": "alpha.filing_alpha.fit_fusion_model",
+            "ridge_alpha": _RIDGE_ALPHA,
+            "horizon_sessions": _HORIZON_SESSIONS,
+            "oos_skill_threshold": _OOS_SKILL_THRESHOLD,
+            "oos_skill": "spearman_ic of held-out names versus next-session residual return",
+            "amd_evidence_sha256": amd,
+            "amd_compute_sha256": amd["results/amd_compute.json"],
+            "proposals": proposals,
+        }
     payload["proposal_manifest_hash"] = canonical_hash(payload)
     return payload
 
@@ -183,6 +217,120 @@ def _untrained_decision(decision: date) -> dict[str, object]:
         "cross_section": [],
         "untrained": True,
     }
+
+
+def _close_lookup(panel: pd.DataFrame) -> dict[tuple[str, int], float]:
+    return {
+        (str(ticker), int(index)): float(close)
+        for ticker, index, close in zip(
+            panel["ticker"], panel["session_index"], panel["close"], strict=True
+        )
+    }
+
+
+def _momentum_cross_section(
+    closes: dict[tuple[str, int], float],
+    universe: list[str],
+    session_index: int,
+) -> dict[str, float]:
+    """63-session log return minus the cross-sectional median.
+
+    Only the adjusted close at ``session_index`` and 63 sessions earlier is
+    read. A name missing either close is left out. Missing history is not
+    filled, and a later session is not a feature.
+    """
+
+    if session_index < MOMENTUM_LOOKBACK_SESSIONS:
+        return {}
+    prior = session_index - MOMENTUM_LOOKBACK_SESSIONS
+    logs: list[tuple[str, float]] = []
+    for ticker in universe:
+        now = closes.get((ticker, session_index))
+        then = closes.get((ticker, prior))
+        if (
+            now is None
+            or then is None
+            or now <= 0.0
+            or then <= 0.0
+            or not np.isfinite(now)
+            or not np.isfinite(then)
+        ):
+            continue
+        logs.append((ticker, float(np.log(now / then))))
+    if len(logs) < 2:
+        return {}
+    median = float(np.median([value for _ticker, value in logs]))
+    return {ticker: value - median for ticker, value in logs}
+
+
+def _score_momentum(
+    config: ExperimentConfig, panel: pd.DataFrame, decision: date
+) -> dict[str, object]:
+    decision_ts = pd.Timestamp(decision)
+    rows = panel.loc[panel["date"] == decision_ts, "session_index"]
+    if rows.empty:
+        raise ValueError(f"momentum decision {decision.isoformat()} is not on the tape")
+    decision_index = int(rows.iloc[0])
+    scores = _momentum_cross_section(
+        _close_lookup(panel), list(config.universe), decision_index
+    )
+    thin = decision_index < MOMENTUM_LOOKBACK_SESSIONS or not scores
+    return {
+        "decision_session": decision.isoformat(),
+        "train_rows": 0 if thin else len(scores),
+        "intercept": None,
+        "coefficients": {},
+        "cross_section": []
+        if thin
+        else [
+            {"ticker": ticker, "score": float(scores[ticker])}
+            for ticker in sorted(scores)
+        ],
+        "insufficient_history": thin,
+        "lookback_sessions": MOMENTUM_LOOKBACK_SESSIONS,
+        "price": MOMENTUM_PRICE,
+    }
+
+
+def _momentum_oos_pairs(
+    panel: pd.DataFrame, config: ExperimentConfig
+) -> list[tuple[int, float, float]]:
+    """Momentum score at session ``j`` versus the residual at ``j + 1``.
+
+    The score uses prices through ``j`` only. The residual is the skill
+    label. ``_skill_before`` keeps a pair only after that next session is
+    already before the decision being sized.
+    """
+
+    closes = _close_lookup(panel)
+    universe = list(config.universe)
+    indices = sorted({int(value) for value in panel["session_index"]})
+    index_set = set(indices)
+    pairs: list[tuple[int, float, float]] = []
+    for session_index in indices:
+        outcome_index = session_index + 1
+        if session_index < MOMENTUM_LOOKBACK_SESSIONS or outcome_index not in index_set:
+            continue
+        scores = _momentum_cross_section(closes, universe, session_index)
+        if len(scores) < 2:
+            continue
+        raw: dict[str, float] = {}
+        for ticker in universe:
+            start = closes.get((ticker, session_index))
+            end = closes.get((ticker, outcome_index))
+            if start is None or end is None or start <= 0.0:
+                continue
+            raw[ticker] = end / start - 1.0
+        if len(raw) < 2:
+            continue
+        mean_return = sum(raw.values()) / len(raw)
+        for ticker, score in scores.items():
+            if ticker not in raw:
+                continue
+            pairs.append(
+                (outcome_index, float(score), float(raw[ticker] - mean_return))
+            )
+    return pairs
 
 
 def feature_panel_from_market(
