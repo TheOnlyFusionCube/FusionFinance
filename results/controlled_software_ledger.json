@@ -1,0 +1,32 @@
+{
+  "admitted": true,
+  "benchmark_sessions": [
+    "2026-02-02",
+    "2026-07-09"
+  ],
+  "claim_status": "controlled_software_ledger",
+  "committed_at": "2026-02-02T20:00:00Z",
+  "comparable_performance_claim": false,
+  "config_hash": "a1ff3e0f7ba3627c4e5a0505ec28bb5b687b4c3a5ddcb632e701fc3cde19ef44",
+  "decision_session": "2026-02-02",
+  "description": "Two-session software ledger on the locked window endpoints 2026-02-02 and 2026-07-09. The pure-LLM receipt is resealed at a fixed commit time before the execution session. This is not a full calendar and not a performance claim.",
+  "experiment_hash": "00d0253e735b44ebb2263641ce7e410126c0bc31c460368dee4efee2f3a0bfdd",
+  "experiment_id": "fusionfinance-fair-race-v1",
+  "lineage_hash": "37c82f59cf25b1322ec40b626fc81099983eadb08928fec776764ca017efa565",
+  "outcome_ts": "2026-07-09T21:00:00Z",
+  "post_cost_within_limit": true,
+  "precheck_decision": "approved",
+  "proposal_hash": "2486811eadefc0983458fb363390796824b4791841fc90e6a0d570d503b59a93",
+  "reason": "evidence precheck approved",
+  "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427",
+  "schema": "fusionfinance-controlled-software-ledger-v1",
+  "session_count": 2,
+  "slippage_costs": 0.14000000000000004,
+  "strategy_id": "pure_llm",
+  "tape_hash": "db59cea88da4170d16ec7356d2456e3fe012ede67dbd28fb33f9153b6442b06c",
+  "target_weight": 0.07,
+  "thesis_hash": "8885a3c37792bc07714698bcb4414b33462c3250765a13b43697509c0df1420d",
+  "total_turnover": 0.07,
+  "trade_count": 1,
+  "transaction_costs": 0.4900000000000001
+}

@@ -110,7 +110,7 @@ def _bound_benchmark(
     if benchmark_marks is None:
         return benchmark_values, ()
     if isinstance(benchmark_marks, (str, bytes)):
-        raise ValueError("benchmark marks must be date-bound observations")
+        raise TypeError("benchmark marks must be date-bound observations")
     try:
         marks = tuple(
             mark if isinstance(mark, BenchmarkMark) else BenchmarkMark.model_validate(mark)
@@ -127,7 +127,7 @@ def _bound_benchmark(
             raise ValueError("benchmark values do not match date-bound marks")
         for supplied, bound in zip(benchmark_values, values, strict=True):
             if isinstance(supplied, bool) or not isinstance(supplied, Real):
-                raise ValueError("benchmark values do not match date-bound marks")
+                raise TypeError("benchmark values do not match date-bound marks")
             if not math.isclose(float(supplied), bound, rel_tol=1e-12, abs_tol=1e-9):
                 raise ValueError("benchmark values do not match date-bound marks")
     return values, sessions

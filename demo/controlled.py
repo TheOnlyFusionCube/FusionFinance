@@ -39,7 +39,6 @@ from demo.contracts import (
 from demo.execution import reconcile_simulation, session_window, simulate_portfolio
 from demo.metrics import compute_performance_metrics
 
-
 ARM_IDS = ("pure_ml", "pure_llm", "fusion")
 CLAIM_STATUS = "controlled_software_ledger"
 
@@ -72,7 +71,7 @@ class MarketVerification(_FrozenModel):
         if value is None:
             return None
         if isinstance(value, bool) or not isinstance(value, Real):
-            raise ValueError("market forecast values must be real numbers")
+            raise TypeError("market forecast values must be real numbers")
         return float(value)
 
 
@@ -101,7 +100,7 @@ class ArmInput(_FrozenModel):
         if value is None:
             return None
         if isinstance(value, bool) or not isinstance(value, Real):
-            raise ValueError("structured weight must be a real number")
+            raise TypeError("structured weight must be a real number")
         return float(value)
 
     @field_validator("outcome_ts")
@@ -378,7 +377,7 @@ def _arm_inputs(
     candidates: Sequence[ArmInput | Mapping[str, object]],
 ) -> tuple[ArmInput, ...]:
     if isinstance(candidates, (str, bytes)):
-        raise ValueError("candidates must be arm inputs")
+        raise TypeError("candidates must be arm inputs")
     return tuple(
         item if isinstance(item, ArmInput) else ArmInput.model_validate(item)
         for item in candidates
@@ -467,9 +466,7 @@ def _gate_candidate(
         receipt_hash=receipt.receipt_hash,
         precheck_decision=receipt.decision,
     )
-    as_of = datetime.fromisoformat(
-        receipt.proposal.as_of.replace("Z", "+00:00")
-    ).date()
+    as_of = datetime.fromisoformat(receipt.proposal.as_of).date()
     if as_of > candidate.decision_session:
         return _Gate(weight=0.0, reason="proposal as_of is after the decision session", **base)
     if receipt.decision != "approved" or receipt.thesis is None or receipt.evidence_audit is None:
@@ -520,9 +517,7 @@ def _require_bound_outcome(
 ) -> None:
     if candidate.outcome_ts is None:
         raise ValueError("outcome timestamp is not bound to the market tape")
-    outcome_date = datetime.fromisoformat(
-        candidate.outcome_ts.replace("Z", "+00:00")
-    ).date()
+    outcome_date = datetime.fromisoformat(candidate.outcome_ts).date()
     dates = tuple(session.session for session in window)
     decision_index = dates.index(candidate.decision_session)
     execution_date = dates[decision_index + config.execution_lag_sessions]
@@ -710,7 +705,7 @@ def _require_metric_ledger_agreement(
 
 def _aware_timestamp(value: str) -> str:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise ValueError("timestamp must be ISO-8601") from exc
     if parsed.tzinfo is None:

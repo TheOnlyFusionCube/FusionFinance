@@ -98,7 +98,11 @@ hashes, post-cost leverage, ledger/result reconciliation, and date-bound
 benchmark marks. Those checks make a software ledger auditable. They do not by
 themselves produce a comparative performance claim. That claim still requires a
 prospective three-arm run on the locked tape. The checked-in replay remains a
-provisional legacy visualization.
+provisional legacy visualization. A sealed pure-LLM execution of the locked
+window's two endpoints is checked in at
+[`results/controlled_software_ledger.json`](../results/controlled_software_ledger.json),
+with experiment, config, and tape hashes and computed turnover and costs. That
+file is a software ledger, not a performance claim.
 
 ## Reproduction checks
 
