@@ -1,0 +1,640 @@
+{
+  "admitted_count": 11,
+  "cash_rebalances": 22,
+  "claim_status": "controlled_software_ledger",
+  "comparable_performance_claim": false,
+  "config_hash": "15a39e14daf20fd1509892767c3c8abc0e65ed745d0a666ab4f46e2a67815864",
+  "decisions": [
+    {
+      "admitted": false,
+      "decision_session": "2025-01-02",
+      "model_score": null,
+      "oos_skill": null,
+      "oos_skill_pairs": 0,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-01-17",
+      "model_score": 0.125,
+      "oos_skill": 0.0674489157670175,
+      "oos_skill_pairs": 126,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "MSFT"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-02-03",
+      "model_score": 0.3333333333333333,
+      "oos_skill": 0.009096841091408925,
+      "oos_skill_pairs": 271,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "IBM"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-02-03",
+      "model_score": 0.3333333333333333,
+      "oos_skill": 0.009096841091408925,
+      "oos_skill_pairs": 271,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "ORCL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-02-18",
+      "model_score": null,
+      "oos_skill": -0.03718936848094816,
+      "oos_skill_pairs": 424,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-03-04",
+      "model_score": null,
+      "oos_skill": -0.04796002142203406,
+      "oos_skill_pairs": 571,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-03-18",
+      "model_score": null,
+      "oos_skill": -0.04403607640880618,
+      "oos_skill_pairs": 716,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-04-01",
+      "model_score": null,
+      "oos_skill": -0.04295272617370284,
+      "oos_skill_pairs": 866,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-04-15",
+      "model_score": null,
+      "oos_skill": -0.02218809699107524,
+      "oos_skill_pairs": 1009,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-04-30",
+      "model_score": null,
+      "oos_skill": -0.008863805914009048,
+      "oos_skill_pairs": 1167,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-05-14",
+      "model_score": null,
+      "oos_skill": -0.015404689261383596,
+      "oos_skill_pairs": 1305,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-05-29",
+      "model_score": null,
+      "oos_skill": -0.014566997607054735,
+      "oos_skill_pairs": 1454,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-06-12",
+      "model_score": null,
+      "oos_skill": -0.024880641126526097,
+      "oos_skill_pairs": 1586,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-06-27",
+      "model_score": null,
+      "oos_skill": -0.025845696449568908,
+      "oos_skill_pairs": 1736,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-07-14",
+      "model_score": null,
+      "oos_skill": -0.030464172172732014,
+      "oos_skill_pairs": 1879,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-07-28",
+      "model_score": null,
+      "oos_skill": -0.02706397826096154,
+      "oos_skill_pairs": 2017,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-08-11",
+      "model_score": null,
+      "oos_skill": -0.025202971536367982,
+      "oos_skill_pairs": 2167,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-08-25",
+      "model_score": null,
+      "oos_skill": -0.018133925589605037,
+      "oos_skill_pairs": 2316,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-09-09",
+      "model_score": null,
+      "oos_skill": -0.021531984501322637,
+      "oos_skill_pairs": 2455,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-09-23",
+      "model_score": null,
+      "oos_skill": -0.018494783605580177,
+      "oos_skill_pairs": 2603,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-10-07",
+      "model_score": null,
+      "oos_skill": -0.01879015163328078,
+      "oos_skill_pairs": 2762,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-10-21",
+      "model_score": null,
+      "oos_skill": -0.017690256014715956,
+      "oos_skill_pairs": 2919,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-11-04",
+      "model_score": null,
+      "oos_skill": -0.007064148783859844,
+      "oos_skill_pairs": 3064,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-11-18",
+      "model_score": null,
+      "oos_skill": -0.007164373393534837,
+      "oos_skill_pairs": 3207,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-12-03",
+      "model_score": 0.14285714285714285,
+      "oos_skill": 0.0019085431151648314,
+      "oos_skill_pairs": 3364,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-12-03",
+      "model_score": 0.2857142857142857,
+      "oos_skill": 0.0019085431151648314,
+      "oos_skill_pairs": 3364,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "MSFT"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-12-03",
+      "model_score": 0.14285714285714285,
+      "oos_skill": 0.0019085431151648314,
+      "oos_skill_pairs": 3364,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "NVDA"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2025-12-03",
+      "model_score": 0.5,
+      "oos_skill": 0.0019085431151648314,
+      "oos_skill_pairs": 3364,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "TSLA"
+    },
+    {
+      "admitted": false,
+      "decision_session": "2025-12-17",
+      "model_score": null,
+      "oos_skill": -0.00023585931320028195,
+      "oos_skill_pairs": 3517,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative skill gate cash",
+      "target_weight": 0.0,
+      "ticker": "AAPL"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2026-01-02",
+      "model_score": 0.5,
+      "oos_skill": 0.0017165530316676917,
+      "oos_skill_pairs": 3674,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "AMD"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2026-01-02",
+      "model_score": 0.5,
+      "oos_skill": 0.0017165530316676917,
+      "oos_skill_pairs": 3674,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "BRK-B"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2026-01-02",
+      "model_score": 0.6666666666666666,
+      "oos_skill": 0.0017165530316676917,
+      "oos_skill_pairs": 3674,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "INTC"
+    },
+    {
+      "admitted": true,
+      "decision_session": "2026-01-02",
+      "model_score": 0.1111111111111111,
+      "oos_skill": 0.0017165530316676917,
+      "oos_skill_pairs": 3674,
+      "oos_skill_threshold": 0.0,
+      "reason": "narrative polarity weight",
+      "target_weight": 0.1,
+      "ticker": "NVDA"
+    }
+  ],
+  "description": "Software ledger for the barebone narrative arm on the locked Hacker News events and the locked Yahoo tape. Polarity is the frozen lexicon scored once from text available before the decision session. The session score is that mean minus the cross-sectional median. The book is sized only when expanding Spearman skill versus the next-session residual is strictly above zero; otherwise it is cash. Position and gross caps stay 0.10 and 1.0. This is not a performance claim.",
+  "experiment_hash": "ef652f7c1a2596b77bda44481f3e7455d598b5a5048a3909ecd06ad0b09d9bbc",
+  "experiment_id": "barebone-comparison-v1",
+  "lineage_hash": "0481deab27136746c91cb6f96129ffdc71b17a8bcf60c8e4e0e71352a0deb06a",
+  "max_gross_leverage": 1.0,
+  "max_position_weight": 0.1,
+  "model_binding": {
+    "aggregation": "mean_polarity_minus_cross_sectional_median",
+    "lexicon_sha256": "6fc38675c0b159da067bf2bd87d3ad93e7998a36f6a7095cdefa88bfc2e57a12",
+    "model": "fusionfinance-narrative-lexicon-v1",
+    "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+    "oos_skill_threshold": 0.0,
+    "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae"
+  },
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "oos_skill": [
+    {
+      "decision_session": "2025-01-02",
+      "name_count": 0,
+      "oos_skill": null,
+      "oos_skill_pairs": 0,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-01-17",
+      "name_count": 10,
+      "oos_skill": 0.0674489157670175,
+      "oos_skill_pairs": 126,
+      "oos_skill_threshold": 0.0,
+      "sized": true,
+      "skill_pass": true
+    },
+    {
+      "decision_session": "2025-02-03",
+      "name_count": 20,
+      "oos_skill": 0.009096841091408925,
+      "oos_skill_pairs": 271,
+      "oos_skill_threshold": 0.0,
+      "sized": true,
+      "skill_pass": true
+    },
+    {
+      "decision_session": "2025-02-18",
+      "name_count": 21,
+      "oos_skill": -0.03718936848094816,
+      "oos_skill_pairs": 424,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-03-04",
+      "name_count": 15,
+      "oos_skill": -0.04796002142203406,
+      "oos_skill_pairs": 571,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-03-18",
+      "name_count": 12,
+      "oos_skill": -0.04403607640880618,
+      "oos_skill_pairs": 716,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-04-01",
+      "name_count": 12,
+      "oos_skill": -0.04295272617370284,
+      "oos_skill_pairs": 866,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-04-15",
+      "name_count": 11,
+      "oos_skill": -0.02218809699107524,
+      "oos_skill_pairs": 1009,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-04-30",
+      "name_count": 14,
+      "oos_skill": -0.008863805914009048,
+      "oos_skill_pairs": 1167,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-05-14",
+      "name_count": 14,
+      "oos_skill": -0.015404689261383596,
+      "oos_skill_pairs": 1305,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-05-29",
+      "name_count": 14,
+      "oos_skill": -0.014566997607054735,
+      "oos_skill_pairs": 1454,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-06-12",
+      "name_count": 15,
+      "oos_skill": -0.024880641126526097,
+      "oos_skill_pairs": 1586,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-06-27",
+      "name_count": 16,
+      "oos_skill": -0.025845696449568908,
+      "oos_skill_pairs": 1736,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-07-14",
+      "name_count": 17,
+      "oos_skill": -0.030464172172732014,
+      "oos_skill_pairs": 1879,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-07-28",
+      "name_count": 19,
+      "oos_skill": -0.02706397826096154,
+      "oos_skill_pairs": 2017,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-08-11",
+      "name_count": 20,
+      "oos_skill": -0.025202971536367982,
+      "oos_skill_pairs": 2167,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-08-25",
+      "name_count": 11,
+      "oos_skill": -0.018133925589605037,
+      "oos_skill_pairs": 2316,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-09-09",
+      "name_count": 16,
+      "oos_skill": -0.021531984501322637,
+      "oos_skill_pairs": 2455,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-09-23",
+      "name_count": 13,
+      "oos_skill": -0.018494783605580177,
+      "oos_skill_pairs": 2603,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-10-07",
+      "name_count": 12,
+      "oos_skill": -0.01879015163328078,
+      "oos_skill_pairs": 2762,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-10-21",
+      "name_count": 15,
+      "oos_skill": -0.017690256014715956,
+      "oos_skill_pairs": 2919,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-11-04",
+      "name_count": 12,
+      "oos_skill": -0.007064148783859844,
+      "oos_skill_pairs": 3064,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-11-18",
+      "name_count": 11,
+      "oos_skill": -0.007164373393534837,
+      "oos_skill_pairs": 3207,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2025-12-03",
+      "name_count": 14,
+      "oos_skill": 0.0019085431151648314,
+      "oos_skill_pairs": 3364,
+      "oos_skill_threshold": 0.0,
+      "sized": true,
+      "skill_pass": true
+    },
+    {
+      "decision_session": "2025-12-17",
+      "name_count": 15,
+      "oos_skill": -0.00023585931320028195,
+      "oos_skill_pairs": 3517,
+      "oos_skill_threshold": 0.0,
+      "sized": false,
+      "skill_pass": false
+    },
+    {
+      "decision_session": "2026-01-02",
+      "name_count": 15,
+      "oos_skill": 0.0017165530316676917,
+      "oos_skill_pairs": 3674,
+      "oos_skill_threshold": 0.0,
+      "sized": true,
+      "skill_pass": true
+    }
+  ],
+  "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae",
+  "post_cost_within_limit": true,
+  "rebalance_count": 26,
+  "schema": "fusionfinance-barebone-narrative-arm-ledger-v1",
+  "session_count": 257,
+  "sized_rebalances": 4,
+  "slippage_costs": 3.600037314851424,
+  "strategy_id": "narrative",
+  "tape_hash": "c6f902da6991faddeaef4cfa7bba5efe89aa1636eea2faef775a6dc04578f4a3",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205",
+  "total_turnover": 1.8004522075162042,
+  "trade_count": 18,
+  "transaction_costs": 12.600130601979984,
+  "window": [
+    "2025-01-02",
+    "2026-01-12"
+  ]
+}

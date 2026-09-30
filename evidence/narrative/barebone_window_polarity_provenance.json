@@ -1,0 +1,17 @@
+{
+  "aggregation": "mean_polarity_minus_cross_sectional_median",
+  "comparable_performance_claim": false,
+  "event_count": 21918,
+  "experiment_id": "barebone-comparison-v1",
+  "lexicon": "evidence/narrative/barebone_polarity_lexicon.json",
+  "lexicon_sha256": "6fc38675c0b159da067bf2bd87d3ad93e7998a36f6a7095cdefa88bfc2e57a12",
+  "license_note": "not redistributed; local bind only",
+  "model_id": "fusionfinance-narrative-lexicon-v1",
+  "narrative_events_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae",
+  "provider": "frozen lexicon; no live model",
+  "schema": "fusionfinance-barebone-narrative-polarity-v1",
+  "scored_at": "2026-09-30T05:19:08Z",
+  "scores": "evidence/narrative/barebone_window_scores.jsonl",
+  "skill_threshold": 0.0
+}

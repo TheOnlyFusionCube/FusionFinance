@@ -97,6 +97,10 @@ BAREBONE_UNIVERSE = BAREBONE_CORE_UNIVERSE + BAREBONE_SUPPLEMENTAL_UNIVERSE
 NARRATIVE_EVENTS = "evidence/narrative/barebone_window_events.jsonl"
 NARRATIVE_PROVENANCE = "evidence/narrative/barebone_window_narrative_provenance.json"
 NARRATIVE_MAP = "evidence/narrative/barebone_ticker_map.json"
+NARRATIVE_SCORES = "evidence/narrative/barebone_window_scores.jsonl"
+NARRATIVE_POLARITY_PROVENANCE = "evidence/narrative/barebone_window_polarity_provenance.json"
+NARRATIVE_LEXICON = "evidence/narrative/barebone_polarity_lexicon.json"
+LOCKED_NARRATIVE_SHA256 = "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -138,6 +142,8 @@ class BareboneEvidence(_FrozenModel):
     tape_sha256: str | None = None
     narrative_events: str = NARRATIVE_EVENTS
     narrative_sha256: str | None = None
+    narrative_scores: str = NARRATIVE_SCORES
+    polarity_sha256: str | None = None
 
     @field_validator("ohlcv")
     @classmethod
@@ -183,6 +189,25 @@ class BareboneEvidence(_FrozenModel):
             raise ValueError("narrative_sha256 must be a lowercase sha256 hex digest or null")
         if value == FAIR_RACE_TAPE_HASH:
             raise ValueError("fair-race tape_hash is not the barebone narrative tape")
+        return value
+
+    @field_validator("narrative_scores")
+    @classmethod
+    def _scores_path(cls, value: str) -> str:
+        normalized = value.strip().replace("\\", "/")
+        if normalized != NARRATIVE_SCORES:
+            raise ValueError("narrative scores path is the gitignored local bind")
+        return normalized
+
+    @field_validator("polarity_sha256")
+    @classmethod
+    def _polarity_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or _SHA256.fullmatch(value) is None:
+            raise ValueError("polarity_sha256 must be a lowercase sha256 hex digest or null")
+        if value == FAIR_RACE_TAPE_HASH:
+            raise ValueError("fair-race tape_hash is not the barebone polarity tape")
         return value
 
 

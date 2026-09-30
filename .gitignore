@@ -48,6 +48,7 @@ evidence/market/barebone_window_ohlcv.json
 
 # Local Barebone narrative events. Not redistributed. Provenance and narrative_sha256 may be committed.
 evidence/narrative/barebone_window_events.jsonl
+evidence/narrative/barebone_window_scores.jsonl
 evidence/narrative/*_raw.json
 evidence/narrative/*_raw.jsonl
 

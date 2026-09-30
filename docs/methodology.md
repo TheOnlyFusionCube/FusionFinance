@@ -179,11 +179,22 @@ text. `narrative_sha256` stays null until `--lock-config` records the digest
 of a non-empty file just written. `--provider reddit` and `--provider x`
 require their own credentials and skip when those are unset. This build does
 not call those APIs and does not treat an X recent search as a full-window
-archive. There is no frozen polarity model, so
-`results/barebone_narrative_arm.json` stays in cash under the same 0.10 and
-1.0 caps. That arm is not a fourth score book, and it does not change the
-momentum tape or the pure-ML baseline. `comparable_performance_claim` stays
-false.
+archive. `comparable_performance_claim` stays false.
+
+Polarity for that narrative arm is the frozen lexicon in
+`evidence/narrative/barebone_polarity_lexicon.json`. Scoring is offline and
+does not call a live model. `scripts/score_barebone_narrative.py` reads the
+locked events file, refuses a look-ahead timestamp or an unmapped ticker, and
+writes gitignored `evidence/narrative/barebone_window_scores.jsonl`.
+`polarity_sha256` is the digest of that scores file. `narrative_sha256` stays
+the locked Hacker News digest. The session score is the mean polarity minus
+the cross-sectional median of names with an event that session. The narrative
+arm sizes only when expanding Spearman skill versus the next-session residual
+is strictly above zero; otherwise it is cash. The position cap stays 0.10 and
+the gross cap stays 1.0. Results are
+`results/barebone_narrative_arm_ledger.json` and
+`results/barebone_narrative_arm_metrics.json`. The momentum pure-ML book is
+unchanged. `comparable_performance_claim` stays false.
 
 ## Reproduction checks
 
@@ -191,7 +202,8 @@ false.
 pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
-  tests/test_barebone_run.py tests/test_barebone_narrative.py
+  tests/test_barebone_run.py tests/test_barebone_narrative.py \
+  tests/test_barebone_polarity.py
 make artifacts
 make verify
 make test

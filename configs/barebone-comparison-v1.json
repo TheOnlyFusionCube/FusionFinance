@@ -73,6 +73,8 @@
     "ohlcv": "evidence/market/barebone_window_ohlcv.json",
     "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205",
     "narrative_events": "evidence/narrative/barebone_window_events.jsonl",
-    "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9"
+    "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+    "narrative_scores": "evidence/narrative/barebone_window_scores.jsonl",
+    "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae"
   }
 }

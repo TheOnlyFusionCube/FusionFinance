@@ -49,8 +49,10 @@ dropped. The decision session is the first barebone calendar session strictly
 after the UTC date of `available_ts`. Reddit and X stubs skip when their
 environment variables are unset and do not invent events. `--lock-config`
 stores the digest of a non-empty events file just written.
-`narrative_sha256` stays null until then. The narrative arm stays in cash
-because no frozen polarity model is bound to that text.
+`narrative_sha256` stays the locked Hacker News digest until a new
+experiment id. The events file is not rewritten to add polarity. A frozen
+lexicon scores those events into gitignored `barebone_window_scores.jsonl`.
+That scores file is not redistributed. `polarity_sha256` is its byte digest.
 
 ## `amd/`
 
