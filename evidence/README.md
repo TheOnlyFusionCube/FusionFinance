@@ -36,6 +36,22 @@ just written. `results/barebone_three_arm_ledger.json` and
 `results/barebone_three_arm_metrics.json` record that digest. They do not
 contain the OHLCV bars.
 
+## `narrative/`
+
+`barebone_ticker_map.json` is the sealed cashtag and company-name map for the
+barebone universe. `scripts/ingest_barebone_narrative.py --provider hn` reads
+Hacker News through the Algolia `search_by_date` API and writes
+`barebone_window_events.jsonl`. That events file is gitignored and is not
+redistributed. `barebone_window_narrative_provenance.json` records the
+provider, fetch time, window, and byte SHA-256. It does not contain story
+text. A story without `created_at` aborts the ingest. Unmapped text is
+dropped. The decision session is the first barebone calendar session strictly
+after the UTC date of `available_ts`. Reddit and X stubs skip when their
+environment variables are unset and do not invent events. `--lock-config`
+stores the digest of a non-empty events file just written.
+`narrative_sha256` stays null until then. The narrative arm stays in cash
+because no frozen polarity model is bound to that text.
+
 ## `amd/`
 
 The three JSON files are byte-preserved receipts from the recorded ROCm/HIP

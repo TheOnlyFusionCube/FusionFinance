@@ -147,7 +147,7 @@ fills to events and marked results, and requires benchmark wealth to be bound
 to portfolio session dates. Turnover and costs on that ledger are computed
 values.
 
-That software record is not a comparative performance claim. `demo/barebone_comparison.py` loads a separate `barebone-comparison-v1` shell for 2025-01-02 through 2026-01-12 and fails closed without its own evidence file and locked hash. `demo/barebone_run.py` writes that experiment's three-arm ledger and fixture metrics from the locked local tape, with the claim still false. The fair-race ledger is not that experiment. The sealed
+That software record is not a comparative performance claim. `demo/barebone_comparison.py` loads a separate `barebone-comparison-v1` shell for 2025-01-02 through 2026-01-12 and fails closed without its own evidence file and locked hash. `demo/barebone_run.py` writes that experiment's three-arm ledger and fixture metrics from the locked local tape, with the claim still false. `demo/barebone_narrative.py` binds Hacker News stories for that window to a gitignored events file and leaves the narrative arm in cash until a frozen polarity model exists. The fair-race ledger is not that experiment. The sealed
 replay calendar for the locked February–July window is checked in as a
 ledger, not as a published performance result. Uncalibrated policy thresholds
 abstain. A calibrated artifact does not approve fusion without a market head

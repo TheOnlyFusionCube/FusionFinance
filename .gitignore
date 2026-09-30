@@ -46,6 +46,11 @@ presentation/FusionFinance_GitHub_Submission.zip
 # Local Barebone-window OHLCV. Not redistributed. Provenance and tape_sha256 may be committed.
 evidence/market/barebone_window_ohlcv.json
 
+# Local Barebone narrative events. Not redistributed. Provenance and narrative_sha256 may be committed.
+evidence/narrative/barebone_window_events.jsonl
+evidence/narrative/*_raw.json
+evidence/narrative/*_raw.jsonl
+
 # Local probes, scratch state, and transient accelerator receipts
 scratchpad/
 scripts/_*.py

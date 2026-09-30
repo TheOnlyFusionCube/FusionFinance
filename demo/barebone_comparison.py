@@ -94,6 +94,9 @@ BAREBONE_SUPPLEMENTAL_UNIVERSE = (
     "PFE",
 )
 BAREBONE_UNIVERSE = BAREBONE_CORE_UNIVERSE + BAREBONE_SUPPLEMENTAL_UNIVERSE
+NARRATIVE_EVENTS = "evidence/narrative/barebone_window_events.jsonl"
+NARRATIVE_PROVENANCE = "evidence/narrative/barebone_window_narrative_provenance.json"
+NARRATIVE_MAP = "evidence/narrative/barebone_ticker_map.json"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -129,10 +132,12 @@ def _repo_root() -> Path:
 
 
 class BareboneEvidence(_FrozenModel):
-    """Path of the Barebone-window extract. The file is not in this scaffold."""
+    """Paths of the Barebone-window extracts. The price and narrative files stay local."""
 
     ohlcv: str = Field(min_length=1)
     tape_sha256: str | None = None
+    narrative_events: str = NARRATIVE_EVENTS
+    narrative_sha256: str | None = None
 
     @field_validator("ohlcv")
     @classmethod
@@ -159,6 +164,25 @@ class BareboneEvidence(_FrozenModel):
             raise ValueError("tape_sha256 must be a lowercase sha256 hex digest or null")
         if value == FAIR_RACE_TAPE_HASH:
             raise ValueError("fair-race tape_hash is not the barebone-comparison tape")
+        return value
+
+    @field_validator("narrative_events")
+    @classmethod
+    def _narrative_path(cls, value: str) -> str:
+        normalized = value.strip().replace("\\", "/")
+        if normalized != NARRATIVE_EVENTS:
+            raise ValueError("narrative events path is the gitignored local bind")
+        return normalized
+
+    @field_validator("narrative_sha256")
+    @classmethod
+    def _narrative_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or _SHA256.fullmatch(value) is None:
+            raise ValueError("narrative_sha256 must be a lowercase sha256 hex digest or null")
+        if value == FAIR_RACE_TAPE_HASH:
+            raise ValueError("fair-race tape_hash is not the barebone narrative tape")
         return value
 
 

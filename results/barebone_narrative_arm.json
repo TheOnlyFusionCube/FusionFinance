@@ -1,0 +1,15 @@
+{
+  "claim_status": "controlled_software_ledger",
+  "comparable_performance_claim": false,
+  "event_count": 21918,
+  "experiment_id": "barebone-comparison-v1",
+  "max_gross_leverage": 1.0,
+  "max_position_weight": 0.1,
+  "narrative_events": "evidence/narrative/barebone_window_events.jsonl",
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "reason": "no frozen polarity model is bound to text available at available_ts, so the narrative arm stays in cash",
+  "schema": "fusionfinance-barebone-narrative-arm-v1",
+  "sized": false,
+  "strategy_id": "narrative",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+}

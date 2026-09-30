@@ -96,6 +96,7 @@ PRIVATE_FILENAMES = {
 }
 LOCAL_ONLY_PATHS = {
     "evidence/market/barebone_window_ohlcv.json",
+    "evidence/narrative/barebone_window_events.jsonl",
 }
 PUBLIC_BINARY_PATHS = {
     "docs/assets/dashboard.png",

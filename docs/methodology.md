@@ -166,13 +166,32 @@ and no prices. `tape_sha256` in the config stays null until `--lock-config`
 records the digest of the file just written. That flag does not invent a
 digest and does not set a performance claim.
 
+`scripts/ingest_barebone_narrative.py` binds point-in-time Hacker News stories
+for the same window. `--provider hn` reads the Algolia `search_by_date` API.
+A sealed ticker map assigns cashtags and company names to the barebone
+universe and drops unmapped text. The decision session is the first calendar
+session strictly after the UTC date of `available_ts`. A missing timestamp
+aborts the ingest. The events file
+`evidence/narrative/barebone_window_events.jsonl` is gitignored.
+`evidence/narrative/barebone_window_narrative_provenance.json` records the
+provider, fetch time, window, and byte SHA-256 and does not carry the story
+text. `narrative_sha256` stays null until `--lock-config` records the digest
+of a non-empty file just written. `--provider reddit` and `--provider x`
+require their own credentials and skip when those are unset. This build does
+not call those APIs and does not treat an X recent search as a full-window
+archive. There is no frozen polarity model, so
+`results/barebone_narrative_arm.json` stays in cash under the same 0.10 and
+1.0 caps. That arm is not a fourth score book, and it does not change the
+momentum tape or the pure-ML baseline. `comparable_performance_claim` stays
+false.
+
 ## Reproduction checks
 
 ```bash
 pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
-  tests/test_barebone_run.py
+  tests/test_barebone_run.py tests/test_barebone_narrative.py
 make artifacts
 make verify
 make test

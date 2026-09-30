@@ -71,6 +71,8 @@
   "comparable_performance_claim": false,
   "evidence": {
     "ohlcv": "evidence/market/barebone_window_ohlcv.json",
-    "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+    "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205",
+    "narrative_events": "evidence/narrative/barebone_window_events.jsonl",
+    "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9"
   }
 }
