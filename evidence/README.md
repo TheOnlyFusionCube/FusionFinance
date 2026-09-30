@@ -25,8 +25,12 @@ reproduce `arms.benchmark.daily_returns`. A missing bar is an error. The
 builder does not fill one.
 
 `barebone-comparison-v1` points at `market/barebone_window_ohlcv.json`. That
-file is intentionally absent. The scaffold rejects this locked extract, and
-the fair-race tape hash, as a substitute.
+file is gitignored and is not redistributed. `scripts/ingest_barebone_tape.py`
+can write it from Tiingo, Polygon, or a local CSV, then record the byte
+SHA-256 in `market/barebone_window_provenance.json`. The sidecar has no
+prices. The scaffold rejects this locked extract, and the fair-race tape
+hash, as a substitute. `tape_sha256` stays null until `--lock-config` stores
+the digest of a successful local ingest.
 
 ## `amd/`
 

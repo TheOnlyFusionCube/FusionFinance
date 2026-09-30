@@ -94,6 +94,9 @@ PRIVATE_FILENAMES = {
     "presenter-reference.jpeg",
     "presenter-reference.png",
 }
+LOCAL_ONLY_PATHS = {
+    "evidence/market/barebone_window_ohlcv.json",
+}
 PUBLIC_BINARY_PATHS = {
     "docs/assets/dashboard.png",
     "presentation/FusionFinance_Demo.mp4",
@@ -140,6 +143,8 @@ def _is_allowed(path: Path) -> bool:
     if path.suffix.lower() in SKIP_SUFFIXES:
         return False
     if path.name.startswith(".env") or path.name == ".DS_Store":
+        return False
+    if relative.as_posix() in LOCAL_ONLY_PATHS:
         return False
     maximum_bytes = _max_file_bytes(relative)
     if maximum_bytes == 0 or path.stat().st_size > maximum_bytes:

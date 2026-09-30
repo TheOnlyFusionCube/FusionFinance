@@ -136,12 +136,25 @@ hash `3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05` and
 and fixture metrics are not a `barebone-comparison-v1` result.
 `comparable_performance_claim` stays false. This shell does not emit a ledger.
 
+`scripts/ingest_barebone_tape.py` can bind a local extract for that window.
+`--provider tiingo` reads `TIINGO_API_KEY` and `--provider polygon` reads
+`POLYGON_API_KEY`. `--from-csv` reads a user dump and does not call a vendor.
+Adjusted close is stored when the source supplies it. A dump without
+`adjclose` is refused unless `--adjustment raw` records that the bars are
+unadjusted and sets `adjclose` equal to `close`. The script does not fill a
+missing bar and does not generate software marks. It writes
+`evidence/market/barebone_window_ohlcv.json`, which is gitignored, and
+`evidence/market/barebone_window_provenance.json`, which has the byte SHA-256
+and no prices. `tape_sha256` in the config stays null until `--lock-config`
+records the digest of the file just written. That flag does not invent a
+digest and does not set a performance claim.
+
 ## Reproduction checks
 
 ```bash
 pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
-  tests/test_barebone_comparison.py
+  tests/test_barebone_comparison.py tests/test_barebone_tape.py
 make artifacts
 make verify
 make test

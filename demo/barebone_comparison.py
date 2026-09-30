@@ -31,6 +31,8 @@ FAIR_RACE_TAPE_HASH = (
 )
 FAIR_RACE_OHLCV = "evidence/market/locked_ohlcv.json"
 BAREBONE_OHLCV = "evidence/market/barebone_window_ohlcv.json"
+BAREBONE_PROVENANCE = "evidence/market/barebone_window_provenance.json"
+BAREBONE_LICENSE_NOTE = "not redistributed; local bind only"
 BAREBONE_WINDOW = ("2025-01-02", "2026-01-12")
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
