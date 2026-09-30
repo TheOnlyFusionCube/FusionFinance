@@ -52,6 +52,7 @@ evidence/narrative/barebone_window_scores.jsonl
 evidence/narrative/barebone_window_attention.jsonl
 evidence/narrative/barebone_window_edgar.jsonl
 evidence/narrative/barebone_window_form4.jsonl
+evidence/market/barebone_window_short_interest.jsonl
 evidence/narrative/*_raw.json
 evidence/narrative/*_raw.jsonl
 

@@ -113,6 +113,10 @@ EDGAR_PROVENANCE = "evidence/narrative/barebone_window_edgar_provenance.json"
 EDGAR_CIK_MAP = "evidence/narrative/barebone_edgar_cik_map.json"
 FORM4_EVENTS = "evidence/narrative/barebone_window_form4.jsonl"
 FORM4_PROVENANCE = "evidence/narrative/barebone_window_form4_provenance.json"
+LOCKED_FORM4_SHA256 = "4f46fd974486d189300727e474cc856caf0927e783f3d912f39c9487b42c929d"
+SHORT_INTEREST_EVENTS = "evidence/market/barebone_window_short_interest.jsonl"
+SHORT_INTEREST_PROVENANCE = "evidence/market/barebone_window_short_interest_provenance.json"
+SHORT_INTEREST_SYMBOL_MAP = "evidence/market/barebone_short_interest_symbol_map.json"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -162,6 +166,8 @@ class BareboneEvidence(_FrozenModel):
     edgar_sha256: str | None = None
     edgar_form4_events: str = FORM4_EVENTS
     edgar_form4_sha256: str | None = None
+    short_interest_events: str = SHORT_INTEREST_EVENTS
+    short_interest_sha256: str | None = None
 
     @field_validator("ohlcv")
     @classmethod
@@ -283,6 +289,25 @@ class BareboneEvidence(_FrozenModel):
             raise ValueError("edgar_form4_sha256 must be a lowercase sha256 hex digest or null")
         if value == FAIR_RACE_TAPE_HASH:
             raise ValueError("fair-race tape_hash is not the barebone form 4 tape")
+        return value
+
+    @field_validator("short_interest_events")
+    @classmethod
+    def _short_interest_path(cls, value: str) -> str:
+        normalized = value.strip().replace("\\", "/")
+        if normalized != SHORT_INTEREST_EVENTS:
+            raise ValueError("short interest events path is the gitignored local bind")
+        return normalized
+
+    @field_validator("short_interest_sha256")
+    @classmethod
+    def _short_interest_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or _SHA256.fullmatch(value) is None:
+            raise ValueError("short_interest_sha256 must be a lowercase sha256 hex digest or null")
+        if value == FAIR_RACE_TAPE_HASH:
+            raise ValueError("fair-race tape_hash is not the barebone short interest tape")
         return value
 
 

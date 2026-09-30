@@ -250,6 +250,25 @@ next-session residual is strictly above zero. Results are
 `results/barebone_form4_arm_metrics.json`. The momentum pure-ML book is
 unchanged. `comparable_performance_claim` stays false.
 
+FINRA short interest for a separate arm is the consolidated query on
+`api.finra.org`, not a scrape. `scripts/ingest_barebone_short_interest.py`
+reads `consolidatedShortInterest` for a frozen ticker-to-symbol map.
+`available_ts` is the publication date, the 7th business day after
+`settlementDate`, at 00:00:00Z. The settlement date is not an availability
+timestamp. A row with no settlement date aborts the ingest. The feature is
+the latest period change ratio, current short position minus previous,
+divided by the previous short position, in the 63 sessions ending at the
+decision session. The log1p level is not used. Names with no in-window print
+are omitted. The events file
+`evidence/market/barebone_window_short_interest.jsonl` is gitignored.
+`short_interest_sha256` is the digest of that file. `tape_sha256`,
+`narrative_sha256`, `edgar_sha256`, and `edgar_form4_sha256` stay locked.
+The book is cash unless expanding Spearman skill versus the next-session
+residual is strictly above zero. Results are
+`results/barebone_short_interest_arm_ledger.json` and
+`results/barebone_short_interest_arm_metrics.json`. The momentum pure-ML
+book is unchanged. `comparable_performance_claim` stays false.
+
 ## Reproduction checks
 
 ```bash
@@ -258,7 +277,8 @@ pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
   tests/test_barebone_run.py tests/test_barebone_narrative.py \
   tests/test_barebone_polarity.py tests/test_barebone_attention.py \
-  tests/test_barebone_edgar.py tests/test_barebone_form4.py
+  tests/test_barebone_edgar.py tests/test_barebone_form4.py \
+  tests/test_barebone_short_interest.py
 make artifacts
 make verify
 make test

@@ -81,6 +81,8 @@
     "edgar_events": "evidence/narrative/barebone_window_edgar.jsonl",
     "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e",
     "edgar_form4_events": "evidence/narrative/barebone_window_form4.jsonl",
-    "edgar_form4_sha256": "4f46fd974486d189300727e474cc856caf0927e783f3d912f39c9487b42c929d"
+    "edgar_form4_sha256": "4f46fd974486d189300727e474cc856caf0927e783f3d912f39c9487b42c929d",
+    "short_interest_events": "evidence/market/barebone_window_short_interest.jsonl",
+    "short_interest_sha256": "b9fc604fd96d1fe88fb8bd6ed3f133c9d4e4b89a92de8d54841153f2914577d5"
   }
 }

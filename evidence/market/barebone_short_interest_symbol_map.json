@@ -1,0 +1,211 @@
+{
+  "schema": "fusionfinance-barebone-short-interest-symbol-map-v1",
+  "experiment_id": "barebone-comparison-v1",
+  "source": "FINRA consolidatedShortInterest symbolCode",
+  "source_as_of": "2026-09-30",
+  "endpoint": "https://api.finra.org/data/group/otcMarket/name/consolidatedShortInterest",
+  "comparable_performance_claim": false,
+  "note": "Tape tickers match symbolCode except BRK-B, which FINRA lists as BRKB. BRK.B is not the symbolCode.",
+  "entries": [
+    {
+      "ticker": "AAPL",
+      "symbol_code": "AAPL"
+    },
+    {
+      "ticker": "AMZN",
+      "symbol_code": "AMZN"
+    },
+    {
+      "ticker": "AVGO",
+      "symbol_code": "AVGO"
+    },
+    {
+      "ticker": "BRK-B",
+      "symbol_code": "BRKB"
+    },
+    {
+      "ticker": "COST",
+      "symbol_code": "COST"
+    },
+    {
+      "ticker": "GOOGL",
+      "symbol_code": "GOOGL"
+    },
+    {
+      "ticker": "HD",
+      "symbol_code": "HD"
+    },
+    {
+      "ticker": "JPM",
+      "symbol_code": "JPM"
+    },
+    {
+      "ticker": "LLY",
+      "symbol_code": "LLY"
+    },
+    {
+      "ticker": "META",
+      "symbol_code": "META"
+    },
+    {
+      "ticker": "MSFT",
+      "symbol_code": "MSFT"
+    },
+    {
+      "ticker": "NFLX",
+      "symbol_code": "NFLX"
+    },
+    {
+      "ticker": "NVDA",
+      "symbol_code": "NVDA"
+    },
+    {
+      "ticker": "ORCL",
+      "symbol_code": "ORCL"
+    },
+    {
+      "ticker": "TSLA",
+      "symbol_code": "TSLA"
+    },
+    {
+      "ticker": "WMT",
+      "symbol_code": "WMT"
+    },
+    {
+      "ticker": "AMD",
+      "symbol_code": "AMD"
+    },
+    {
+      "ticker": "CRM",
+      "symbol_code": "CRM"
+    },
+    {
+      "ticker": "ADBE",
+      "symbol_code": "ADBE"
+    },
+    {
+      "ticker": "PEP",
+      "symbol_code": "PEP"
+    },
+    {
+      "ticker": "KO",
+      "symbol_code": "KO"
+    },
+    {
+      "ticker": "XOM",
+      "symbol_code": "XOM"
+    },
+    {
+      "ticker": "CVX",
+      "symbol_code": "CVX"
+    },
+    {
+      "ticker": "UNH",
+      "symbol_code": "UNH"
+    },
+    {
+      "ticker": "V",
+      "symbol_code": "V"
+    },
+    {
+      "ticker": "MA",
+      "symbol_code": "MA"
+    },
+    {
+      "ticker": "BAC",
+      "symbol_code": "BAC"
+    },
+    {
+      "ticker": "WFC",
+      "symbol_code": "WFC"
+    },
+    {
+      "ticker": "DIS",
+      "symbol_code": "DIS"
+    },
+    {
+      "ticker": "CMCSA",
+      "symbol_code": "CMCSA"
+    },
+    {
+      "ticker": "INTC",
+      "symbol_code": "INTC"
+    },
+    {
+      "ticker": "QCOM",
+      "symbol_code": "QCOM"
+    },
+    {
+      "ticker": "TXN",
+      "symbol_code": "TXN"
+    },
+    {
+      "ticker": "AMAT",
+      "symbol_code": "AMAT"
+    },
+    {
+      "ticker": "NOW",
+      "symbol_code": "NOW"
+    },
+    {
+      "ticker": "ISRG",
+      "symbol_code": "ISRG"
+    },
+    {
+      "ticker": "BKNG",
+      "symbol_code": "BKNG"
+    },
+    {
+      "ticker": "TMO",
+      "symbol_code": "TMO"
+    },
+    {
+      "ticker": "ABT",
+      "symbol_code": "ABT"
+    },
+    {
+      "ticker": "MRK",
+      "symbol_code": "MRK"
+    },
+    {
+      "ticker": "ACN",
+      "symbol_code": "ACN"
+    },
+    {
+      "ticker": "IBM",
+      "symbol_code": "IBM"
+    },
+    {
+      "ticker": "GE",
+      "symbol_code": "GE"
+    },
+    {
+      "ticker": "CAT",
+      "symbol_code": "CAT"
+    },
+    {
+      "ticker": "HON",
+      "symbol_code": "HON"
+    },
+    {
+      "ticker": "LOW",
+      "symbol_code": "LOW"
+    },
+    {
+      "ticker": "NKE",
+      "symbol_code": "NKE"
+    },
+    {
+      "ticker": "UPS",
+      "symbol_code": "UPS"
+    },
+    {
+      "ticker": "BA",
+      "symbol_code": "BA"
+    },
+    {
+      "ticker": "PFE",
+      "symbol_code": "PFE"
+    }
+  ]
+}

@@ -66,6 +66,12 @@ not redistributed. `edgar_sha256` is its byte digest. Amendments are excluded.
 open-market buy and sell counts. It does not store filing HTML or XML.
 `edgar_form4_sha256` is its byte digest. `periodOfReport` is not the
 availability timestamp.
+`barebone_short_interest_symbol_map.json` is the frozen ticker-to-FINRA
+symbol map. `scripts/ingest_barebone_short_interest.py` reads the FINRA
+consolidated short-interest query and writes gitignored
+`barebone_window_short_interest.jsonl`. That file is not redistributed.
+`short_interest_sha256` is its byte digest. The settlement date is not the
+availability timestamp.
 
 ## `amd/`
 
