@@ -129,7 +129,8 @@ def analyze_sentiment(view: StoreView, ticker: str, *, recent_days: int = 1) -> 
 
     contrarian = -0.6 if {"SPAM_CONCENTRATED_MENTIONS", "CROWDED_RETAIL_SURGE"} & set(flags) else 0.0
     retail_term = (retail or 0.0) * (0.25 if not contrarian else 0.0)
-    score = clip((institutional or 0.0) * 0.75 + retail_term + contrarian * abs(retail or 0.0))
+    # Fade a crowded, promotional retail gauge in whichever direction it points.
+    score = clip((institutional or 0.0) * 0.75 + retail_term + contrarian * (retail or 0.0))
     confidence = clip(
         0.3 * (institutional is not None) + 0.2 * (retail is not None)
         + 0.3 * min(1.0, facts.get("covering_firms", 0.0) / 8), 0.0, 1.0,

@@ -77,15 +77,18 @@ across runs.
 
 | Arm | Return | Sharpe | Max drawdown | Turnover | Costs |
 |---|---:|---:|---:|---:|---:|
-| `llm_only` (LLM decides) | +26.3% | 4.48 | −2.8% | 25.0 | 1.93% |
-| `llm_desk` (+ desk and evidence audit) | +23.3% | 4.02 | −2.4% | 24.4 | 1.86% |
+| `llm_only` (LLM decides) | +29.0% | 4.91 | −2.1% | 25.1 | 1.95% |
+| `llm_desk` (+ desk and evidence audit) | +25.4% | 4.41 | −2.1% | 24.5 | 1.88% |
 | `ml_only` (market head trades alone) | −0.3% | −0.04 | −4.0% | 23.1 | 1.62% |
 | `committee_only` (committee trades alone) | +24.7% | 4.49 | −2.7% | 15.5 | 1.23% |
-| `fusion_single` (LLM-first, market-head gate) | +22.7% | 4.35 | −1.6% | 21.9 | 1.66% |
-| `fusion` (LLM-first, committee gate) | **+26.9%** | **4.69** | −1.9% | 21.2 | 1.67% |
+| `fusion_single` (LLM-first, market-head gate) | +23.7% | 4.58 | −1.6% | 21.6 | 1.64% |
+| `fusion` (LLM-first, committee gate) | **+29.4%** | **5.12** | −1.9% | 21.6 | 1.71% |
 
-Ideas the gate approved hit 62.8%; ideas it blocked hit 49.2%. The gate passed
-90% of genuine ideas and 38% of hype ideas.
+Ideas the gate approved hit 63.9%; ideas it blocked hit 47.0%. In this mode the
+research pipeline already screens out most promotion: only 10 hype ideas
+reached the gate over the whole run (8 passed, 2 vetoed), against 62 genuine
+ones (46 approved, 5 vetoed, 11 rejected by the desk). Each arm's risk book
+applies the drawdown brake using its own point-in-time paper mark.
 
 **Narrative mode** (LLM reads raw text only, so it falls for promotion):
 

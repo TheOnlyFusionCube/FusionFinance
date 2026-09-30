@@ -99,13 +99,15 @@ correctly earn no vote.
 
 | Arm | Dossier: return / Sharpe / max DD | Narrative: return / Sharpe / max DD |
 |---|---|---|
-| LLM decides alone | +26.3% / 4.48 / −2.8% | −6.9% / −3.26 / −7.6% |
+| LLM decides alone | +29.0% / 4.91 / −2.1% | −6.9% / −3.26 / −7.6% |
 | Committee trades alone | +24.7% / 4.49 / −2.7% | +24.7% / 4.49 / −2.7% |
-| LLM-first, single market head | +22.7% / 4.35 / −1.6% | −2.9% / −1.43 / −4.0% |
-| **LLM-first, committee** | **+26.9% / 4.69** / −1.9% | **+1.1% / 0.58 / −1.6%** |
+| LLM-first, single market head | +23.7% / 4.58 / −1.6% | −2.9% / −1.43 / −4.0% |
+| **LLM-first, committee** | **+29.4% / 5.12** / −1.9% | **+1.1% / 0.58 / −1.6%** |
 
-With the committee, the gate passed 90% of genuine ideas but only 38% of hype
-in dossier mode, and 59% versus 23% in narrative mode. In narrative mode,
+In narrative mode, where the LLM is fooled by promotion, the committee gate
+passed 59% of genuine ideas and 23% of hype. In dossier mode the research
+pipeline screens out most promotion before the LLM proposes anything: only 10
+hype ideas reached the gate, of which it passed 8. In narrative mode,
 committee-approved ideas hit 56% and blocked ideas 29%. The committee-only
 book is strong here because this world plants its signal in structured event
 data. On real data, expect the seated set, and whether the committee alone

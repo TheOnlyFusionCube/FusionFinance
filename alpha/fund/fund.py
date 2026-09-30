@@ -97,10 +97,13 @@ class LLMFirstFund:
     reliability: ReliabilityLedger = field(default_factory=ReliabilityLedger)
     meta: MetaLabeler = field(default_factory=MetaLabeler)
     ledger: DecisionLedger = field(default_factory=DecisionLedger)
-    analyst_timeout_seconds: float = 20.0
+    analyst_timeout_seconds: float | None = None   # default: max(20s, provider timeout)
     require_desk_consensus: bool = False
 
     def __post_init__(self) -> None:
+        if self.analyst_timeout_seconds is None:
+            provider_timeout = getattr(self.analyst, "timeout_seconds", None) or 0.0
+            self.analyst_timeout_seconds = max(20.0, float(provider_timeout))
         self._orchestrator = FusionOrchestrator(
             provider=self.analyst, analyst_timeout_seconds=self.analyst_timeout_seconds
         )

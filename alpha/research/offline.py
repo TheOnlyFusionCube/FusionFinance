@@ -24,8 +24,9 @@ _WEIGHTS = {
 
 
 def _skill(document: SourceDocument) -> str:
-    parts = document.document_id.split(".")
-    return parts[1] if len(parts) >= 3 else ""
+    # IDs are TICKER.skill.YYYY-MM-DD and tickers may contain dots (BRK.B).
+    parts = document.document_id.rsplit(".", 2)
+    return parts[1] if len(parts) == 3 else ""
 
 
 def _value(document: SourceDocument, key: str) -> float | None:

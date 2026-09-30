@@ -257,3 +257,27 @@ def test_ml_gate_defers_to_a_quorate_committee() -> None:
     with pytest.raises(ValueError, match="other side"):
         verify_idea(receipt, forecast=None, p_llm=0.7, p_meta=None,
                     committee=ConsensusVote("ACME", -1, "support", 0.6, 1.0, 0.0, 5, 3))
+
+
+def test_fund_accepts_slow_real_model_providers() -> None:
+    class SlowAnalyst(DeterministicOfflineProvider):
+        timeout_seconds = 120.0
+
+    fund = LLMFirstFund(originator=DeterministicOriginator(), analyst=SlowAnalyst())
+    assert fund.analyst_timeout_seconds == 120.0
+    assert LLMFirstFund(originator=DeterministicOriginator(),
+                        analyst=DeterministicOfflineProvider()).analyst_timeout_seconds == 20.0
+
+
+def test_paper_book_drawdown_feeds_the_brake() -> None:
+    import numpy as np
+
+    from alpha.fund.backtest import _PaperBook
+
+    closes = np.array([[100.0], [80.0], [90.0]])
+    book = _PaperBook()
+    assert book.mark(0, closes, {"A": 0}) == 0.0
+    book.hold(0, {"A": 0.5})
+    assert book.mark(1, closes, {"A": 0}) == pytest.approx(-0.1)
+    book.hold(1, {"A": 0.5})
+    assert book.mark(2, closes, {"A": 0}) == pytest.approx(0.9 * 1.0625 - 1.0)

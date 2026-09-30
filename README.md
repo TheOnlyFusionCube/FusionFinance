@@ -68,16 +68,16 @@ are the only evidence the LLM may cite.
 
 | Arm | Dossier mode | Narrative mode (LLM fooled by hype) |
 |---|---|---|
-| LLM decides alone | +26.3%, Sharpe 4.48 | −6.9%, Sharpe −3.26 |
+| LLM decides alone | +29.0%, Sharpe 4.91 | −6.9%, Sharpe −3.26 |
 | Committee trades alone | +24.7%, Sharpe 4.49 | +24.7%, Sharpe 4.49 |
-| LLM-first + single ML verifier | +22.7%, Sharpe 4.35 | −2.9%, Sharpe −1.43 |
-| **LLM-first + verifier committee** | **+26.9%, Sharpe 4.69** | **+1.1%, Sharpe 0.58** |
+| LLM-first + single ML verifier | +23.7%, Sharpe 4.58 | −2.9%, Sharpe −1.43 |
+| **LLM-first + verifier committee** | **+29.4%, Sharpe 5.12** | **+1.1%, Sharpe 0.58** |
 
 The committee seated only the four jurors that carry this world's planted
 catalyst signal (analyst revisions, opportunistic insiders, post-earnings
 drift, Gu–Kelly–Xiu trees; IC t-stats of 3.9 to 5.9). It refused votes to the
-anomalies the world does not contain. The gate passed 90% of genuine ideas and
-38% of hype ideas. The world is fictional, so it is leakage-free for any LLM,
+anomalies the world does not contain. When the LLM reads raw narrative and is
+fooled by hype, the committee gate passes 59% of genuine ideas and 23% of hype. The world is fictional, so it is leakage-free for any LLM,
 but its signals are planted and the thresholds are uncalibrated. See
 [the fund doc](docs/llm-first-fund.md) and
 [the committee doc](docs/verifier-committee.md).

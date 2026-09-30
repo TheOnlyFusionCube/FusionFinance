@@ -216,6 +216,8 @@ def run_backtest(
     verifier: MarketVerifier | None = None
     last_fit = -10**9
     decision_indices = list(range(first_decision, total - 1, config.rebalance_every))
+    ticker_index = {ticker: position for position, ticker in enumerate(tickers)}
+    books = {arm: _PaperBook() for arm in ARMS}
 
     horizon = config.committee_rules.horizon
     committee = Committee(jurors=default_jurors(), rules=config.committee_rules) if config.use_committee else None
@@ -304,19 +306,27 @@ def run_backtest(
         decisions_by_index[index] = decisions
 
         session = world.dates[index].date()
+        # Each arm's drawdown comes from its own point-in-time paper book so the
+        # risk book's drawdown brake can act; the kernel still does the real fills.
+        drawdown = {arm: book.mark(index, close_matrix, ticker_index) for arm, book in books.items()}
         arm_weights = {
             "llm_only": config.risk.targets([
                 _sized(item, item.p_llm) for item in decisions if item.side
-            ]),
+            ], drawdown=drawdown["llm_only"]),
             "llm_desk": config.risk.targets([
                 _sized(item, item.p_llm) for item in decisions
                 if item.side and item.stage != "desk_rejected"
-            ]),
-            "ml_only": config.risk.targets(_ml_only_ideas(config, forecasts)),
-            "committee_only": config.risk.targets(_committee_only_ideas(config, committee, forecasts)),
-            "fusion_single": config.risk.targets(_single_verifier_ideas(fund, decisions, forecasts)),
-            "fusion": fund.size(decisions),
+            ], drawdown=drawdown["llm_desk"]),
+            "ml_only": config.risk.targets(
+                _ml_only_ideas(config, forecasts), drawdown=drawdown["ml_only"]),
+            "committee_only": config.risk.targets(
+                _committee_only_ideas(config, committee, forecasts), drawdown=drawdown["committee_only"]),
+            "fusion_single": config.risk.targets(
+                _single_verifier_ideas(fund, decisions, forecasts), drawdown=drawdown["fusion_single"]),
+            "fusion": fund.size(decisions, drawdown=drawdown["fusion"]),
         }
+        for arm, weights in arm_weights.items():
+            books[arm].hold(index, weights)
         for arm, weights in arm_weights.items():
             targets[arm].append(WeightProposal(
                 strategy_id=arm,
@@ -392,6 +402,29 @@ def _fit_verifier(config, world, index, features_at, labels_at) -> MarketVerifie
     with _gbm_iterations(config.gbm_iters):
         verifier.fit(panels, decision_cutoff=cutoff)
     return verifier if verifier.models else None
+
+
+@dataclass
+class _PaperBook:
+    """Close-to-close mark of an arm's last targets, using only closes up to now."""
+
+    equity: float = 1.0
+    peak: float = 1.0
+    weights: dict[str, float] = field(default_factory=dict)
+    since: int | None = None
+
+    def mark(self, index: int, closes, columns: dict[str, int]) -> float:
+        if self.since is not None and self.weights:
+            period = sum(
+                weight * (closes[index, columns[ticker]] / closes[self.since, columns[ticker]] - 1.0)
+                for ticker, weight in self.weights.items()
+            )
+            self.equity *= max(1e-6, 1.0 + period)
+            self.peak = max(self.peak, self.equity)
+        return self.equity / self.peak - 1.0
+
+    def hold(self, index: int, weights: dict[str, float]) -> None:
+        self.weights, self.since = dict(weights), index
 
 
 def _sized(decision: IdeaDecision, probability: float) -> SizedIdea:

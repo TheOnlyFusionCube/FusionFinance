@@ -320,3 +320,26 @@ def test_cli_prints_a_dossier_and_a_portfolio_review() -> None:
         assert main(["review", "S01=0.5", "S02=0.5", "--sessions", "300"]) == 0
     assert "convergence:" in research.getvalue() and "[technicals]" in research.getvalue()
     assert '"lenses"' in review.getvalue()
+
+
+def test_sentiment_fades_a_bearish_promotional_surge_too() -> None:
+    store = ResearchStore()
+    store.add(_bars("ACME", [50.0] * 30))
+    for day in range(1, 8):
+        stamp = f"2025-02-{day:02d}T20:00:00Z"
+        store.add([SocialMentions(ticker="ACME", event_at=stamp, available_at=stamp, source="t",
+                                  platform="x", mentions=20, unique_accounts=18, bullish=8, bearish=8)])
+    stamp = "2025-02-10T20:00:00Z"
+    store.add([SocialMentions(ticker="ACME", event_at=stamp, available_at=stamp, source="t",
+                              platform="x", mentions=900, unique_accounts=60, bullish=20, bearish=850)])
+    card = analyze_sentiment(store.view("2025-02-10T21:00:00Z"), "ACME")
+    assert "SPAM_CONCENTRATED_MENTIONS" in card.flags and card.score > 0
+
+
+def test_offline_reader_handles_dotted_tickers() -> None:
+    from alpha.agents.models import SourceDocument
+    from alpha.research.offline import _skill
+
+    document = SourceDocument(document_id="BRK.B.news_impact.2026-01-05",
+                              available_at="2026-01-05T21:00:00Z", text="Some text here.", roles=("news",))
+    assert _skill(document) == "news_impact"
