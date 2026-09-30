@@ -23,6 +23,9 @@ from demo.controlled import (
     MarketVerification,
     benchmark_marks_from_closes,
     load_locked_config,
+    load_policy_thresholds,
+    locked_software_tape,
+    locked_weekday_sessions,
     run_controlled_arm,
     run_three_arms,
 )
@@ -893,6 +896,324 @@ def test_checked_in_software_ledger_matches_the_sealed_endpoint_run() -> None:
     assert checked["transaction_costs"] > 0.0
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(checked))
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(checked_receipt))
+
+
+_THREE_ARM_LEDGER = Path("results/controlled_three_arm_ledger.json")
+_CALIBRATION_ARTIFACT = Path("results/fusion_policy_calibration.json")
+
+
+def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
+    thresholds = load_policy_thresholds()
+    config = _config_model()
+    sessions = _sessions()
+    marks = _marks(config, sessions)
+    receipt = _receipt()
+    missing = run_controlled_arm(
+        config=config,
+        sessions=sessions,
+        strategy_id="fusion",
+        candidates=(
+            ArmInput(
+                strategy_id="fusion",
+                decision_session="2027-03-02",
+                ticker="AAA",
+                receipt=receipt,
+                outcome_ts=_outcome(),
+            ),
+        ),
+        benchmark_marks=marks,
+        thresholds=thresholds,
+    )
+    no_forecast = run_controlled_arm(
+        config=config,
+        sessions=sessions,
+        strategy_id="fusion",
+        candidates=(
+            ArmInput(
+                strategy_id="fusion",
+                decision_session="2027-03-02",
+                ticker="AAA",
+                receipt=receipt,
+                market=MarketVerification(
+                    produced_at=_market(receipt).produced_at,
+                    expected_residual_bps={},
+                    p_adverse={},
+                    out_of_distribution_score=0.1,
+                    calibration_hash=thresholds.calibration_hash,
+                    fundamental_confirm_prob=0.9,
+                ),
+                outcome_ts=_outcome(),
+            ),
+        ),
+        benchmark_marks=marks,
+        thresholds=thresholds,
+    )
+    ood = run_controlled_arm(
+        config=config,
+        sessions=sessions,
+        strategy_id="fusion",
+        candidates=(
+            ArmInput(
+                strategy_id="fusion",
+                decision_session="2027-03-02",
+                ticker="AAA",
+                receipt=receipt,
+                market=MarketVerification(
+                    produced_at=_market(receipt).produced_at,
+                    expected_residual_bps={"10d": 80.0},
+                    p_adverse={"10d": 0.2},
+                    out_of_distribution_score=0.95,
+                    calibration_hash=thresholds.calibration_hash,
+                    fundamental_confirm_prob=0.9,
+                ),
+                outcome_ts=_outcome(),
+            ),
+        ),
+        benchmark_marks=marks,
+        thresholds=thresholds,
+    )
+
+    assert thresholds.calibrated is True
+    assert missing.lineage.proposals[0].reason == "market verifier required"
+    assert missing.admitted_count == 0
+    assert no_forecast.lineage.proposals[0].verifier_decision == "inconclusive"
+    assert no_forecast.admitted_count == 0
+    assert ood.lineage.proposals[0].verifier_decision == "abstain"
+    assert "OOD" in ood.lineage.proposals[0].reason
+    assert ood.admitted_count == 0
+
+
+def locked_three_arm_ledger() -> dict[str, object]:
+    """Full locked-window three-arm software ledger. Not a performance claim."""
+
+    config = load_locked_config()
+    sessions = locked_software_tape(config)
+    dates = locked_weekday_sessions(config)
+    assert tuple(session.session for session in sessions) == dates
+    marks = _marks(config, sessions)
+    thresholds = load_policy_thresholds()
+    clock = [
+        index
+        for index in range(len(dates))
+        if index % config.rebalance_frequency_sessions == 0
+        and index + config.execution_lag_sessions < len(dates)
+    ]
+    pure_ml: list[ArmInput] = []
+    pure_llm: list[ArmInput] = []
+    fusion: list[ArmInput] = []
+    seals: list[dict[str, object]] = []
+    for ordinal, index in enumerate(clock):
+        decision = dates[index]
+        ticker = config.universe[ordinal % len(config.universe)]
+        outcome = f"{dates[index + config.execution_lag_sessions].isoformat()}T21:00:00Z"
+        receipt = _seal_locked_receipt(ticker, decision)
+        kind = ("approve", "reject", "research_only")[ordinal % 3]
+        pure_ml.append(
+            ArmInput(
+                strategy_id="pure_ml",
+                decision_session=decision,
+                ticker=ticker,
+                structured_weight=0.05,
+            )
+        )
+        pure_llm.append(
+            ArmInput(
+                strategy_id="pure_llm",
+                decision_session=decision,
+                ticker=ticker,
+                receipt=receipt,
+                outcome_ts=outcome,
+            )
+        )
+        fusion.append(
+            ArmInput(
+                strategy_id="fusion",
+                decision_session=decision,
+                ticker=ticker,
+                receipt=receipt,
+                market=_fusion_market(
+                    decision, kind, thresholds.calibration_hash
+                ),
+                outcome_ts=outcome,
+            )
+        )
+        assert receipt.thesis is not None
+        seals.append(
+            {
+                "decision_session": decision.isoformat(),
+                "committed_at": receipt.thesis.committed_at,
+                "outcome_ts": outcome,
+                "receipt_hash": receipt.receipt_hash,
+                "market_case": kind,
+            }
+        )
+    arms = run_three_arms(
+        config=config,
+        sessions=sessions,
+        arms={"pure_ml": pure_ml, "pure_llm": pure_llm, "fusion": fusion},
+        benchmark_marks=marks,
+        thresholds=thresholds,
+    )
+    by_name = {run.lineage.strategy_id: run for run in arms}
+    return {
+        "schema": "fusionfinance-controlled-three-arm-ledger-v1",
+        "claim_status": "controlled_software_ledger",
+        "comparable_performance_claim": False,
+        "description": (
+            "Software ledger for every weekday session in the locked window "
+            "2026-02-02 through 2026-07-09, rebalanced every 10 sessions. "
+            "LLM arms use the desk's first orchestrator seal. Fusion uses the "
+            "pre-window calibration artifact and still requires a market head. "
+            "Prices are deterministic software marks. This is not a "
+            "performance claim."
+        ),
+        "window": [config.start_date.isoformat(), config.end_date.isoformat()],
+        "session_count": len(dates),
+        "rebalance_frequency_sessions": config.rebalance_frequency_sessions,
+        "rebalance_count": len(clock),
+        "calibration_hash": thresholds.calibration_hash,
+        "calibration_path": _CALIBRATION_ARTIFACT.as_posix(),
+        "provenance": {
+            "desk": "alpha.agents.desk.AgentDesk",
+            "orchestrator": "alpha.agents.orchestrator.FusionOrchestrator",
+            "provider": "fusionfinance-offline-lexical-v1",
+            "seal": "orchestrator_first_commit",
+        },
+        "seals": seals,
+        "arms": {
+            name: _arm_ledger(by_name[name])
+            for name in ("pure_ml", "pure_llm", "fusion")
+        },
+    }
+
+
+def _seal_locked_receipt(ticker: str, decision: date) -> DecisionReceipt:
+    proposal = TradeProposal(
+        ticker=ticker,
+        as_of=f"{decision.isoformat()}T18:00:00Z",
+        direction="positive",
+        horizon_days=10,
+        expected_move_bps=120.0,
+        confidence=0.8,
+        claim_type="near_term_catalyst",
+        max_position_weight=0.1,
+    )
+    text = "Revenue growth improved and management raised guidance."
+    documents = tuple(
+        SourceDocument(
+            document_id=f"{role}.source",
+            available_at=f"{decision.isoformat()}T15:00:00Z",
+            text=text,
+            roles=(role,),
+            numeric_values=(NumericValue(key="growth_pct", value=12.0),),
+        )
+        for role in ANALYST_ROLES
+    )
+    receipt = FusionOrchestrator(
+        provider=DeterministicOfflineProvider(),
+        committed_at=f"{decision.isoformat()}T20:00:00Z",
+    ).run(proposal, SealedSourceSnapshot.seal(documents))
+    receipt.verify_receipt()
+    assert receipt.decision == "approved"
+    assert receipt.thesis is not None
+    assert receipt.thesis.committed_at == f"{decision.isoformat()}T20:00:00Z"
+    return receipt
+
+
+def _fusion_market(decision: date, kind: str, calibration_hash: str) -> MarketVerification:
+    residual = 80.0
+    fundamental = 0.9
+    if kind == "reject":
+        fundamental = 0.1
+    elif kind == "research_only":
+        residual = -80.0
+    return MarketVerification(
+        produced_at=f"{decision.isoformat()}T20:00:01Z",
+        expected_residual_bps={"10d": residual},
+        p_adverse={"10d": 0.2},
+        out_of_distribution_score=0.1,
+        calibration_hash=calibration_hash,
+        fundamental_confirm_prob=fundamental,
+    )
+
+
+def _arm_ledger(run) -> dict[str, object]:
+    assert run.block_reason is None and run.ledger is not None
+    ledger = run.ledger
+    return {
+        "strategy_id": run.lineage.strategy_id,
+        "claim_status": run.claim_status,
+        "comparable_performance_claim": run.comparable_performance_claim,
+        "config_hash": run.lineage.config_hash,
+        "tape_hash": run.lineage.tape_hash,
+        "lineage_hash": run.lineage.lineage_hash,
+        "experiment_hash": run.lineage.experiment_hash,
+        "admitted_count": run.admitted_count,
+        "session_count": ledger.session_count,
+        "trade_count": ledger.trade_count,
+        "total_turnover": ledger.total_turnover,
+        "transaction_costs": ledger.transaction_costs,
+        "slippage_costs": ledger.slippage_costs,
+        "post_cost_within_limit": ledger.post_cost_within_limit,
+        "benchmark_sessions": [day.isoformat() for day in ledger.benchmark_sessions],
+        "decisions": [
+            {
+                "decision_session": row.decision_session.isoformat(),
+                "ticker": row.ticker,
+                "admitted": row.admitted,
+                "target_weight": row.target_weight,
+                "reason": row.reason,
+                "precheck_decision": row.precheck_decision,
+                "verifier_decision": row.verifier_decision,
+                "receipt_hash": row.receipt_hash,
+            }
+            for row in run.lineage.proposals
+        ],
+    }
+
+
+def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
+    root = Path(__file__).resolve().parents[1]
+    path = root / _THREE_ARM_LEDGER
+    rendered = _json_text(locked_three_arm_ledger())
+    document = json.loads(rendered)
+    checked = json.loads(path.read_text(encoding="utf-8"))
+    config = load_locked_config()
+    dates = [day.isoformat() for day in locked_weekday_sessions(config)]
+    fusion_decisions = {
+        row["verifier_decision"] for row in document["arms"]["fusion"]["decisions"]
+    }
+
+    assert path.read_text(encoding="utf-8") == rendered
+    assert checked == document
+    assert document["comparable_performance_claim"] is False
+    assert document["window"] == ["2026-02-02", "2026-07-09"]
+    assert document["session_count"] == len(dates) == 114
+    assert dates[0] == "2026-02-02" and dates[-1] == "2026-07-09"
+    assert document["rebalance_frequency_sessions"] == 10
+    assert document["rebalance_count"] == 12
+    assert document["calibration_hash"] == load_policy_thresholds().calibration_hash
+    assert len(document["calibration_hash"]) == 64
+    assert "policy thresholds lack a calibration artifact" not in rendered
+    assert fusion_decisions == {"approved", "reject", "research_only"}
+    for seal in document["seals"]:
+        assert seal["committed_at"] < seal["outcome_ts"]
+    for name, arm in document["arms"].items():
+        assert arm["comparable_performance_claim"] is False
+        assert arm["benchmark_sessions"] == dates
+        assert arm["session_count"] == 114
+        assert arm["post_cost_within_limit"] is True
+        assert isinstance(arm["total_turnover"], float)
+        assert isinstance(arm["transaction_costs"], float)
+        assert arm["total_turnover"] > 0.0
+        assert arm["transaction_costs"] > 0.0
+        assert len(arm["config_hash"]) == 64
+        assert len(arm["tape_hash"]) == 64
+        assert len(arm["experiment_hash"]) == 64
+        assert arm["strategy_id"] == name
+    assert document["arms"]["fusion"]["admitted_count"] > 0
+    assert document["arms"]["pure_llm"]["admitted_count"] == 12
+    assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(document))
 
 
 def _legacy_sessions():

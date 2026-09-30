@@ -105,7 +105,13 @@ and the software ledger that consumes it are checked in at
 and
 [`results/controlled_software_ledger.json`](../results/controlled_software_ledger.json).
 The ledger carries experiment, config, and tape hashes and computed turnover
-and costs. It is not a performance claim.
+and costs. It is not a performance claim. The full locked weekday calendar,
+rebalanced every 10 sessions, is checked in at
+[`results/controlled_three_arm_ledger.json`](../results/controlled_three_arm_ledger.json).
+Fusion uses
+[`results/fusion_policy_calibration.json`](../results/fusion_policy_calibration.json),
+a pre-window calibration receipt, and still requires a market head. That
+three-arm file is a software ledger, not a performance claim.
 
 ## Reproduction checks
 

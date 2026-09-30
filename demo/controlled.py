@@ -16,7 +16,7 @@ import json
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from numbers import Real
 from pathlib import Path
 from typing import Literal
@@ -27,6 +27,7 @@ from alpha.agents.models import DecisionReceipt, EvidenceAuditSummary
 from alpha.verifier.contract import ThesisContract, VerifierOutput
 from alpha.verifier.policy import PolicyThresholds, adjudicate
 from demo.contracts import (
+    AssetBar,
     BenchmarkMark,
     ExperimentConfig,
     LedgerReconciliation,
@@ -165,6 +166,87 @@ class _Gate:
     verifier_decision: str | None
     structured_weight: float | None
     outcome_ts: str | None
+
+
+def locked_weekday_sessions(config: ExperimentConfig) -> tuple[date, ...]:
+    """Every weekday from the locked start through the locked end, inclusive."""
+
+    days: list[date] = []
+    current = config.start_date
+    while current <= config.end_date:
+        if current.weekday() < 5:
+            days.append(current)
+        current += timedelta(days=1)
+    if len(days) < 2 or days[0] != config.start_date or days[-1] != config.end_date:
+        raise ValueError("locked window must start and end on weekday sessions")
+    return tuple(days)
+
+
+def locked_software_tape(config: ExperimentConfig) -> tuple[MarketSession, ...]:
+    """Deterministic software marks for the full locked weekday calendar.
+
+    These prices are not a market reprint and are not a performance claim.
+    """
+
+    names = (*config.universe, config.benchmark_ticker)
+    sessions: list[MarketSession] = []
+    for index, day in enumerate(locked_weekday_sessions(config)):
+        level = 100.0 + float(index)
+        sessions.append(
+            MarketSession(
+                session=day,
+                bars=tuple(
+                    AssetBar(
+                        ticker=name,
+                        open=level,
+                        close=level + (1.0 if name == config.benchmark_ticker else 0.0),
+                    )
+                    for name in names
+                ),
+            )
+        )
+    return tuple(sessions)
+
+
+def load_policy_thresholds(path: str | Path | None = None) -> PolicyThresholds:
+    """Return calibrated thresholds only after the artifact verifies.
+
+    Verification binds the hash to the receipt and requires the 10-day horizon.
+    A missing market head still cannot be approved.
+    """
+
+    artifact_path = (
+        Path(path)
+        if path is not None
+        else Path(__file__).resolve().parents[1] / "results" / "fusion_policy_calibration.json"
+    )
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    receipt_json = payload.get("receipt_json")
+    artifact_hash = payload.get("artifact_hash")
+    if not isinstance(receipt_json, str) or not isinstance(artifact_hash, str):
+        raise ValueError("calibration artifact is incomplete")
+    receipt = json.loads(receipt_json)
+    from alpha.verifier.calibration import AffineLogitCalibrator
+
+    parameters = tuple(
+        (str(horizon), float(slope), float(intercept))
+        for horizon, slope, intercept in receipt["parameters"]
+    )
+    horizons = tuple(str(horizon) for horizon in receipt["rows"])
+    calibrator = AffineLogitCalibrator(
+        parameters=parameters,
+        device="cpu",
+        strict_gpu=False,
+        fitted_horizons=horizons,
+        artifact_hash=artifact_hash,
+        receipt_json=receipt_json,
+    )
+    calibrator.verify_artifact({"10d"})
+    return PolicyThresholds(
+        calibrated=True,
+        calibration_hash=calibrator.artifact_hash,
+        horizon_key="10d",
+    )
 
 
 def load_locked_config(path: str | Path | None = None) -> ExperimentConfig:

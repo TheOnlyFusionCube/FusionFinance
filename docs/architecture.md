@@ -147,9 +147,11 @@ fills to events and marked results, and requires benchmark wealth to be bound
 to portfolio session dates. Turnover and costs on that ledger are computed
 values.
 
-That software record is not a comparative performance claim. No prospective
-three-arm run on the locked February–July tape has been published. Uncalibrated
-policy thresholds abstain, and a thesis sealed after its outcome does not reach
+That software record is not a comparative performance claim. A full weekday
+calendar for the locked February–July window is checked in as a software
+ledger, not as a published performance result. Uncalibrated policy thresholds
+abstain. A calibrated artifact does not approve fusion without a market head
+and an in-distribution score. A thesis sealed after its outcome does not reach
 capital.
 
 Metrics are recomputed from successive wealth ratios. They include return,
