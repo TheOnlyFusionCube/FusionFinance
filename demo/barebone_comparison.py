@@ -106,6 +106,9 @@ LOCKED_POLARITY_SHA256 = "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3
 ATTENTION_SCORES = "evidence/narrative/barebone_window_attention.jsonl"
 ATTENTION_PROVENANCE = "evidence/narrative/barebone_window_attention_provenance.json"
 HYBRID_PROVENANCE = "evidence/narrative/barebone_hybrid_provenance.json"
+EDGAR_EVENTS = "evidence/narrative/barebone_window_edgar.jsonl"
+EDGAR_PROVENANCE = "evidence/narrative/barebone_window_edgar_provenance.json"
+EDGAR_CIK_MAP = "evidence/narrative/barebone_edgar_cik_map.json"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -151,6 +154,8 @@ class BareboneEvidence(_FrozenModel):
     polarity_sha256: str | None = None
     attention_scores: str = ATTENTION_SCORES
     attention_sha256: str | None = None
+    edgar_events: str = EDGAR_EVENTS
+    edgar_sha256: str | None = None
 
     @field_validator("ohlcv")
     @classmethod
@@ -234,6 +239,25 @@ class BareboneEvidence(_FrozenModel):
             raise ValueError("attention_sha256 must be a lowercase sha256 hex digest or null")
         if value == FAIR_RACE_TAPE_HASH:
             raise ValueError("fair-race tape_hash is not the barebone attention tape")
+        return value
+
+    @field_validator("edgar_events")
+    @classmethod
+    def _edgar_path(cls, value: str) -> str:
+        normalized = value.strip().replace("\\", "/")
+        if normalized != EDGAR_EVENTS:
+            raise ValueError("edgar events path is the gitignored local bind")
+        return normalized
+
+    @field_validator("edgar_sha256")
+    @classmethod
+    def _edgar_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or _SHA256.fullmatch(value) is None:
+            raise ValueError("edgar_sha256 must be a lowercase sha256 hex digest or null")
+        if value == FAIR_RACE_TAPE_HASH:
+            raise ValueError("fair-race tape_hash is not the barebone edgar tape")
         return value
 
 

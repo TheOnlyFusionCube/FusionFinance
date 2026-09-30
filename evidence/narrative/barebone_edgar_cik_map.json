@@ -1,0 +1,260 @@
+{
+  "schema": "fusionfinance-barebone-edgar-cik-map-v1",
+  "experiment_id": "barebone-comparison-v1",
+  "source": "https://www.sec.gov/files/company_tickers.json",
+  "source_as_of": "2026-09-30",
+  "comparable_performance_claim": false,
+  "cik_resolution": "Each ticker uses the company_tickers.json CIK on 2026-09-30 except XOM. That file maps XOM to 0002115436 ExxonMobil Holdings Corp, whose submissions begin 2026-07-01, after the locked window. The window registrant is 0000034088 EXXON MOBIL CORP.",
+  "entries": [
+    {
+      "ticker": "AAPL",
+      "cik": "0000320193",
+      "title": "Apple Inc."
+    },
+    {
+      "ticker": "AMZN",
+      "cik": "0001018724",
+      "title": "AMAZON COM INC"
+    },
+    {
+      "ticker": "AVGO",
+      "cik": "0001730168",
+      "title": "Broadcom Inc."
+    },
+    {
+      "ticker": "BRK-B",
+      "cik": "0001067983",
+      "title": "BERKSHIRE HATHAWAY INC"
+    },
+    {
+      "ticker": "COST",
+      "cik": "0000909832",
+      "title": "COSTCO WHOLESALE CORP /NEW"
+    },
+    {
+      "ticker": "GOOGL",
+      "cik": "0001652044",
+      "title": "Alphabet Inc."
+    },
+    {
+      "ticker": "HD",
+      "cik": "0000354950",
+      "title": "HOME DEPOT, INC."
+    },
+    {
+      "ticker": "JPM",
+      "cik": "0000019617",
+      "title": "JPMORGAN CHASE & CO"
+    },
+    {
+      "ticker": "LLY",
+      "cik": "0000059478",
+      "title": "ELI LILLY & Co"
+    },
+    {
+      "ticker": "META",
+      "cik": "0001326801",
+      "title": "Meta Platforms, Inc."
+    },
+    {
+      "ticker": "MSFT",
+      "cik": "0000789019",
+      "title": "MICROSOFT CORP"
+    },
+    {
+      "ticker": "NFLX",
+      "cik": "0001065280",
+      "title": "NETFLIX INC"
+    },
+    {
+      "ticker": "NVDA",
+      "cik": "0001045810",
+      "title": "NVIDIA CORP"
+    },
+    {
+      "ticker": "ORCL",
+      "cik": "0001341439",
+      "title": "ORACLE CORP"
+    },
+    {
+      "ticker": "TSLA",
+      "cik": "0001318605",
+      "title": "Tesla, Inc."
+    },
+    {
+      "ticker": "WMT",
+      "cik": "0000104169",
+      "title": "Walmart Inc."
+    },
+    {
+      "ticker": "AMD",
+      "cik": "0000002488",
+      "title": "ADVANCED MICRO DEVICES INC"
+    },
+    {
+      "ticker": "CRM",
+      "cik": "0001108524",
+      "title": "Salesforce, Inc."
+    },
+    {
+      "ticker": "ADBE",
+      "cik": "0000796343",
+      "title": "ADOBE INC."
+    },
+    {
+      "ticker": "PEP",
+      "cik": "0000077476",
+      "title": "PEPSICO INC"
+    },
+    {
+      "ticker": "KO",
+      "cik": "0000021344",
+      "title": "COCA COLA CO"
+    },
+    {
+      "ticker": "XOM",
+      "cik": "0000034088",
+      "title": "EXXON MOBIL CORP"
+    },
+    {
+      "ticker": "CVX",
+      "cik": "0000093410",
+      "title": "CHEVRON CORP"
+    },
+    {
+      "ticker": "UNH",
+      "cik": "0000731766",
+      "title": "UNITEDHEALTH GROUP INC"
+    },
+    {
+      "ticker": "V",
+      "cik": "0001403161",
+      "title": "VISA INC."
+    },
+    {
+      "ticker": "MA",
+      "cik": "0001141391",
+      "title": "Mastercard Inc"
+    },
+    {
+      "ticker": "BAC",
+      "cik": "0000070858",
+      "title": "BANK OF AMERICA CORP /DE/"
+    },
+    {
+      "ticker": "WFC",
+      "cik": "0000072971",
+      "title": "WELLS FARGO & COMPANY/MN"
+    },
+    {
+      "ticker": "DIS",
+      "cik": "0001744489",
+      "title": "Walt Disney Co"
+    },
+    {
+      "ticker": "CMCSA",
+      "cik": "0001166691",
+      "title": "COMCAST CORP"
+    },
+    {
+      "ticker": "INTC",
+      "cik": "0000050863",
+      "title": "INTEL CORP"
+    },
+    {
+      "ticker": "QCOM",
+      "cik": "0000804328",
+      "title": "QUALCOMM INC/DE"
+    },
+    {
+      "ticker": "TXN",
+      "cik": "0000097476",
+      "title": "TEXAS INSTRUMENTS INC"
+    },
+    {
+      "ticker": "AMAT",
+      "cik": "0000006951",
+      "title": "APPLIED MATERIALS INC /DE"
+    },
+    {
+      "ticker": "NOW",
+      "cik": "0001373715",
+      "title": "ServiceNow, Inc."
+    },
+    {
+      "ticker": "ISRG",
+      "cik": "0001035267",
+      "title": "INTUITIVE SURGICAL INC"
+    },
+    {
+      "ticker": "BKNG",
+      "cik": "0001075531",
+      "title": "Booking Holdings Inc."
+    },
+    {
+      "ticker": "TMO",
+      "cik": "0000097745",
+      "title": "THERMO FISHER SCIENTIFIC INC."
+    },
+    {
+      "ticker": "ABT",
+      "cik": "0000001800",
+      "title": "ABBOTT LABORATORIES"
+    },
+    {
+      "ticker": "MRK",
+      "cik": "0000310158",
+      "title": "Merck & Co., Inc."
+    },
+    {
+      "ticker": "ACN",
+      "cik": "0001467373",
+      "title": "Accenture plc"
+    },
+    {
+      "ticker": "IBM",
+      "cik": "0000051143",
+      "title": "INTERNATIONAL BUSINESS MACHINES CORP"
+    },
+    {
+      "ticker": "GE",
+      "cik": "0000040545",
+      "title": "GENERAL ELECTRIC CO"
+    },
+    {
+      "ticker": "CAT",
+      "cik": "0000018230",
+      "title": "CATERPILLAR INC"
+    },
+    {
+      "ticker": "HON",
+      "cik": "0000773840",
+      "title": "HONEYWELL INTERNATIONAL INC"
+    },
+    {
+      "ticker": "LOW",
+      "cik": "0000060667",
+      "title": "LOWES COMPANIES INC"
+    },
+    {
+      "ticker": "NKE",
+      "cik": "0000320187",
+      "title": "NIKE, Inc."
+    },
+    {
+      "ticker": "UPS",
+      "cik": "0001090727",
+      "title": "UNITED PARCEL SERVICE INC"
+    },
+    {
+      "ticker": "BA",
+      "cik": "0000012927",
+      "title": "BOEING CO"
+    },
+    {
+      "ticker": "PFE",
+      "cik": "0000078003",
+      "title": "PFIZER INC"
+    }
+  ]
+}

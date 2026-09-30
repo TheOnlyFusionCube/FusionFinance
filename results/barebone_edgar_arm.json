@@ -1,0 +1,19 @@
+{
+  "cash_rebalances": 17,
+  "claim_status": "controlled_software_ledger",
+  "comparable_performance_claim": false,
+  "edgar_events": "evidence/narrative/barebone_window_edgar.jsonl",
+  "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e",
+  "event_count": 820,
+  "experiment_id": "barebone-comparison-v1",
+  "ledger": "results/barebone_edgar_arm_ledger.json",
+  "max_gross_leverage": 1.0,
+  "max_position_weight": 0.1,
+  "metrics": "results/barebone_edgar_arm_metrics.json",
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "schema": "fusionfinance-barebone-edgar-arm-v1",
+  "signal_id": "edgar-filings-log1p-63s-v1",
+  "sized_rebalances": 9,
+  "strategy_id": "edgar",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+}

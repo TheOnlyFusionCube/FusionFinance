@@ -99,6 +99,7 @@ LOCAL_ONLY_PATHS = {
     "evidence/narrative/barebone_window_events.jsonl",
     "evidence/narrative/barebone_window_scores.jsonl",
     "evidence/narrative/barebone_window_attention.jsonl",
+    "evidence/narrative/barebone_window_edgar.jsonl",
 }
 PUBLIC_BINARY_PATHS = {
     "docs/assets/dashboard.png",

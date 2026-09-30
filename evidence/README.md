@@ -56,7 +56,11 @@ That scores file is not redistributed. `polarity_sha256` is its byte digest.
 `scripts/score_barebone_attention.py` counts the same events into gitignored
 `barebone_window_attention.jsonl`. That file is not redistributed.
 `attention_sha256` is its byte digest. The count scorebook does not read the
-lexicon.
+lexicon. `barebone_edgar_cik_map.json` is the frozen ticker-to-CIK map.
+`scripts/ingest_barebone_edgar.py` reads SEC submissions JSON and writes
+gitignored `barebone_window_edgar.jsonl`. That file is metadata only and is
+not redistributed. `edgar_sha256` is its byte digest. Amendments are excluded.
+`acceptanceDateTime` is the availability timestamp.
 
 ## `amd/`
 

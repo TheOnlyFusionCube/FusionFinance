@@ -213,6 +213,23 @@ are `results/barebone_attention_arm_ledger.json`,
 `results/barebone_hybrid_arm_metrics.json`. The momentum pure-ML book is
 unchanged. `comparable_performance_claim` stays false.
 
+EDGAR for a separate arm is SEC submissions metadata, not filing HTML.
+`scripts/ingest_barebone_edgar.py` reads `data.sec.gov` submissions JSON for
+a frozen ticker-to-CIK map and keeps forms that are exactly 8-K, 10-Q, or
+10-K. Amendments (`/A`) are excluded. `available_ts` is `acceptanceDateTime`
+in UTC. `reportDate` is not an availability timestamp. The decision session
+is the first tape session strictly after that UTC date. A kept form with no
+acceptance timestamp aborts the ingest. The events file
+`evidence/narrative/barebone_window_edgar.jsonl` is gitignored.
+`edgar_sha256` is the digest of that file. The Hacker News `narrative_sha256`
+stays the locked narrative bind. The score is `log1p` of the filing count in
+the 63 sessions ending at the decision session, minus the cross-sectional
+median. Zero counts stay in the cross-section. The book is cash unless
+expanding Spearman skill versus the next-session residual is strictly above
+zero. Results are `results/barebone_edgar_arm_ledger.json` and
+`results/barebone_edgar_arm_metrics.json`. The momentum pure-ML book is
+unchanged. `comparable_performance_claim` stays false.
+
 ## Reproduction checks
 
 ```bash
@@ -220,7 +237,8 @@ pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
   tests/test_barebone_run.py tests/test_barebone_narrative.py \
-  tests/test_barebone_polarity.py tests/test_barebone_attention.py
+  tests/test_barebone_polarity.py tests/test_barebone_attention.py \
+  tests/test_barebone_edgar.py
 make artifacts
 make verify
 make test

@@ -1,0 +1,33 @@
+{
+  "acceptance_not_before": "2024-12-30",
+  "amendments": "excluded; form must be exactly 8-K, 10-Q, or 10-K",
+  "available_ts": "acceptanceDateTime converted to UTC",
+  "cik_map": "evidence/narrative/barebone_edgar_cik_map.json",
+  "cik_map_sha256": "0dcd3fc04b0c865f53aa46d69e0e818b014ab00f11361b6df4eba8ce1dc9d13b",
+  "comparable_performance_claim": false,
+  "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e",
+  "endpoint": "https://data.sec.gov/submissions/CIK##########.json",
+  "event_count": 820,
+  "events": "evidence/narrative/barebone_window_edgar.jsonl",
+  "experiment_id": "barebone-comparison-v1",
+  "fetched_at": "2026-09-30T07:04:45Z",
+  "form_counts": {
+    "10-K": 50,
+    "10-Q": 151,
+    "8-K": 619
+  },
+  "forms": [
+    "10-K",
+    "10-Q",
+    "8-K"
+  ],
+  "license_note": "not redistributed; local bind only; metadata only, no filing HTML",
+  "lookback_sessions": 63,
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "provider": "SEC EDGAR via data.sec.gov",
+  "report_date_used_as_available_ts": false,
+  "schema": "fusionfinance-barebone-edgar-v1",
+  "signal_id": "edgar-filings-log1p-63s-v1",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205",
+  "user_agent": "FusionFinance barebone-comparison-v1 research@theonlyfusioncube.com"
+}

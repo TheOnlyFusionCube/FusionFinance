@@ -40,7 +40,7 @@ from demo.execution import reconcile_simulation, session_window, simulate_portfo
 from demo.metrics import compute_performance_metrics
 
 ARM_IDS = ("pure_ml", "pure_llm", "fusion")
-_EXTRA_STRUCTURED_ARMS = frozenset({"narrative", "attention", "hybrid"})
+_EXTRA_STRUCTURED_ARMS = frozenset({"narrative", "attention", "hybrid", "edgar"})
 CLAIM_STATUS = "controlled_software_ledger"
 
 
@@ -79,7 +79,7 @@ class MarketVerification(_FrozenModel):
 class ArmInput(_FrozenModel):
     """One name at one decision session for one strategy arm."""
 
-    strategy_id: Literal["pure_ml", "pure_llm", "fusion", "narrative", "attention", "hybrid"]
+    strategy_id: Literal["pure_ml", "pure_llm", "fusion", "narrative", "attention", "hybrid", "edgar"]
     decision_session: date
     ticker: str = Field(min_length=1)
     receipt: DecisionReceipt | None = None
@@ -455,6 +455,10 @@ def _structured_weight_reason(strategy_id: str, weight: float) -> str:
         return "hybrid skill gate cash"
     if strategy_id == "hybrid":
         return "hybrid momentum weight"
+    if strategy_id == "edgar" and weight == 0.0:
+        return "edgar skill gate cash"
+    if strategy_id == "edgar":
+        return "edgar filing weight"
     return "structured weight"
 
 
