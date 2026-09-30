@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from datetime import date
 from numbers import Real
 
-from demo.contracts import ExperimentConfig, PerformanceMetrics, SimulationResult
+from demo.contracts import (
+    BenchmarkMark,
+    ExperimentConfig,
+    PerformanceMetrics,
+    SimulationResult,
+)
 
 
 _EPSILON = 1e-15
@@ -17,8 +23,14 @@ def compute_performance_metrics(
     *,
     config: ExperimentConfig,
     benchmark_values: Sequence[float] | None = None,
+    benchmark_marks: Sequence[BenchmarkMark | Mapping[str, object]] | None = None,
 ) -> PerformanceMetrics:
-    """Compute statistics from successive wealth ratios, never return deltas."""
+    """Compute statistics from successive wealth ratios, never return deltas.
+
+    ``benchmark_marks`` binds each wealth observation to a portfolio session.
+    Length-only ``benchmark_values`` remain for kernel tests and do not date-bind
+    a claim-bearing run.
+    """
     values = _validated_strategy_values(result, config)
     returns = _wealth_returns(values)
     periods = len(returns)
@@ -43,6 +55,9 @@ def compute_performance_metrics(
     max_drawdown = _maximum_drawdown(values)
     calmar = annualized_return / abs(max_drawdown) if max_drawdown < -_EPSILON else None
 
+    benchmark_values, benchmark_sessions = _bound_benchmark(
+        result, benchmark_values, benchmark_marks
+    )
     benchmark_statistics = _benchmark_statistics(
         benchmark_values=benchmark_values,
         strategy_returns=returns,
@@ -82,8 +97,40 @@ def compute_performance_metrics(
         ending_gross_exposure=ending_point.gross_exposure,
         ending_net_exposure=ending_point.net_exposure,
         ending_cash_balance=ending_point.cash_balance,
+        benchmark_sessions=benchmark_sessions,
         **benchmark_statistics,
     )
+
+
+def _bound_benchmark(
+    result: SimulationResult,
+    benchmark_values: Sequence[float] | None,
+    benchmark_marks: Sequence[BenchmarkMark | Mapping[str, object]] | None,
+) -> tuple[Sequence[float] | None, tuple[date, ...]]:
+    if benchmark_marks is None:
+        return benchmark_values, ()
+    if isinstance(benchmark_marks, (str, bytes)):
+        raise ValueError("benchmark marks must be date-bound observations")
+    try:
+        marks = tuple(
+            mark if isinstance(mark, BenchmarkMark) else BenchmarkMark.model_validate(mark)
+            for mark in benchmark_marks
+        )
+    except TypeError as exc:
+        raise ValueError("benchmark marks must be date-bound observations") from exc
+    sessions = tuple(mark.session for mark in marks)
+    if sessions != tuple(point.session for point in result.points):
+        raise ValueError("benchmark marks must bind to portfolio session dates")
+    values = tuple(mark.value for mark in marks)
+    if benchmark_values is not None:
+        if isinstance(benchmark_values, (str, bytes)) or len(benchmark_values) != len(values):
+            raise ValueError("benchmark values do not match date-bound marks")
+        for supplied, bound in zip(benchmark_values, values, strict=True):
+            if isinstance(supplied, bool) or not isinstance(supplied, Real):
+                raise ValueError("benchmark values do not match date-bound marks")
+            if not math.isclose(float(supplied), bound, rel_tol=1e-12, abs_tol=1e-9):
+                raise ValueError("benchmark values do not match date-bound marks")
+    return values, sessions
 
 
 def _validated_strategy_values(

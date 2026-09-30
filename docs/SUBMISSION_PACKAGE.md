@@ -10,7 +10,7 @@ FusionFinance is prepared as a local hackathon submission bundle for **Track 3: 
 **Tagline:** Quantitative discipline meets agentic intelligence.  
 **Track:** Track 3 — Unicorn: Open Innovation
 
-**Short description:** FusionFinance is an auditable autonomous-trading research architecture in which quantitative ML proposes opportunities, specialized LLM agents investigate context and falsifiers, deterministic verification challenges their evidence, and independent market and portfolio gates are required before capital. The implemented agent runtime emits a sealed evidence precheck; it does not yet wire that receipt through the full capital path. The project compares Pure ML, Pure LLM, and the hybrid design under a common intended experimental contract.
+**Short description:** FusionFinance is an auditable autonomous-trading research architecture in which quantitative ML proposes opportunities, specialized LLM agents investigate context and falsifiers, deterministic verification challenges their evidence, and independent market and portfolio gates are required before capital. The agent runtime emits a sealed evidence precheck, which is not trading authorization. A separate controlled path can run that receipt through market verification, risk, and shared execution. The checked-in curves remain a provisional legacy replay and are not that path's output.
 
 **AMD compute statement:** The recorded AMD-backed workload is an expanding walk-forward MLP ranker trained with PyTorch on ROCm/HIP. Hash-bound receipts prove one AMD `gfx1100` accelerator, 51,522,830,336 bytes of reported VRAM, 72 walk-forward training runs, and 231.29 seconds of training. The device-name field was unavailable, so FusionFinance does not claim an exact commercial SKU. See [`amd-compute.md`](amd-compute.md).
 
@@ -55,7 +55,7 @@ The repository and demo URLs are the official submission endpoints. Confirm both
 
 ## Provisional replay boundary
 
-The checked-in February–July 2026 comparison is a **retrospective point-in-time replay**. Its stored curves currently report:
+The checked-in February–July 2026 comparison is a **retrospective point-in-time replay**. Its stored curves report the following legacy statistics. These Sharpe ratios are `provisional_uncontrolled_legacy_race` figures, not a comparable performance claim:
 
 | Arm | Return | Sharpe | Sortino | Maximum drawdown | Volatility |
 |---|---:|---:|---:|---:|---:|

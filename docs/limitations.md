@@ -7,7 +7,9 @@ advice, a live brokerage system, or evidence of guaranteed profitability.
 
 The curves in `demo/replay.json`, `results/demo_run.json`, and
 `results/metrics.json` may be used to demonstrate the interface, but not to claim
-that FusionFinance beat the other arms in a fair experiment.
+that FusionFinance beat the other arms in a fair experiment. The Sharpe ratios
+in `results/metrics.json` are `provisional_uncontrolled_legacy_race` statistics.
+Do not compare them.
 
 Specifically:
 
@@ -37,22 +39,25 @@ the selected window.
 - The deterministic offline provider is a reproducible lexical fallback for
   tests and judge interaction, not a substitute for a calibrated language
   model or independent financial research.
-- The agent receipt is an evidence precheck, not a trading authorization. It
-  does not invoke the independent market verifier, calibrated/OOD policy,
-  portfolio construction, or execution.
+- The agent receipt is an evidence precheck, not a trading authorization.
+  `demo/controlled.py` is the separate path that can call the market verifier,
+  portfolio limits, and execution. Capital there still requires a prospective
+  seal and, for the fusion arm, a calibrated market adjudication.
 - Citation auditing proves exact substring, source-role, structured-number, and
   timestamp integrity, not semantic entailment. A well-formed but irrelevant
   quotation can still accompany an unsupported qualitative conclusion.
-- The evidence auditor is implemented, but real source snapshots and audited
-  citations have not been integrated into a regenerated three-arm run.
-- The kernel foundation validates proposed concentration and pre-cost gross
-  leverage, but still needs post-cost leverage enforcement and full
-  fill/event/result reconciliation.
-- The new agent precheck embeds the immutable proposal and source snapshot and
-  rederives their hashes, but the legacy execution result does not yet carry
-  experiment, config, and market-tape hashes.
-- Benchmark validation currently checks sequence length and values rather than
-  binding observations to explicit session dates.
+- The evidence auditor is implemented. A controlled run can consume sealed
+  receipts, but those receipts have not been integrated into a regenerated
+  three-arm performance claim on the locked tape.
+- The kernel records post-cost gross leverage and rejects accounting breaches
+  beyond cost drag. The controlled path additionally blocks books that would
+  exceed the locked gross cap after costs, and reconciles fills, events, and
+  marked results. The legacy replay still has no trade ledger.
+- Controlled runs carry experiment, config, and market-tape hashes. The legacy
+  replay result does not.
+- Claim-bearing benchmark fields are bound to portfolio session dates.
+  Length-only benchmark wealth remains available to kernel tests and is not
+  sufficient for a comparative claim.
 - The broader covariance-, liquidity-, and volatility-aware sizing engine in
   the product vision is not yet part of the controlled path.
 - No controlled live or paper-trading comparison has been completed with all

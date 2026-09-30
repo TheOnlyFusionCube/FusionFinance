@@ -161,6 +161,7 @@ class RebalanceEvent(_FrozenModel):
     turnover: float = Field(ge=0.0)
     transaction_cost: float = Field(ge=0.0)
     slippage_cost: float = Field(ge=0.0)
+    post_cost_gross_leverage: float = Field(ge=0.0)
     fills: tuple[Fill, ...] = Field(default_factory=tuple)
 
 
@@ -228,3 +229,25 @@ class PerformanceMetrics(_FrozenModel):
     information_ratio: float | None = None
     beta: float | None = None
     annualized_alpha: float | None = None
+    benchmark_sessions: tuple[date, ...] = ()
+
+
+class BenchmarkMark(_FrozenModel):
+    """Benchmark wealth bound to one experiment session."""
+
+    session: date
+    value: float = Field(gt=0.0)
+
+
+class LedgerReconciliation(_FrozenModel):
+    """Fill, event, and marked-result identities for one executed arm."""
+
+    strategy_id: str = Field(min_length=1)
+    session_count: int = Field(gt=0)
+    trade_count: int = Field(ge=0)
+    total_turnover: float = Field(ge=0.0)
+    transaction_costs: float = Field(ge=0.0)
+    slippage_costs: float = Field(ge=0.0)
+    max_post_cost_gross_leverage: float = Field(ge=0.0)
+    post_cost_within_limit: bool
+    benchmark_sessions: tuple[date, ...] = ()

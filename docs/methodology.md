@@ -75,12 +75,11 @@ standard deviation; Sharpe and Sortino use the locked risk-free rate. The ledger
 also records fills, turnover, total execution costs, cash, gross exposure, and
 net exposure.
 
-When a same-length benchmark wealth sequence is supplied, the metrics layer additionally
-reports benchmark return, wealth-relative excess return, tracking error,
-information ratio, beta, and annualized alpha. Misaligned, non-finite, or
-non-positive benchmark wealth is rejected by length/value checks. Date-index
-alignment is currently the caller's responsibility and must be enforced inside
-the contract before a claim-bearing run.
+When benchmark wealth is supplied, the metrics layer additionally reports
+benchmark return, wealth-relative excess return, tracking error, information
+ratio, beta, and annualized alpha. Misaligned, non-finite, or non-positive
+benchmark wealth is rejected. A controlled run must pass date-bound benchmark
+marks; a length-only wealth sequence does not date-bind a claim.
 
 ## Evidence levels
 
@@ -91,18 +90,21 @@ the contract before a claim-bearing run.
 | Exact-citation, numeric, and timestamp audit | Implemented and unit-tested |
 | Filing transforms | Implemented from an attributed subset and integration-tested |
 | AMD training workload | Semantically cross-checked self-reported receipts; hashes protect integrity, not independent attestation |
-| Checked-in three-arm replay | Provisional legacy visualization only |
+| Controlled-path wiring, hashes, and ledger reconciliation | Implemented and unit-tested; not a comparative performance result |
+| Checked-in three-arm replay | Provisional legacy visualization only; not a comparable Sharpe claim |
 
-Independent review also requires proposal/input lineage, config and market-tape
-hashes, post-cost leverage enforcement, ledger/result reconciliation, strict
-schema coercion, and date-bound benchmark alignment before this foundation can
-produce comparative evidence.
+The controlled path records proposal/input lineage, config and market-tape
+hashes, post-cost leverage, ledger/result reconciliation, and date-bound
+benchmark marks. Those checks make a software ledger auditable. They do not by
+themselves produce a comparative performance claim. That claim still requires a
+prospective three-arm run on the locked tape. The checked-in replay remains a
+provisional legacy visualization.
 
 ## Reproduction checks
 
 ```bash
-pytest -q tests/test_fusion_experiment.py tests/test_fusion_evidence.py \
-  tests/test_filing_alpha_integration.py
+pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
+  tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py
 make artifacts
 make verify
 make test

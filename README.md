@@ -8,10 +8,12 @@
 
 FusionFinance is an auditable autonomous-trading research system. Quantitative
 ML proposes opportunities. Agent roles investigate context and falsifiers. A
-deterministic evidence gate challenges citations and numbers. An independent
-market verifier and portfolio-risk layer are the required downstream capital
-gates. The checked-in agent runtime stops at a sealed evidence precheck; it does
-not claim that the full capital path is wired end to end.
+deterministic evidence gate challenges citations and numbers. The sealed
+evidence precheck is not trading authorization. `demo/controlled.py` is the
+downstream capital path: independent market verification, portfolio risk, and
+`demo/execution.py` under `configs/fusionfinance-demo.json`, with proposal
+lineage and config, tape, and experiment hashes. A completed software ledger
+is not a comparative performance claim.
 
 > **ML proposes. Agents investigate. Evidence challenges. Risk decides.**
 
@@ -45,12 +47,15 @@ costs, slippage, rebalance cadence, leverage, and position limits in
 tested infrastructure for the next controlled run; it is not the provenance of
 the legacy replay shown below.
 
-## Current replay—useful, but provisional
+## Current replay is not a comparable claim
 
-The public February–July 2026 replay contains 109 stored observations and 12
-visible rejected decisions. Metrics are recomputed from the checked-in curves:
+The public February–July 2026 artifact is `provisional_uncontrolled_legacy_race`.
+It contains 109 stored observations and 12 visible rejected decisions. Those
+curves were not produced by `demo/execution.py` or `demo/controlled.py`. The
+Sharpe ratios below, and the same ratios in `results/metrics.json`, are stored
+legacy-curve statistics. They are not a controlled comparison.
 
-| Stored arm | Return | Sharpe | Sortino | Max drawdown | Volatility |
+| Stored legacy arm | Return | Sharpe | Sortino | Max drawdown | Volatility |
 |---|---:|---:|---:|---:|---:|
 | Pure ML | +1.7% | +0.76 | +1.03 | −2.9% | 5.4% |
 | Pure LLM | −10.3% | −0.90 | −1.28 | −23.8% | 24.5% |
@@ -141,8 +146,10 @@ Point-in-time data
   timestamp parser were not imported.
 - [`alpha/agents/`](alpha/agents/) contains the four-role concurrent desk,
   deterministic offline and optional HTTP providers, strict immutable input and
-  output contracts, and the agent/evidence pre-gate orchestrator. The market
-  verifier, portfolio policy, and execution remain downstream.
+  output contracts, and the agent/evidence pre-gate orchestrator. That precheck
+  is not a trading authorization. [`demo/controlled.py`](demo/controlled.py)
+  is the downstream path through the market verifier, portfolio-risk limits,
+  and shared execution.
 - [`alpha/verifier/`](alpha/verifier/) defines immutable theses, exact-quote and
   numeric reconciliation, source-availability checks, calibration, market
   verification, and veto-first adjudication.

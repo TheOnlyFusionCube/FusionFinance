@@ -17,10 +17,11 @@ research families and unused vendored frameworks are intentionally excluded.
 
 ## Controlled-run path
 
-The following is the implemented architecture for the next claim-bearing
-comparison. It is **not** the provenance of the checked-in legacy replay,
-whose explicit provisional status remains attached to `demo/replay.json` and
-`results/demo_run.json`.
+The following is the implemented architecture for a controlled run. It is
+**not** the provenance of the checked-in legacy replay, whose explicit
+provisional status remains attached to `demo/replay.json` and
+`results/demo_run.json`. Legacy Sharpe ratios in `results/metrics.json` are
+not a comparable claim.
 
 ```text
 configs/fusionfinance-demo.json
@@ -44,7 +45,9 @@ controlled-run artifacts ──► replay payload ──► demo/index.html
 - `alpha/agents/` contains a provider-agnostic four-role desk. It runs market,
   news, fundamentals, and risk analysis concurrently, validates strict JSON,
   commits one immutable thesis, and emits a fail-closed evidence-precheck
-  receipt. It does not replace the downstream market or portfolio gates.
+  receipt. That receipt is not trading authorization. `demo/controlled.py`
+  is the downstream market, risk, and execution path and does not relabel the
+  legacy replay.
 - `alpha/filing_alpha/` contains the narrowly selected filing/XBRL/text
   transforms imported from the supplied archive, with its own MIT notice.
 - `configs/` is the experiment-control source of truth.

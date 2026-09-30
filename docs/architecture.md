@@ -7,13 +7,13 @@ rules.
 
 ## Claim boundary
 
-The shared contracts, execution-kernel foundation, metrics, evidence audit, and
-filing transforms described below are implemented and tested. They have **not
-yet been wired together to regenerate the checked-in three-arm replay**, and an
-independent review identified additional lineage and reconciliation work before
-the kernel can support a claim-bearing run. The current `demo/replay.json` is a
-legacy retrospective artifact and identifies itself as
-`provisional_uncontrolled_legacy_race`.
+The shared contracts, execution kernel, metrics, evidence audit, filing
+transforms, and controlled-run wiring described below are implemented and
+tested. That wiring does **not** regenerate the checked-in three-arm replay.
+The current `demo/replay.json` is a legacy retrospective artifact and identifies
+itself as `provisional_uncontrolled_legacy_race`. Sharpe ratios from that
+artifact, including `results/metrics.json`, are not a comparable claim. A sealed
+`agent_evidence_precheck` is not trading authorization.
 
 ```text
 Point-in-time market and filing data
@@ -93,7 +93,8 @@ outcome is returned as a sealed, immutable `agent_evidence_precheck` receipt.
 
 This runtime is an upstream pre-gate. It does not call `market_head`, the
 calibrated/OOD adjudication policy, portfolio construction, or execution, so its
-`approved` value must not be interpreted as permission to move capital. The
+`approved` value must not be interpreted as permission to move capital.
+`demo/controlled.py` is the downstream path that applies those gates. The
 evidence audit proves exact-quote, numeric, timestamp, and source-role integrity;
 it does not prove that prose semantically entails an analyst conclusion. Receipt
 hashes prove self-consistency, not signer identity or external authenticity.
@@ -137,11 +138,19 @@ rebalance clock, cost model, slippage model, concentration limit, and gross
 leverage check to every arm, then records fills, cash, exposure, turnover,
 costs, and wealth.
 
-Before a comparative run, the boundary still needs proposal/input lineage,
-experiment/config/tape hashes, post-cost leverage enforcement, cross-validation
-of results against fills and events, benchmark date-index validation, and
-stricter schema coercion. Until those checks land, this code is a tested kernel
-foundation rather than proof of a controlled experiment.
+`demo/controlled.py` runs one arm, or all three, through that kernel. It records
+proposal and input lineage and hashes the locked config, the market tape, and
+the experiment. Each rebalance stores post-cost gross leverage. The kernel
+rejects exposure that cost drag cannot explain. The controlled path also refuses
+a book whose post-cost gross leverage would exceed the locked cap, reconciles
+fills to events and marked results, and requires benchmark wealth to be bound
+to portfolio session dates. Turnover and costs on that ledger are computed
+values.
+
+That software record is not a comparative performance claim. No prospective
+three-arm run on the locked February–July tape has been published. Uncalibrated
+policy thresholds abstain, and a thesis sealed after its outcome does not reach
+capital.
 
 Metrics are recomputed from successive wealth ratios. They include return,
 annualized volatility, Sharpe, Sortino, Calmar, running-peak drawdown, tail loss,
