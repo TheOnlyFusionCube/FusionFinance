@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
 import math
 import subprocess
-from datetime import date, timedelta
+from contextlib import redirect_stderr, redirect_stdout
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -19,8 +22,12 @@ from demo.barebone_attention import (
     ATTENTION_SIGNAL_ID,
     FROZEN_LEXICON_SHA256,
     HYBRID_SIGNAL_ID,
+    attention_provenance,
     attention_score_rows,
     demean_cross_section,
+    main as score_main,
+    render_attention_jsonl,
+    score_locked_attention,
     write_locked_attention_sha256,
 )
 from demo.barebone_attention_run import (
@@ -28,16 +35,25 @@ from demo.barebone_attention_run import (
     ATTENTION_METRICS_RELATIVE,
     HYBRID_LEDGER_RELATIVE,
     HYBRID_METRICS_RELATIVE,
+    _arm_inputs,
+    _load_attention_rows,
+    _refuse_attention_without_skill,
+    _refuse_hybrid_without_both_gates,
     attention_book,
     attention_oos_pairs,
     attention_rebalances,
+    barebone_attention_hybrid_index,
     barebone_attention_ledger,
     barebone_attention_metrics,
     barebone_hybrid_ledger,
     barebone_hybrid_metrics,
     hybrid_book,
+    hybrid_provenance,
     hybrid_rebalances,
+    main as run_main,
+    raw_log1p_by_session,
     skill_before,
+    write_barebone_attention_artifacts,
 )
 from demo.barebone_comparison import (
     ATTENTION_SCORES,
@@ -456,3 +472,223 @@ def test_attention_file_is_gitignored_and_the_momentum_control_stays_put() -> No
     assert (root / HYBRID_METRICS_RELATIVE).read_text(encoding="utf-8") == json.dumps(
         barebone_hybrid_metrics(), indent=2, sort_keys=True, allow_nan=False
     ) + "\n"
+
+
+def _kernel_sessions() -> tuple[MarketSession, ...]:
+    return tuple(
+        MarketSession(
+            session=day,
+            bars=(
+                AssetBar(ticker="AAA", open=100.0, close=101.0),
+                AssetBar(ticker="BBB", open=100.0, close=99.0),
+                AssetBar(ticker="SPY", open=100.0, close=100.0),
+            ),
+        )
+        for day in (date(2025, 1, 2), date(2025, 1, 3), date(2025, 1, 6))
+    )
+
+
+def _kernel_trading() -> ExperimentConfig:
+    return ExperimentConfig.model_validate(
+        {
+            **_trading().model_dump(mode="json"),
+            "start_date": "2025-01-02",
+            "end_date": "2025-01-06",
+            "rebalance_frequency_sessions": 1,
+        }
+    )
+
+
+def test_count_validation_provenance_and_document_builders(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    sessions = _sessions()
+    with pytest.raises(ValueError, match="missing event_id"):
+        attention_score_rows([_event(event_id=" ")], sessions, ("AAPL", "MSFT"))
+    with pytest.raises(ValueError, match="repeated"):
+        attention_score_rows([_event(), _event(event_id="hn:1:AAPL")], sessions, ("AAPL", "MSFT"))
+    with pytest.raises(ValueError, match="strictly increasing"):
+        attention_score_rows([], (date(2025, 1, 3), date(2025, 1, 2)), ("AAPL", "MSFT"))
+    with pytest.raises(ValueError, match="at least two"):
+        attention_score_rows([], sessions, ("AAPL",))
+    assert render_attention_jsonl([]) == b""
+    with pytest.raises(ValueError, match="changed narrative_sha256"):
+        attention_provenance(
+            scores_sha256="a" * 64,
+            narrative_sha256="b" * 64,
+            tape_sha256=LOCKED_TAPE_SHA256,
+            event_count=1,
+            row_count=1,
+            scored_at=datetime(2026, 9, 30, tzinfo=timezone.utc),
+        )
+    sidecar = attention_provenance(
+        scores_sha256="a" * 64,
+        narrative_sha256=LOCKED_NARRATIVE_SHA256,
+        tape_sha256=LOCKED_TAPE_SHA256,
+        event_count=2,
+        row_count=4,
+        scored_at=datetime(2026, 9, 30, tzinfo=timezone.utc),
+    )
+    assert sidecar["lexicon_used_for_sizing"] is False
+    assert sidecar["signal_id"] == ATTENTION_SIGNAL_ID
+
+    source = json.loads((_root() / "configs" / "barebone-comparison-v1.json").read_text(encoding="utf-8"))
+    source["evidence"]["narrative_sha256"] = "a" * 64
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps(source), encoding="utf-8")
+    with pytest.raises(ValueError, match="narrative_sha256 is locked"):
+        score_locked_attention(config_path=config_path)
+    sink = io.StringIO()
+    with redirect_stdout(sink), redirect_stderr(sink):
+        assert score_main(["--config", str(tmp_path / "missing.json")]) == 1
+        monkeypatch.setattr(attention_module, "score_locked_attention", lambda **_kwargs: "c" * 64)
+        assert score_main(["--lock-config", "--config", str(config_path)]) == 0
+    assert "attention_sha256=" in sink.getvalue()
+
+    with pytest.raises(ValueError, match="polarity"):
+        raw_log1p_by_session(
+            [
+                {
+                    "signal_id": ATTENTION_SIGNAL_ID,
+                    "lookback_sessions": 21,
+                    "session": "2025-01-22",
+                    "ticker": "AAPL",
+                    "log1p_count": 0.0,
+                    "polarity": 1.0,
+                }
+            ]
+        )
+    with pytest.raises(ValueError, match="do not match"):
+        hybrid_rebalances(
+            [{"decision_session": "2025-01-02", "skill_pass": False, "oos_skill": None}],
+            [{"decision_session": "2025-01-03", "skill_pass": False, "cross_section": []}],
+            _trading(),
+        )
+    payload = render_attention_jsonl(
+        [
+            {
+                "signal_id": ATTENTION_SIGNAL_ID,
+                "lookback_sessions": 21,
+                "session": "2025-01-22",
+                "ticker": "AAPL",
+                "log1p_count": 0.0,
+                "event_count": 0,
+                "score": 0.0,
+            }
+        ]
+    )
+    scores = tmp_path / "attention.jsonl"
+    scores.write_bytes(payload)
+    loaded = _load_attention_rows(scores, hashlib.sha256(payload).hexdigest())
+    assert loaded[0]["ticker"] == "AAPL"
+    with pytest.raises(ValueError, match="do not match"):
+        _load_attention_rows(scores, "d" * 64)
+    with pytest.raises(ValueError, match="failed the gate"):
+        _refuse_attention_without_skill([{"sized": True, "oos_skill": 0.0}])
+    with pytest.raises(ValueError, match="intersection"):
+        _refuse_hybrid_without_both_gates(
+            [{"sized": True, "momentum_skill_pass": True, "attention_skill_pass": False}]
+        )
+
+    trading = _kernel_trading()
+    sessions_market = _kernel_sessions()
+    marks = benchmark_marks_from_closes(
+        sessions_market, benchmark_ticker="SPY", starting_capital=trading.starting_capital
+    )
+    attention_run = run_controlled_arm(
+        config=trading,
+        sessions=sessions_market,
+        strategy_id="attention",
+        candidates=[
+            ArmInput(
+                strategy_id="attention",
+                decision_session=date(2025, 1, 2),
+                ticker="AAA",
+                structured_weight=0.1,
+            )
+        ],
+        benchmark_marks=marks,
+    )
+    hybrid_run = run_controlled_arm(
+        config=trading,
+        sessions=sessions_market,
+        strategy_id="hybrid",
+        candidates=[
+            ArmInput(
+                strategy_id="hybrid",
+                decision_session=date(2025, 1, 2),
+                ticker="AAA",
+                structured_weight=0.0,
+            )
+        ],
+        benchmark_marks=marks,
+    )
+    attention_row = {
+        "decision_session": "2025-01-02",
+        "oos_skill": 0.2,
+        "oos_skill_pairs": 10,
+        "oos_skill_threshold": 0.0,
+        "skill_pass": True,
+        "insufficient_history": False,
+        "sized": True,
+        "name_count": 2,
+        "book": {"AAA": 0.1},
+        "scores": {"AAA": 0.4},
+    }
+    hybrid_row = {
+        "decision_session": "2025-01-02",
+        "momentum_oos_skill": -0.1,
+        "attention_oos_skill": 0.2,
+        "momentum_skill_pass": False,
+        "attention_skill_pass": True,
+        "skill_pass": False,
+        "sized": False,
+        "book": {},
+        "scores": {},
+    }
+    inputs = _arm_inputs([attention_row], trading, "attention")
+    assert inputs[0].structured_weight == 0.1
+    assert _arm_inputs([hybrid_row], trading, "hybrid")[0].structured_weight == 0.0
+    state = {
+        "market": SimpleNamespace(tape_sha256=LOCKED_TAPE_SHA256),
+        "trading": trading,
+        "dates": tuple(session.session for session in sessions_market),
+        "attention_rows": [attention_row],
+        "hybrid_rows": [hybrid_row],
+        "attention_run": attention_run,
+        "hybrid_run": hybrid_run,
+        "attention_sha256": "e" * 64,
+        "event_count": 4,
+    }
+    ledger = barebone_attention_ledger(bound=state)
+    metrics = barebone_attention_metrics(bound=state)
+    hybrid_ledger = barebone_hybrid_ledger(bound=state)
+    hybrid_metrics = barebone_hybrid_metrics(bound=state)
+    index = barebone_attention_hybrid_index(bound=state)
+    note = hybrid_provenance(bound=state)
+    assert ledger["comparable_performance_claim"] is False
+    assert ledger["lexicon_used_for_sizing"] is False
+    assert ledger["signal_id"] == ATTENTION_SIGNAL_ID
+    assert metrics["statistics"]["total_return"] == attention_run.metrics.total_return
+    assert hybrid_ledger["sized_rebalances"] == 0
+    assert hybrid_metrics["signal_id"] == HYBRID_SIGNAL_ID
+    assert index["attention_sized_rebalances"] == 1
+    assert note["lexicon_used_for_sizing"] is False
+    written = write_barebone_attention_artifacts(tmp_path / "repo", bound=state)
+    assert all(path.is_file() for path in written)
+    assert (tmp_path / "repo" / "evidence" / "narrative" / "barebone_hybrid_provenance.json").is_file()
+
+    def _fake_write() -> tuple[Path, Path, Path, Path, Path]:
+        return write_barebone_attention_artifacts(tmp_path / "printed", bound=state)
+
+    monkeypatch.setattr(attention_run_module, "write_barebone_attention_artifacts", _fake_write)
+    printed = io.StringIO()
+    with redirect_stdout(printed), redirect_stderr(printed):
+        assert run_main([]) == 0
+    assert "hybrid_signal_id=" in printed.getvalue()
+    def _blocked() -> tuple[Path, Path, Path, Path, Path]:
+        raise ValueError("attention arm blocked")
+
+    monkeypatch.setattr(attention_run_module, "write_barebone_attention_artifacts", _blocked)
+    failed = io.StringIO()
+    with redirect_stdout(failed), redirect_stderr(failed):
+        assert run_main([]) == 1
+    assert "attention arm blocked" in failed.getvalue()

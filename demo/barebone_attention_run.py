@@ -612,10 +612,12 @@ def _ledger_shell(
     return document
 
 
-def barebone_attention_ledger(root: Path | None = None) -> dict[str, object]:
+def barebone_attention_ledger(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Software ledger for the attention arm. It does not carry a Sharpe."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     rebalances: list[dict[str, object]] = state["attention_rows"]
     return _ledger_shell(
         schema=_ATTENTION_LEDGER_SCHEMA,
@@ -648,10 +650,12 @@ def barebone_attention_ledger(root: Path | None = None) -> dict[str, object]:
     )
 
 
-def barebone_hybrid_ledger(root: Path | None = None) -> dict[str, object]:
+def barebone_hybrid_ledger(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Software ledger for the intersection hybrid. It does not carry a Sharpe."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     rebalances: list[dict[str, object]] = state["hybrid_rows"]
     return _ledger_shell(
         schema=_HYBRID_LEDGER_SCHEMA,
@@ -736,10 +740,12 @@ def _metrics_shell(
     return document
 
 
-def barebone_attention_metrics(root: Path | None = None) -> dict[str, object]:
+def barebone_attention_metrics(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Fixture metrics for the attention arm. The claim stays false."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     return _metrics_shell(
         schema=_ATTENTION_METRICS_SCHEMA,
         strategy_id="attention",
@@ -758,10 +764,12 @@ def barebone_attention_metrics(root: Path | None = None) -> dict[str, object]:
     )
 
 
-def barebone_hybrid_metrics(root: Path | None = None) -> dict[str, object]:
+def barebone_hybrid_metrics(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Fixture metrics for the intersection hybrid. The claim stays false."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     return _metrics_shell(
         schema=_HYBRID_METRICS_SCHEMA,
         strategy_id="hybrid",
@@ -779,10 +787,12 @@ def barebone_hybrid_metrics(root: Path | None = None) -> dict[str, object]:
     )
 
 
-def barebone_attention_hybrid_index(root: Path | None = None) -> dict[str, object]:
+def barebone_attention_hybrid_index(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Pointer at both arms. It does not publish a Sharpe."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     attention_rows: list[dict[str, object]] = state["attention_rows"]
     hybrid_rows: list[dict[str, object]] = state["hybrid_rows"]
     document: dict[str, object] = {
@@ -818,10 +828,12 @@ def barebone_attention_hybrid_index(root: Path | None = None) -> dict[str, objec
     return document
 
 
-def hybrid_provenance(root: Path | None = None) -> dict[str, object]:
+def hybrid_provenance(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> dict[str, object]:
     """Committed hybrid note. No story text and no prices."""
 
-    state = attention_hybrid_state(root)
+    state = attention_hybrid_state(root) if bound is None else bound
     document: dict[str, object] = {
         "schema": _HYBRID_PROVENANCE_SCHEMA,
         "experiment_id": BAREBONE_EXPERIMENT_ID,
@@ -845,16 +857,19 @@ def hybrid_provenance(root: Path | None = None) -> dict[str, object]:
     return document
 
 
-def write_barebone_attention_artifacts(root: Path | None = None) -> tuple[Path, Path, Path, Path, Path]:
+def write_barebone_attention_artifacts(
+    root: Path | None = None, *, bound: Mapping[str, object] | None = None
+) -> tuple[Path, Path, Path, Path, Path]:
     """Write both ledgers, both metrics files, and the index. Does not write dumps."""
 
     base = _repo_root() if root is None else root
-    attention_ledger = barebone_attention_ledger(base)
-    attention_metrics = barebone_attention_metrics(base)
-    hybrid_ledger = barebone_hybrid_ledger(base)
-    hybrid_metrics = barebone_hybrid_metrics(base)
-    index = barebone_attention_hybrid_index(base)
-    provenance = hybrid_provenance(base)
+    state = attention_hybrid_state(base) if bound is None else bound
+    attention_ledger = barebone_attention_ledger(base, bound=state)
+    attention_metrics = barebone_attention_metrics(base, bound=state)
+    hybrid_ledger = barebone_hybrid_ledger(base, bound=state)
+    hybrid_metrics = barebone_hybrid_metrics(base, bound=state)
+    index = barebone_attention_hybrid_index(base, bound=state)
+    provenance = hybrid_provenance(base, bound=state)
     paths = {
         ATTENTION_LEDGER_RELATIVE: attention_ledger,
         ATTENTION_METRICS_RELATIVE: attention_metrics,
