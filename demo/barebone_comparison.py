@@ -101,6 +101,11 @@ NARRATIVE_SCORES = "evidence/narrative/barebone_window_scores.jsonl"
 NARRATIVE_POLARITY_PROVENANCE = "evidence/narrative/barebone_window_polarity_provenance.json"
 NARRATIVE_LEXICON = "evidence/narrative/barebone_polarity_lexicon.json"
 LOCKED_NARRATIVE_SHA256 = "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9"
+LOCKED_TAPE_SHA256 = "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+LOCKED_POLARITY_SHA256 = "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae"
+ATTENTION_SCORES = "evidence/narrative/barebone_window_attention.jsonl"
+ATTENTION_PROVENANCE = "evidence/narrative/barebone_window_attention_provenance.json"
+HYBRID_PROVENANCE = "evidence/narrative/barebone_hybrid_provenance.json"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -144,6 +149,8 @@ class BareboneEvidence(_FrozenModel):
     narrative_sha256: str | None = None
     narrative_scores: str = NARRATIVE_SCORES
     polarity_sha256: str | None = None
+    attention_scores: str = ATTENTION_SCORES
+    attention_sha256: str | None = None
 
     @field_validator("ohlcv")
     @classmethod
@@ -208,6 +215,25 @@ class BareboneEvidence(_FrozenModel):
             raise ValueError("polarity_sha256 must be a lowercase sha256 hex digest or null")
         if value == FAIR_RACE_TAPE_HASH:
             raise ValueError("fair-race tape_hash is not the barebone polarity tape")
+        return value
+
+    @field_validator("attention_scores")
+    @classmethod
+    def _attention_path(cls, value: str) -> str:
+        normalized = value.strip().replace("\\", "/")
+        if normalized != ATTENTION_SCORES:
+            raise ValueError("attention scores path is the gitignored local bind")
+        return normalized
+
+    @field_validator("attention_sha256")
+    @classmethod
+    def _attention_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or _SHA256.fullmatch(value) is None:
+            raise ValueError("attention_sha256 must be a lowercase sha256 hex digest or null")
+        if value == FAIR_RACE_TAPE_HASH:
+            raise ValueError("fair-race tape_hash is not the barebone attention tape")
         return value
 
 

@@ -1,0 +1,19 @@
+{
+  "attention_lookback_sessions": 21,
+  "attention_sha256": "0e4d38235f19138f41244368e44b2cba9b8f78acd4ce9b713ac8d17dc0bd8227",
+  "attention_signal_id": "hn-attention-log1p-21s-v1",
+  "attention_transform": "log1p_count_minus_cross_sectional_median",
+  "comparable_performance_claim": false,
+  "experiment_id": "barebone-comparison-v1",
+  "lexicon_used_for_sizing": false,
+  "license_note": "not redistributed; local bind only",
+  "momentum_scorebook": "momentum",
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae",
+  "provider": "momentum skill gate intersected with Hacker News attention counts; lexicon not used",
+  "rule": "momentum_skill_pass AND attention_skill_pass",
+  "schema": "fusionfinance-barebone-hybrid-v1",
+  "signal_id": "hn-attention-momentum-intersection-v1",
+  "sized_score": "momentum",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+}

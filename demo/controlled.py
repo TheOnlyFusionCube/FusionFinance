@@ -40,6 +40,7 @@ from demo.execution import reconcile_simulation, session_window, simulate_portfo
 from demo.metrics import compute_performance_metrics
 
 ARM_IDS = ("pure_ml", "pure_llm", "fusion")
+_EXTRA_STRUCTURED_ARMS = frozenset({"narrative", "attention", "hybrid"})
 CLAIM_STATUS = "controlled_software_ledger"
 
 
@@ -78,7 +79,7 @@ class MarketVerification(_FrozenModel):
 class ArmInput(_FrozenModel):
     """One name at one decision session for one strategy arm."""
 
-    strategy_id: Literal["pure_ml", "pure_llm", "fusion", "narrative"]
+    strategy_id: Literal["pure_ml", "pure_llm", "fusion", "narrative", "attention", "hybrid"]
     decision_session: date
     ticker: str = Field(min_length=1)
     receipt: DecisionReceipt | None = None
@@ -353,7 +354,7 @@ def run_controlled_arm(
 ) -> ControlledRun:
     """Execute one arm. Evidence failure stays in cash; limit breaches block."""
 
-    if strategy_id not in ARM_IDS and strategy_id != "narrative":
+    if strategy_id not in ARM_IDS and strategy_id not in _EXTRA_STRUCTURED_ARMS:
         raise ValueError("unknown strategy arm")
     if isinstance(benchmark_marks, (str, bytes)) or len(tuple(benchmark_marks)) == 0:
         raise ValueError("controlled run requires date-bound benchmark marks")
@@ -439,8 +440,26 @@ def _arm_inputs(
     )
 
 
+def _structured_weight_reason(strategy_id: str, weight: float) -> str:
+    """Gate label for a weight-only arm. Attention and hybrid do not use the lexicon."""
+
+    if strategy_id == "narrative" and weight == 0.0:
+        return "narrative skill gate cash"
+    if strategy_id == "narrative":
+        return "narrative polarity weight"
+    if strategy_id == "attention" and weight == 0.0:
+        return "attention skill gate cash"
+    if strategy_id == "attention":
+        return "attention count weight"
+    if strategy_id == "hybrid" and weight == 0.0:
+        return "hybrid skill gate cash"
+    if strategy_id == "hybrid":
+        return "hybrid momentum weight"
+    return "structured weight"
+
+
 def _validate_arm_shape(candidate: ArmInput) -> None:
-    if candidate.strategy_id in {"pure_ml", "narrative"}:
+    if candidate.strategy_id in {"pure_ml"} or candidate.strategy_id in _EXTRA_STRUCTURED_ARMS:
         if candidate.receipt is not None or candidate.market is not None:
             raise ValueError(f"{candidate.strategy_id} cannot take an evidence receipt or market forecast")
         if candidate.structured_weight is None:
@@ -499,14 +518,9 @@ def _gate_candidate(
         "precheck_decision": None,
         "verifier_decision": None,
     }
-    if candidate.strategy_id in {"pure_ml", "narrative"}:
+    if candidate.strategy_id in {"pure_ml"} or candidate.strategy_id in _EXTRA_STRUCTURED_ARMS:
         assert candidate.structured_weight is not None
-        if candidate.strategy_id == "narrative" and candidate.structured_weight == 0.0:
-            reason = "narrative skill gate cash"
-        elif candidate.strategy_id == "narrative":
-            reason = "narrative polarity weight"
-        else:
-            reason = "structured weight"
+        reason = _structured_weight_reason(candidate.strategy_id, candidate.structured_weight)
         return _Gate(
             weight=candidate.structured_weight,
             reason=reason,

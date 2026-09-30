@@ -53,6 +53,10 @@ stores the digest of a non-empty events file just written.
 experiment id. The events file is not rewritten to add polarity. A frozen
 lexicon scores those events into gitignored `barebone_window_scores.jsonl`.
 That scores file is not redistributed. `polarity_sha256` is its byte digest.
+`scripts/score_barebone_attention.py` counts the same events into gitignored
+`barebone_window_attention.jsonl`. That file is not redistributed.
+`attention_sha256` is its byte digest. The count scorebook does not read the
+lexicon.
 
 ## `amd/`
 

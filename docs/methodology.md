@@ -196,6 +196,23 @@ the gross cap stays 1.0. Results are
 `results/barebone_narrative_arm_metrics.json`. The momentum pure-ML book is
 unchanged. `comparable_performance_claim` stays false.
 
+Attention for a separate arm is the mapped Hacker News event count, not the
+lexicon. `scripts/score_barebone_attention.py` counts events whose decision
+session falls in the 21 sessions ending at the decision session, takes
+`log1p`, and subtracts the cross-sectional median. A later session is not a
+feature. Zero counts stay in the cross-section. The scores file
+`evidence/narrative/barebone_window_attention.jsonl` is gitignored.
+`attention_sha256` is the digest of that file. The book is cash unless
+expanding Spearman skill versus the next-session residual is strictly above
+zero. The hybrid arm is cash unless that attention gate and the momentum
+skill gate both pass. When both pass, the weights are the momentum scores.
+The polarity lexicon is not used for either book and is not retuned. Results
+are `results/barebone_attention_arm_ledger.json`,
+`results/barebone_attention_arm_metrics.json`,
+`results/barebone_hybrid_arm_ledger.json`, and
+`results/barebone_hybrid_arm_metrics.json`. The momentum pure-ML book is
+unchanged. `comparable_performance_claim` stays false.
+
 ## Reproduction checks
 
 ```bash
@@ -203,7 +220,7 @@ pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
   tests/test_barebone_run.py tests/test_barebone_narrative.py \
-  tests/test_barebone_polarity.py
+  tests/test_barebone_polarity.py tests/test_barebone_attention.py
 make artifacts
 make verify
 make test

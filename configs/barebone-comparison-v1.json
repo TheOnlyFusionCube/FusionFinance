@@ -75,6 +75,8 @@
     "narrative_events": "evidence/narrative/barebone_window_events.jsonl",
     "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
     "narrative_scores": "evidence/narrative/barebone_window_scores.jsonl",
-    "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae"
+    "polarity_sha256": "c8b72ba38d4bb110d83c5b548a8a19389b33259f7d3e62612988a3242e8b7cae",
+    "attention_scores": "evidence/narrative/barebone_window_attention.jsonl",
+    "attention_sha256": "0e4d38235f19138f41244368e44b2cba9b8f78acd4ce9b713ac8d17dc0bd8227"
   }
 }
