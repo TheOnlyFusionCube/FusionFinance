@@ -18,7 +18,13 @@ from alpha.agents.models import (
     finite_mean,
 )
 from alpha.agents.providers import AnalystProvider
-from alpha.verifier.contract import EvidenceRef, ExpectedOutcome, Horizon, ThesisContract
+from alpha.verifier.contract import (
+    EvidenceRef,
+    ExpectedOutcome,
+    Horizon,
+    ThesisContract,
+    canonical_commit_instant,
+)
 from alpha.verifier.evidence import (
     EvidenceRecord,
     EvidenceSource,
@@ -28,11 +34,20 @@ from alpha.verifier.evidence import (
 
 @dataclass(frozen=True, slots=True)
 class FusionOrchestrator:
+    """Run the desk, then seal one ``agent_evidence_precheck``.
+
+    ``committed_at`` is the first thesis seal. The default is the wall clock.
+    A sealed precheck is not trading authorization.
+    """
+
     provider: AnalystProvider
     analyst_timeout_seconds: float = 20.0
+    committed_at: str | None = None
     _provider_model: str = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        if self.committed_at is not None:
+            canonical_commit_instant(self.committed_at)
         try:
             provider_model = self.provider.model_id
         except Exception:
@@ -145,6 +160,7 @@ class FusionOrchestrator:
                 snapshot,
                 provider_model=self._provider_model,
             ),
+            committed_at=self.committed_at,
         )
         committed.verify_commit()
         return committed

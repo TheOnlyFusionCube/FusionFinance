@@ -64,6 +64,18 @@ def _utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def canonical_commit_instant(value: str) -> str:
+    """Normalize one timezone-aware commit instant to UTC ``Z`` form."""
+
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise ValueError("committed_at must be ISO-8601") from exc
+    if parsed.tzinfo is None:
+        raise ValueError("committed_at must include a timezone")
+    return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def content_hash(payload: dict) -> str:
     """Deterministic hash of a thesis' economic content (order-independent)."""
     return hashlib.sha256(
@@ -120,14 +132,25 @@ class ThesisContract(_FrozenModel):
     def _economic_body(self) -> dict:
         return self.model_dump(exclude={"committed_at", "model_version", "prompt_hash", "thesis_hash"})
 
-    def commit(self, *, model_version: str, prompt_hash: str) -> "ThesisContract":
-        """Freeze: stamp commit time + content hash. Call once, before verifying."""
+    def commit(
+        self,
+        *,
+        model_version: str,
+        prompt_hash: str,
+        committed_at: str | None = None,
+    ) -> "ThesisContract":
+        """Freeze: stamp commit time + content hash. Call once, before verifying.
+
+        ``committed_at`` is that first seal. Omit it to stamp the wall clock.
+        Copying the field onto an already sealed thesis is not a new seal.
+        """
         if self.thesis_hash:
             raise ValueError("thesis already committed; create a new object to amend")
         if not model_version or not prompt_hash:
             raise ValueError("commit requires non-empty model_version and prompt_hash")
+        stamp = _utc() if committed_at is None else canonical_commit_instant(committed_at)
         return self.model_copy(update={
-            "committed_at": _utc(),
+            "committed_at": stamp,
             "model_version": model_version,
             "prompt_hash": prompt_hash,
             "thesis_hash": content_hash(self._economic_body()),

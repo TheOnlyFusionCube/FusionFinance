@@ -98,11 +98,14 @@ hashes, post-cost leverage, ledger/result reconciliation, and date-bound
 benchmark marks. Those checks make a software ledger auditable. They do not by
 themselves produce a comparative performance claim. That claim still requires a
 prospective three-arm run on the locked tape. The checked-in replay remains a
-provisional legacy visualization. A sealed pure-LLM execution of the locked
-window's two endpoints is checked in at
-[`results/controlled_software_ledger.json`](../results/controlled_software_ledger.json),
-with experiment, config, and tape hashes and computed turnover and costs. That
-file is a software ledger, not a performance claim.
+provisional legacy visualization. The offline desk seals one pure-LLM
+precheck inside `FusionOrchestrator` before the locked outcome. That receipt
+and the software ledger that consumes it are checked in at
+[`results/controlled_precheck_receipt.json`](../results/controlled_precheck_receipt.json)
+and
+[`results/controlled_software_ledger.json`](../results/controlled_software_ledger.json).
+The ledger carries experiment, config, and tape hashes and computed turnover
+and costs. It is not a performance claim.
 
 ## Reproduction checks
 

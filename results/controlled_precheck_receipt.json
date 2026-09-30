@@ -1,0 +1,245 @@
+{
+  "decision": "approved",
+  "evidence_audit": {
+    "citation_coverage": 1.0,
+    "errors": [],
+    "evidence_valid": true,
+    "numeric_reconciliation": 1.0,
+    "timestamp_integrity": true
+  },
+  "proposal": {
+    "as_of": "2026-02-02T18:00:00Z",
+    "claim_type": "near_term_catalyst",
+    "confidence": 0.8,
+    "direction": "positive",
+    "expected_move_bps": 120.0,
+    "horizon_days": 10,
+    "max_position_weight": 0.1,
+    "target": "sector_neutral_return",
+    "ticker": "AAPL"
+  },
+  "proposal_hash": "2486811eadefc0983458fb363390796824b4791841fc90e6a0d570d503b59a93",
+  "provider_model": "fusionfinance-offline-lexical-v1",
+  "provisional_weight_cap": 0.07,
+  "reasons": [
+    "CITATION_INTEGRITY_VALID",
+    "NO_RISK_ROLE_VETO"
+  ],
+  "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427",
+  "reports": [
+    {
+      "causal_chain": [
+        "Point-in-time market evidence informs the proposed move."
+      ],
+      "citations": [
+        {
+          "asserted_value": 12.0,
+          "document_id": "market.source",
+          "numeric_key": "growth_pct",
+          "quoted_text": "Revenue growth improved and management raised guidance."
+        }
+      ],
+      "confidence": 0.7000000000000001,
+      "direction": "positive",
+      "falsifiers": [
+        "Later market evidence reverses the observed direction."
+      ],
+      "risk_flags": [],
+      "role": "market",
+      "summary": "market evidence is positive under the deterministic lexical policy.",
+      "veto": false
+    },
+    {
+      "causal_chain": [
+        "Point-in-time news evidence informs the proposed move."
+      ],
+      "citations": [
+        {
+          "asserted_value": 12.0,
+          "document_id": "news.source",
+          "numeric_key": "growth_pct",
+          "quoted_text": "Revenue growth improved and management raised guidance."
+        }
+      ],
+      "confidence": 0.7000000000000001,
+      "direction": "positive",
+      "falsifiers": [
+        "Later news evidence reverses the observed direction."
+      ],
+      "risk_flags": [],
+      "role": "news",
+      "summary": "news evidence is positive under the deterministic lexical policy.",
+      "veto": false
+    },
+    {
+      "causal_chain": [
+        "Point-in-time fundamentals evidence informs the proposed move."
+      ],
+      "citations": [
+        {
+          "asserted_value": 12.0,
+          "document_id": "fundamentals.source",
+          "numeric_key": "growth_pct",
+          "quoted_text": "Revenue growth improved and management raised guidance."
+        }
+      ],
+      "confidence": 0.7000000000000001,
+      "direction": "positive",
+      "falsifiers": [
+        "Later fundamentals evidence reverses the observed direction."
+      ],
+      "risk_flags": [],
+      "role": "fundamentals",
+      "summary": "fundamentals evidence is positive under the deterministic lexical policy.",
+      "veto": false
+    },
+    {
+      "causal_chain": [
+        "Point-in-time risk evidence informs the proposed move."
+      ],
+      "citations": [
+        {
+          "asserted_value": 12.0,
+          "document_id": "risk.source",
+          "numeric_key": "growth_pct",
+          "quoted_text": "Revenue growth improved and management raised guidance."
+        }
+      ],
+      "confidence": 0.7000000000000001,
+      "direction": "positive",
+      "falsifiers": [
+        "Later risk evidence reverses the observed direction."
+      ],
+      "risk_flags": [],
+      "role": "risk",
+      "summary": "risk evidence is positive under the deterministic lexical policy.",
+      "veto": false
+    }
+  ],
+  "schema_version": 2,
+  "snapshot": {
+    "documents": [
+      {
+        "available_at": "2026-02-02T15:00:00Z",
+        "document_id": "market.source",
+        "numeric_values": [
+          {
+            "key": "growth_pct",
+            "value": 12.0
+          }
+        ],
+        "roles": [
+          "market"
+        ],
+        "text": "Revenue growth improved and management raised guidance."
+      },
+      {
+        "available_at": "2026-02-02T15:00:00Z",
+        "document_id": "news.source",
+        "numeric_values": [
+          {
+            "key": "growth_pct",
+            "value": 12.0
+          }
+        ],
+        "roles": [
+          "news"
+        ],
+        "text": "Revenue growth improved and management raised guidance."
+      },
+      {
+        "available_at": "2026-02-02T15:00:00Z",
+        "document_id": "fundamentals.source",
+        "numeric_values": [
+          {
+            "key": "growth_pct",
+            "value": 12.0
+          }
+        ],
+        "roles": [
+          "fundamentals"
+        ],
+        "text": "Revenue growth improved and management raised guidance."
+      },
+      {
+        "available_at": "2026-02-02T15:00:00Z",
+        "document_id": "risk.source",
+        "numeric_values": [
+          {
+            "key": "growth_pct",
+            "value": 12.0
+          }
+        ],
+        "roles": [
+          "risk"
+        ],
+        "text": "Revenue growth improved and management raised guidance."
+      }
+    ],
+    "snapshot_hash": "fbea9a0600723fc3fd227839f315b9e39d8868b3a55a8ae5043a9818abfb6d5c"
+  },
+  "snapshot_hash": "fbea9a0600723fc3fd227839f315b9e39d8868b3a55a8ae5043a9818abfb6d5c",
+  "stage": "agent_evidence_precheck",
+  "thesis": {
+    "as_of": "2026-02-02T18:00:00Z",
+    "causal_chain": [
+      "Point-in-time market evidence informs the proposed move.",
+      "Point-in-time news evidence informs the proposed move.",
+      "Point-in-time fundamentals evidence informs the proposed move.",
+      "Point-in-time risk evidence informs the proposed move."
+    ],
+    "claim_type": "near_term_catalyst",
+    "committed_at": "2026-02-02T20:00:00Z",
+    "direction": "positive",
+    "evidence": [
+      {
+        "asserted_value": 12.0,
+        "document_id": "market.source",
+        "location": "growth_pct",
+        "quoted_text": "Revenue growth improved and management raised guidance.",
+        "section": "market"
+      },
+      {
+        "asserted_value": 12.0,
+        "document_id": "news.source",
+        "location": "growth_pct",
+        "quoted_text": "Revenue growth improved and management raised guidance.",
+        "section": "news"
+      },
+      {
+        "asserted_value": 12.0,
+        "document_id": "fundamentals.source",
+        "location": "growth_pct",
+        "quoted_text": "Revenue growth improved and management raised guidance.",
+        "section": "fundamentals"
+      },
+      {
+        "asserted_value": 12.0,
+        "document_id": "risk.source",
+        "location": "growth_pct",
+        "quoted_text": "Revenue growth improved and management raised guidance.",
+        "section": "risk"
+      }
+    ],
+    "expected_outcome": {
+      "direction": "positive",
+      "magnitude_bps": 120.0,
+      "target": "sector_neutral_return"
+    },
+    "falsifiers": [
+      "Later market evidence reverses the observed direction.",
+      "Later news evidence reverses the observed direction.",
+      "Later fundamentals evidence reverses the observed direction.",
+      "Later risk evidence reverses the observed direction."
+    ],
+    "horizon": {
+      "type": "trading_days",
+      "value": 10
+    },
+    "llm_confidence": 0.7000000000000001,
+    "model_version": "fusionfinance-offline-lexical-v1",
+    "prompt_hash": "fd9343dcea95775e6145b98aabb0e46673052836a224ff9a7cb34dd1f208481c",
+    "thesis_hash": "8885a3c37792bc07714698bcb4414b33462c3250765a13b43697509c0df1420d",
+    "ticker": "AAPL"
+  }
+}

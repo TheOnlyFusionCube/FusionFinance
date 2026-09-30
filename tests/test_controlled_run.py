@@ -660,10 +660,12 @@ def test_locked_config_can_execute_and_legacy_metrics_stay_provisional() -> None
 
 
 _FROZEN_COMMITTED_AT = "2026-02-02T20:00:00Z"
+_FUSION_PRODUCED_AT = "2026-02-02T20:00:01Z"
 _ENDPOINT_AS_OF = "2026-02-02T18:00:00Z"
 _ENDPOINT_AVAILABLE_AT = "2026-02-02T15:00:00Z"
 _ENDPOINT_OUTCOME_TS = "2026-07-09T21:00:00Z"
 _SOFTWARE_LEDGER = Path("results/controlled_software_ledger.json")
+_PRECHECK_RECEIPT = Path("results/controlled_precheck_receipt.json")
 _PERFORMANCE_KEYS = frozenset(
     {
         "sharpe_ratio",
@@ -679,72 +681,9 @@ _PERFORMANCE_KEYS = frozenset(
 )
 
 
-def sealed_endpoint_ledger() -> dict[str, object]:
-    """Prospective pure-LLM ledger on the locked window's two endpoints."""
+def desk_endpoint_receipt() -> DecisionReceipt:
+    """Seal one precheck in the orchestrator, before the locked outcome."""
 
-    config = load_locked_config()
-    names = (*config.universe, config.benchmark_ticker)
-    sessions = _bars(config.start_date, config.end_date, names)
-    receipt = _freeze_receipt_commit(_endpoint_receipt(), _FROZEN_COMMITTED_AT)
-    assert receipt.thesis is not None
-    assert receipt.thesis.is_prospective(_ENDPOINT_OUTCOME_TS)
-    run = run_controlled_arm(
-        config=config,
-        sessions=sessions,
-        strategy_id="pure_llm",
-        candidates=(
-            ArmInput(
-                strategy_id="pure_llm",
-                decision_session=config.start_date,
-                ticker="AAPL",
-                receipt=receipt,
-                outcome_ts=_ENDPOINT_OUTCOME_TS,
-            ),
-        ),
-        benchmark_marks=_marks(config, sessions),
-    )
-    assert run.block_reason is None and run.ledger is not None
-    row = run.lineage.proposals[0]
-    ledger = run.ledger
-    return {
-        "schema": "fusionfinance-controlled-software-ledger-v1",
-        "claim_status": run.claim_status,
-        "comparable_performance_claim": run.comparable_performance_claim,
-        "description": (
-            "Two-session software ledger on the locked window endpoints "
-            "2026-02-02 and 2026-07-09. The pure-LLM receipt is resealed at a "
-            "fixed commit time before the execution session. This is not a "
-            "full calendar and not a performance claim."
-        ),
-        "strategy_id": run.lineage.strategy_id,
-        "experiment_id": run.lineage.experiment_id,
-        "decision_session": config.start_date.isoformat(),
-        "outcome_ts": _ENDPOINT_OUTCOME_TS,
-        "committed_at": _FROZEN_COMMITTED_AT,
-        "config_hash": run.lineage.config_hash,
-        "tape_hash": run.lineage.tape_hash,
-        "lineage_hash": run.lineage.lineage_hash,
-        "experiment_hash": run.lineage.experiment_hash,
-        "proposal_hash": row.proposal_hash,
-        "receipt_hash": row.receipt_hash,
-        "thesis_hash": row.thesis_hash,
-        "precheck_decision": row.precheck_decision,
-        "admitted": row.admitted,
-        "target_weight": row.target_weight,
-        "reason": row.reason,
-        "session_count": ledger.session_count,
-        "trade_count": ledger.trade_count,
-        "total_turnover": ledger.total_turnover,
-        "transaction_costs": ledger.transaction_costs,
-        "slippage_costs": ledger.slippage_costs,
-        "post_cost_within_limit": ledger.post_cost_within_limit,
-        "benchmark_sessions": [
-            day.isoformat() for day in ledger.benchmark_sessions
-        ],
-    }
-
-
-def _endpoint_receipt() -> DecisionReceipt:
     proposal = TradeProposal(
         ticker="AAPL",
         as_of=_ENDPOINT_AS_OF,
@@ -766,49 +705,194 @@ def _endpoint_receipt() -> DecisionReceipt:
         )
         for role in ANALYST_ROLES
     )
-    return FusionOrchestrator(provider=DeterministicOfflineProvider()).run(
-        proposal, SealedSourceSnapshot.seal(documents)
+    receipt = FusionOrchestrator(
+        provider=DeterministicOfflineProvider(),
+        committed_at=_FROZEN_COMMITTED_AT,
+    ).run(proposal, SealedSourceSnapshot.seal(documents))
+    receipt.verify_receipt()
+    assert receipt.thesis is not None
+    assert receipt.thesis.committed_at == _FROZEN_COMMITTED_AT
+    assert receipt.thesis.is_prospective(_ENDPOINT_OUTCOME_TS)
+    committed = datetime.fromisoformat(receipt.thesis.committed_at)
+    outcome = datetime.fromisoformat(_ENDPOINT_OUTCOME_TS)
+    assert committed < outcome
+    return receipt
+
+
+def sealed_endpoint_ledger() -> dict[str, object]:
+    """Prospective pure-LLM ledger on the locked window's two endpoints."""
+
+    config = load_locked_config()
+    names = (*config.universe, config.benchmark_ticker)
+    sessions = _bars(config.start_date, config.end_date, names)
+    receipt = desk_endpoint_receipt()
+    assert receipt.thesis is not None
+    marks = _marks(config, sessions)
+    pure_llm = _execute_receipt(config, sessions, marks, receipt, strategy_id="pure_llm")
+    fusion = _execute_receipt(config, sessions, marks, receipt, strategy_id="fusion")
+    assert pure_llm.block_reason is None and pure_llm.ledger is not None
+    assert fusion.ledger is not None
+    row = pure_llm.lineage.proposals[0]
+    fusion_row = fusion.lineage.proposals[0]
+    ledger = pure_llm.ledger
+    assert row.receipt_hash == receipt.receipt_hash
+    assert fusion_row.receipt_hash == receipt.receipt_hash
+    return {
+        "schema": "fusionfinance-controlled-software-ledger-v1",
+        "claim_status": pure_llm.claim_status,
+        "comparable_performance_claim": pure_llm.comparable_performance_claim,
+        "description": (
+            "Two-session software ledger on the locked window endpoints "
+            "2026-02-02 and 2026-07-09. AgentDesk and FusionOrchestrator seal "
+            "the pure-LLM precheck before the outcome. Fusion sees that same "
+            "receipt and abstains without a calibration artifact. This is not "
+            "a full calendar and not a performance claim."
+        ),
+        "provenance": {
+            "desk": "alpha.agents.desk.AgentDesk",
+            "orchestrator": "alpha.agents.orchestrator.FusionOrchestrator",
+            "provider": receipt.provider_model,
+            "stage": receipt.stage,
+            "seal": "orchestrator_first_commit",
+            "receipt_path": _PRECHECK_RECEIPT.as_posix(),
+        },
+        "strategy_id": pure_llm.lineage.strategy_id,
+        "experiment_id": pure_llm.lineage.experiment_id,
+        "decision_session": config.start_date.isoformat(),
+        "outcome_ts": _ENDPOINT_OUTCOME_TS,
+        "committed_at": receipt.thesis.committed_at,
+        "config_hash": pure_llm.lineage.config_hash,
+        "tape_hash": pure_llm.lineage.tape_hash,
+        "lineage_hash": pure_llm.lineage.lineage_hash,
+        "experiment_hash": pure_llm.lineage.experiment_hash,
+        "proposal_hash": row.proposal_hash,
+        "receipt_hash": row.receipt_hash,
+        "thesis_hash": row.thesis_hash,
+        "precheck_decision": row.precheck_decision,
+        "admitted": row.admitted,
+        "target_weight": row.target_weight,
+        "reason": row.reason,
+        "session_count": ledger.session_count,
+        "trade_count": ledger.trade_count,
+        "total_turnover": ledger.total_turnover,
+        "transaction_costs": ledger.transaction_costs,
+        "slippage_costs": ledger.slippage_costs,
+        "post_cost_within_limit": ledger.post_cost_within_limit,
+        "benchmark_sessions": [
+            day.isoformat() for day in ledger.benchmark_sessions
+        ],
+        "fusion": {
+            "strategy_id": "fusion",
+            "admitted": fusion_row.admitted,
+            "reason": fusion_row.reason,
+            "precheck_decision": fusion_row.precheck_decision,
+            "verifier_decision": fusion_row.verifier_decision,
+            "receipt_hash": fusion_row.receipt_hash,
+            "experiment_hash": fusion.lineage.experiment_hash,
+            "total_turnover": fusion.ledger.total_turnover,
+            "transaction_costs": fusion.ledger.transaction_costs,
+            "comparable_performance_claim": fusion.comparable_performance_claim,
+        },
+    }
+
+
+def _execute_receipt(config, sessions, marks, receipt: DecisionReceipt, *, strategy_id: str):
+    market = None
+    if strategy_id == "fusion":
+        market = MarketVerification(
+            produced_at=_FUSION_PRODUCED_AT,
+            expected_residual_bps={"10d": 80.0},
+            p_adverse={"10d": 0.2},
+            out_of_distribution_score=0.1,
+            fundamental_confirm_prob=0.9,
+        )
+    return run_controlled_arm(
+        config=config,
+        sessions=sessions,
+        strategy_id=strategy_id,
+        candidates=(
+            ArmInput(
+                strategy_id=strategy_id,
+                decision_session=config.start_date,
+                ticker="AAPL",
+                receipt=receipt,
+                market=market,
+                outcome_ts=_ENDPOINT_OUTCOME_TS,
+            ),
+        ),
+        benchmark_marks=marks,
     )
 
 
-def _freeze_receipt_commit(
-    receipt: DecisionReceipt, committed_at: str
-) -> DecisionReceipt:
-    assert receipt.thesis is not None and receipt.evidence_audit is not None
-    thesis = receipt.thesis.model_copy(update={"committed_at": committed_at})
-    thesis.verify_commit()
-    sealed = DecisionReceipt.seal_evaluated(
-        proposal=receipt.proposal,
-        snapshot=receipt.snapshot,
-        provider_model=receipt.provider_model,
-        reports=receipt.reports,
-        thesis=thesis,
-        evidence_audit=receipt.evidence_audit,
-    )
-    sealed.verify_receipt()
-    return sealed
+def _json_text(payload: object) -> str:
+    return json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
+
+
+def _mapping_keys(value: object):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            yield key
+            yield from _mapping_keys(item)
+
+
+def test_orchestrator_seals_the_commit_clock_before_the_outcome() -> None:
+    receipt = desk_endpoint_receipt()
+    assert receipt.provider_model == "fusionfinance-offline-lexical-v1"
+    assert tuple(report.role for report in receipt.reports) == ANALYST_ROLES
+    assert receipt.thesis is not None
+    with pytest.raises(ValueError, match="already committed"):
+        receipt.thesis.commit(model_version="x", prompt_hash="y" * 8)
+    with pytest.raises(ValueError, match="timezone"):
+        FusionOrchestrator(
+            provider=DeterministicOfflineProvider(),
+            committed_at="2026-02-02T20:00:00",
+        )
 
 
 def test_checked_in_software_ledger_matches_the_sealed_endpoint_run() -> None:
-    path = Path(__file__).resolve().parents[1] / _SOFTWARE_LEDGER
-    rendered = json.dumps(
-        sealed_endpoint_ledger(), indent=2, sort_keys=True, allow_nan=False
-    ) + "\n"
-    document = json.loads(rendered)
-    checked = json.loads(path.read_text(encoding="utf-8"))
+    root = Path(__file__).resolve().parents[1]
+    ledger_path = root / _SOFTWARE_LEDGER
+    receipt_path = root / _PRECHECK_RECEIPT
+    receipt = desk_endpoint_receipt()
+    ledger_text = _json_text(sealed_endpoint_ledger())
+    receipt_text = _json_text(receipt.model_dump(mode="json"))
+    document = json.loads(ledger_text)
+    checked = json.loads(ledger_path.read_text(encoding="utf-8"))
+    checked_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
 
-    assert path.read_text(encoding="utf-8") == rendered
+    assert ledger_path.read_text(encoding="utf-8") == ledger_text
+    assert receipt_path.read_text(encoding="utf-8") == receipt_text
     assert checked == document
+    assert checked_receipt == json.loads(receipt_text)
+    loaded = DecisionReceipt.model_validate_json(
+        receipt_path.read_text(encoding="utf-8")
+    )
+    loaded.verify_receipt()
+    assert loaded.thesis is not None
+    assert loaded.thesis.is_prospective(checked["outcome_ts"])
+    assert datetime.fromisoformat(loaded.thesis.committed_at) < datetime.fromisoformat(
+        checked["outcome_ts"]
+    )
+    assert checked["committed_at"] == loaded.thesis.committed_at
+    assert checked["receipt_hash"] == loaded.receipt_hash
+    assert checked["provenance"]["seal"] == "orchestrator_first_commit"
+    assert checked["provenance"]["desk"].endswith("AgentDesk")
+    assert checked["provenance"]["orchestrator"].endswith("FusionOrchestrator")
     assert checked["claim_status"] == "controlled_software_ledger"
     assert checked["comparable_performance_claim"] is False
     assert checked["admitted"] is True
+    assert checked["fusion"]["admitted"] is False
+    assert "calibration" in checked["fusion"]["reason"]
+    assert checked["fusion"]["total_turnover"] == 0.0
+    assert checked["fusion"]["transaction_costs"] == 0.0
     for key in ("config_hash", "tape_hash", "experiment_hash"):
         assert isinstance(checked[key], str) and len(checked[key]) == 64
     assert isinstance(checked["total_turnover"], float)
     assert isinstance(checked["transaction_costs"], float)
     assert checked["total_turnover"] > 0.0
     assert checked["transaction_costs"] > 0.0
-    assert _PERFORMANCE_KEYS.isdisjoint(checked)
+    assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(checked))
+    assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(checked_receipt))
 
 
 def _legacy_sessions():
