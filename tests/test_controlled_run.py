@@ -24,6 +24,7 @@ from demo.controlled import (
     ArmInput,
     MarketVerification,
     benchmark_marks_from_closes,
+    estimated_post_cost_gross_leverage,
     load_locked_config,
     load_policy_thresholds,
     run_controlled_arm,
@@ -34,7 +35,11 @@ from demo.market_tape import (
     evidence_paths,
     evidence_price_sessions,
 )
-from demo.pure_ml import amd_evidence_sha256, walk_forward_filing_proposals
+from demo.pure_ml import (
+    allocate_positive_score_book,
+    amd_evidence_sha256,
+    walk_forward_filing_proposals,
+)
 from demo.execution import (
     assert_post_cost_bound,
     reconcile_simulation,
@@ -914,6 +919,9 @@ _LEGACY_METRICS_SHA256 = (
 _PRIOR_SOFTWARE_TAPE_HASH = (
     "bf9e85ea37099ab93d57e3d11951c055fb5d04577ec871d3bfe3156d9220f587"
 )
+_EVIDENCE_TAPE_HASH = (
+    "3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05"
+)
 
 
 def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
@@ -997,6 +1005,26 @@ def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
     assert ood.admitted_count == 0
 
 
+def test_positive_scores_fill_a_multi_name_book_inside_locked_risk() -> None:
+    config = load_locked_config()
+    scores = {
+        ticker: float(index + 1) for index, ticker in enumerate(config.universe)
+    }
+    book = allocate_positive_score_book(scores, config)
+    two = allocate_positive_score_book({"AAPL": 2.0, "MSFT": 1.0, "NVDA": -1.0}, config)
+
+    assert len(book) > 1
+    assert all(0.0 < weight <= config.max_position_weight + 1e-12 for weight in book.values())
+    gross = sum(book.values())
+    assert gross <= config.max_gross_leverage + 1e-9
+    assert gross > 0.99
+    assert estimated_post_cost_gross_leverage(book, {}, config) <= (
+        config.max_gross_leverage + 1e-9
+    )
+    assert set(two) == {"AAPL", "MSFT"}
+    assert sum(two.values()) == pytest.approx(2 * config.max_position_weight)
+
+
 def _locked_three_arm_state() -> dict[str, object]:
     config = load_locked_config()
     sessions = evidence_price_sessions(config)
@@ -1020,48 +1048,66 @@ def _locked_three_arm_state() -> dict[str, object]:
     seals: list[dict[str, object]] = []
     for ordinal, index in enumerate(clock):
         decision = dates[index]
-        ticker = config.universe[ordinal % len(config.universe)]
+        llm_ticker = config.universe[ordinal % len(config.universe)]
         proposal = proposals[decision.isoformat()]
         outcome = f"{dates[index + config.execution_lag_sessions].isoformat()}T21:00:00Z"
-        receipt = _seal_locked_receipt(ticker, decision)
+        llm_receipt = _seal_locked_receipt(llm_ticker, decision)
         kind = ("approve", "reject", "research_only")[ordinal % 3]
-        pure_ml.append(
-            ArmInput(
-                strategy_id="pure_ml",
-                decision_session=decision,
-                ticker=str(proposal["ticker"]),
-                structured_weight=float(proposal["structured_weight"]),
+        market = _fusion_market(decision, kind, thresholds.calibration_hash)
+        for target in proposal["targets"]:
+            ticker = str(target["ticker"])
+            weight = float(target["structured_weight"])
+            pure_ml.append(
+                ArmInput(
+                    strategy_id="pure_ml",
+                    decision_session=decision,
+                    ticker=ticker,
+                    structured_weight=weight,
+                )
             )
-        )
+            fusion_receipt = _seal_locked_receipt(ticker, decision)
+            fusion.append(
+                ArmInput(
+                    strategy_id="fusion",
+                    decision_session=decision,
+                    ticker=ticker,
+                    receipt=fusion_receipt,
+                    market=market,
+                    outcome_ts=outcome,
+                    structured_weight=weight,
+                )
+            )
+            assert fusion_receipt.thesis is not None
+            seals.append(
+                {
+                    "arm": "fusion",
+                    "decision_session": decision.isoformat(),
+                    "ticker": ticker,
+                    "committed_at": fusion_receipt.thesis.committed_at,
+                    "outcome_ts": outcome,
+                    "receipt_hash": fusion_receipt.receipt_hash,
+                    "market_case": kind,
+                }
+            )
         pure_llm.append(
             ArmInput(
                 strategy_id="pure_llm",
                 decision_session=decision,
-                ticker=ticker,
-                receipt=receipt,
+                ticker=llm_ticker,
+                receipt=llm_receipt,
                 outcome_ts=outcome,
             )
         )
-        fusion.append(
-            ArmInput(
-                strategy_id="fusion",
-                decision_session=decision,
-                ticker=ticker,
-                receipt=receipt,
-                market=_fusion_market(
-                    decision, kind, thresholds.calibration_hash
-                ),
-                outcome_ts=outcome,
-            )
-        )
-        assert receipt.thesis is not None
+        assert llm_receipt.thesis is not None
         seals.append(
             {
+                "arm": "pure_llm",
                 "decision_session": decision.isoformat(),
-                "committed_at": receipt.thesis.committed_at,
+                "ticker": llm_ticker,
+                "committed_at": llm_receipt.thesis.committed_at,
                 "outcome_ts": outcome,
-                "receipt_hash": receipt.receipt_hash,
-                "market_case": kind,
+                "receipt_hash": llm_receipt.receipt_hash,
+                "market_case": None,
             }
         )
     arms = run_three_arms(
@@ -1100,9 +1146,10 @@ def locked_three_arm_ledger() -> dict[str, object]:
             "2026-02-02 through 2026-07-09, rebalanced every 10 sessions. "
             "LLM arms use the desk's first orchestrator seal. Fusion uses the "
             "pre-window calibration artifact and still requires a market head. "
-            "Pure ML weights are walk-forward filing ridge scores clipped to "
-            "the position cap and hash-bound to the AMD receipts. Prices are "
-            "the evidence OHLCV tape. This is not a performance claim."
+            "Pure ML and market-approved fusion hold multi-name books: positive "
+            "walk-forward scores share the gross budget under the locked "
+            "position and gross caps, and are hash-bound to the AMD receipts. "
+            "Prices are the evidence OHLCV tape. This is not a performance claim."
         ),
         "price_source": {
             "paths": evidence_paths(),
@@ -1140,19 +1187,23 @@ def _bind_pure_ml_proposals(document: dict[str, object], manifest: dict[str, obj
         "amd_evidence_sha256": manifest["amd_evidence_sha256"],
         "amd_compute_sha256": manifest["amd_compute_sha256"],
         "weight_rule": (
-            "structured_weight is the walk-forward filing ridge score "
-            "clipped to max_position_weight"
+            "positive walk-forward scores share max_gross_leverage in "
+            "proportion to score, each name capped at max_position_weight, "
+            "then scaled so post-cost gross leverage stays inside the cap"
         ),
     }
     by_session = {row["decision_session"]: row for row in manifest["proposals"]}
     for decision in arm["decisions"]:
         proposal = by_session[decision["decision_session"]]
-        decision["model_score"] = proposal["model_score"]
+        match = next(
+            target
+            for target in proposal["targets"]
+            if target["ticker"] == decision["ticker"]
+        )
+        decision["model_score"] = match["model_score"]
         decision["train_rows"] = proposal["train_rows"]
-        if decision["ticker"] != proposal["ticker"]:
-            raise AssertionError("pure_ml ticker does not match the model score")
-        if not math.isclose(decision["target_weight"], proposal["structured_weight"]):
-            raise AssertionError("executed pure_ml weight does not match the model score clip")
+        if not math.isclose(decision["target_weight"], match["structured_weight"]):
+            raise AssertionError("executed pure_ml weight does not match the score book")
 
 
 def _seal_locked_receipt(ticker: str, decision: date) -> DecisionReceipt:
@@ -1292,9 +1343,9 @@ def locked_three_arm_metrics() -> dict[str, object]:
         "description": (
             "Fixture metrics from the controlled three-arm evidence tape. "
             "Prices are the evidence OHLCV tape, the LLM desk is the "
-            "offline lexical provider, and pure ML weights are walk-forward "
-            "filing ridge scores clipped to the position cap. Not a capital "
-            "performance claim."
+            "offline lexical provider, and pure ML and market-approved fusion "
+            "hold multi-name score-proportional books under the locked caps. "
+            "Not a capital performance claim."
         ),
         "source_ledger": _THREE_ARM_LEDGER.as_posix(),
         "fixture_context": {
@@ -1348,6 +1399,7 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         assert arm["comparable_performance_claim"] is False
         assert arm["benchmark_sessions"] == dates
         assert arm["session_count"] == 109
+        assert arm["tape_hash"] == _EVIDENCE_TAPE_HASH
         assert arm["tape_hash"] != _PRIOR_SOFTWARE_TAPE_HASH
         assert arm["post_cost_within_limit"] is True
         assert isinstance(arm["total_turnover"], float)
@@ -1371,27 +1423,58 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     )
     assert len(binding["proposal_manifest_hash"]) == 64
     cap = config.max_position_weight
-    scores = [row["model_score"] for row in pure["decisions"]]
-    weights = [row["target_weight"] for row in pure["decisions"]]
-    tickers = [row["ticker"] for row in pure["decisions"]]
-    train_rows = [row["train_rows"] for row in pure["decisions"]]
-    assert len(set(scores)) == len(scores)
-    assert len(set(tickers)) > 1
-    assert not any(math.isclose(weight, 0.05) for weight in weights)
-    assert train_rows == sorted(train_rows) and train_rows[0] < train_rows[-1]
+    pure_groups: dict[str, list[dict[str, object]]] = {}
     for row in pure["decisions"]:
-        clipped = min(cap, max(-cap, row["model_score"]))
-        assert row["admitted"] is True
-        assert math.isclose(row["target_weight"], clipped)
+        pure_groups.setdefault(row["decision_session"], []).append(row)
+    assert len(pure_groups) == document["rebalance_count"]
+    for rows in pure_groups.values():
+        assert len(rows) > 1
+        assert all(row["admitted"] is True for row in rows)
+        gross = sum(abs(row["target_weight"]) for row in rows)
+        assert gross <= config.max_gross_leverage + 1e-9
+        assert all(0.0 < abs(row["target_weight"]) <= cap + 1e-12 for row in rows)
+        assert len({row["train_rows"] for row in rows}) == 1
+    train_rows = [rows[0]["train_rows"] for rows in pure_groups.values()]
+    assert train_rows == sorted(train_rows) and train_rows[0] < train_rows[-1]
+    fusion_groups: dict[str, list[dict[str, object]]] = {}
+    for row in document["arms"]["fusion"]["decisions"]:
+        fusion_groups.setdefault(row["decision_session"], []).append(row)
+    approved_books = 0
+    for rows in fusion_groups.values():
+        kinds = {row["verifier_decision"] for row in rows}
+        assert len(kinds) == 1
+        kind = kinds.pop()
+        if kind == "approved":
+            admitted = [row for row in rows if row["admitted"] is True]
+            assert len(admitted) > 1
+            gross = sum(abs(row["target_weight"]) for row in admitted)
+            assert gross <= config.max_gross_leverage + 1e-9
+            assert all(abs(row["target_weight"]) <= cap + 1e-12 for row in admitted)
+            approved_books += 1
+        else:
+            assert all(
+                row["admitted"] is False and row["target_weight"] == 0.0 for row in rows
+            )
+    assert approved_books > 0
+    decision_dates = list(pure_groups)
     rebuilt = walk_forward_filing_proposals(
         config,
-        [date.fromisoformat(row["decision_session"]) for row in pure["decisions"]],
+        [date.fromisoformat(day) for day in decision_dates],
     )
     assert rebuilt["proposal_manifest_hash"] == binding["proposal_manifest_hash"]
-    for row, proposal in zip(pure["decisions"], rebuilt["proposals"], strict=True):
-        assert row["ticker"] == proposal["ticker"]
-        assert math.isclose(row["model_score"], proposal["model_score"])
-        assert math.isclose(row["target_weight"], proposal["structured_weight"])
+    rebuilt_by_session = {
+        row["decision_session"]: row for row in rebuilt["proposals"]
+    }
+    for session, rows in pure_groups.items():
+        targets = {
+            target["ticker"]: target
+            for target in rebuilt_by_session[session]["targets"]
+        }
+        assert set(targets) == {row["ticker"] for row in rows}
+        for row in rows:
+            target = targets[row["ticker"]]
+            assert math.isclose(row["model_score"], target["model_score"])
+            assert math.isclose(row["target_weight"], target["structured_weight"])
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(document))
 
 

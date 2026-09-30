@@ -22,7 +22,7 @@ from alpha.filing_alpha.filing_fusion import (
     point_in_time_filing_join,
 )
 from demo.contracts import ExperimentConfig
-from demo.controlled import canonical_hash
+from demo.controlled import canonical_hash, estimated_post_cost_gross_leverage
 from demo.market_tape import adjusted_market_frame, evidence_price_sessions
 
 
@@ -81,10 +81,37 @@ def walk_forward_filing_proposals(
     )
     if any(day not in set(locked) for day in decision_dates):
         raise ValueError("pure-ML decisions must lie on the evidence tape")
+    if len(set(decision_dates)) != len(list(decision_dates)):
+        raise ValueError("pure-ML decisions must be unique")
+    if list(decision_dates) != sorted(decision_dates):
+        raise ValueError("pure-ML decisions must be chronological")
     panel = _feature_panel(config, root=root)
     proposals: list[dict[str, object]] = []
+    previous: dict[str, float] = {}
     for decision in decision_dates:
-        proposals.append(_score_decision(config, panel, decision))
+        scored = _score_decision(config, panel, decision)
+        scores = {
+            str(item["ticker"]): float(item["score"])
+            for item in scored["cross_section"]
+        }
+        book = allocate_positive_score_book(scores, config, previous)
+        targets = [
+            {
+                "ticker": ticker,
+                "model_score": scores[ticker],
+                "structured_weight": weight,
+            }
+            for ticker, weight in sorted(book.items())
+        ]
+        positive = sum(score > 0.0 for score in scores.values())
+        if positive > 1 and len(targets) < 2:
+            raise ValueError(
+                "positive scores support multiple names but the book has one"
+            )
+        scored["targets"] = targets
+        scored["gross_exposure"] = float(sum(book.values()))
+        proposals.append(scored)
+        previous = dict(book)
     amd = amd_evidence_sha256(root)
     payload = {
         "schema": "fusionfinance-pure-ml-proposal-manifest-v1",
@@ -175,10 +202,6 @@ def _score_decision(
         .reset_index()
     )
     scores = fitted.predict(live)
-    best = int(np.argmax(scores))
-    score = float(scores[best])
-    cap = float(config.max_position_weight)
-    weight = float(np.clip(score, -cap, cap))
     coefficients = {
         column: float(value)
         for column, value in zip(
@@ -189,9 +212,6 @@ def _score_decision(
     }
     return {
         "decision_session": decision.isoformat(),
-        "ticker": str(live.iloc[best]["ticker"]),
-        "model_score": score,
-        "structured_weight": weight,
         "train_rows": int(len(history)),
         "intercept": float(fitted.model.intercept_),
         "coefficients": coefficients,
@@ -200,3 +220,106 @@ def _score_decision(
             for ticker, value in zip(live["ticker"], scores, strict=True)
         ],
     }
+
+
+def allocate_positive_score_book(
+    scores: dict[str, float],
+    config: ExperimentConfig,
+    previous: dict[str, float] | None = None,
+) -> dict[str, float]:
+    """Map positive scores to weights inside the locked position and gross caps.
+
+    Names with a positive score share the gross budget in proportion to that
+    score. No name exceeds ``max_position_weight``. The book is then scaled
+    down until post-cost gross leverage is inside ``max_gross_leverage``.
+    Non-positive scores are not given a position.
+    """
+
+    held = {} if previous is None else dict(previous)
+    positive = [
+        (ticker, float(score))
+        for ticker, score in scores.items()
+        if float(score) > 0.0
+    ]
+    if not positive:
+        return {}
+    cap = float(config.max_position_weight)
+    full = _capped_proportional(positive, float(config.max_gross_leverage), cap)
+    scale = _largest_feasible_scale(full, held, config)
+    return {
+        ticker: weight * scale
+        for ticker, weight in sorted(full.items())
+        if weight * scale > 0.0
+    }
+
+
+def _capped_proportional(
+    pairs: list[tuple[str, float]], gross_target: float, cap: float
+) -> dict[str, float]:
+    remaining = {ticker: score for ticker, score in pairs}
+    assigned = {ticker: 0.0 for ticker, _score in pairs}
+    budget = float(gross_target)
+    for _step in range(len(pairs) + 1):
+        if not remaining or budget <= 1e-15:
+            break
+        mass = sum(remaining.values())
+        if mass <= 0.0:
+            break
+        takes: dict[str, float] = {}
+        saturated: list[str] = []
+        for ticker, magnitude in remaining.items():
+            room = cap - assigned[ticker]
+            take = min(budget * magnitude / mass, room)
+            if take > 0.0:
+                takes[ticker] = take
+            if take >= room - 1e-15:
+                saturated.append(ticker)
+        if not takes:
+            break
+        for ticker, take in takes.items():
+            assigned[ticker] += take
+            budget -= take
+        for ticker in saturated:
+            remaining.pop(ticker, None)
+    return {
+        ticker: weight for ticker, weight in assigned.items() if weight > 0.0
+    }
+
+
+def _largest_feasible_scale(
+    weights: dict[str, float],
+    previous: dict[str, float],
+    config: ExperimentConfig,
+) -> float:
+    # Leave a hair under the cap so share-level cost accounting, and a full
+    # replacement of the previous book, still land inside the locked limit.
+    post_cost_limit = float(config.max_gross_leverage) - 1e-4
+    previous_gross = sum(abs(weight) for weight in previous.values())
+
+    def feasible(scale: float) -> bool:
+        trial = {ticker: weight * scale for ticker, weight in weights.items()}
+        if any(
+            abs(weight) > config.max_position_weight + 1e-12
+            for weight in trial.values()
+        ):
+            return False
+        gross = sum(abs(weight) for weight in trial.values())
+        if gross > config.max_gross_leverage + 1e-12:
+            return False
+        worst_previous = {"__prior__": previous_gross} if previous_gross else {}
+        post_cost = estimated_post_cost_gross_leverage(trial, worst_previous, config)
+        return post_cost <= post_cost_limit
+
+    if feasible(1.0):
+        return 1.0
+    lo = 0.0
+    hi = 1.0
+    best = 0.0
+    for _step in range(60):
+        mid = (lo + hi) / 2.0
+        if feasible(mid):
+            best = mid
+            lo = mid
+        else:
+            hi = mid
+    return best

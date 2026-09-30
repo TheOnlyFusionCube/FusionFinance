@@ -1,7 +1,7 @@
 {
   "arms": {
     "fusion": {
-      "admitted_count": 4,
+      "admitted_count": 41,
       "benchmark_sessions": [
         "2026-02-02",
         "2026-02-03",
@@ -123,9 +123,89 @@
           "precheck_decision": "approved",
           "reason": "evidence ok; fundamental not contradicted; market agrees, material",
           "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427",
-          "target_weight": 0.07,
+          "target_weight": 0.1,
           "ticker": "AAPL",
           "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "79a10ffe3224da89185db3b13b8476c0474979701d0c4f1cda1b562d4120ceaa",
+          "target_weight": 0.1,
+          "ticker": "AMZN",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "cc9cd597d11c79f75dee0e06732517a47e6dd1acec2f08af18b0640b04889a4b",
+          "target_weight": 0.1,
+          "ticker": "AVGO",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "938700492faab5e7085f5070a201b9a59a696a1783a0e0235a190caea0342ec8",
+          "target_weight": 0.1,
+          "ticker": "JPM",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "4341bc97f44011346153d1093e08628186f4e5b2c774a689381421d55dcc58a7",
+          "target_weight": 0.1,
+          "ticker": "LLY",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "62f56cacbc35540bd15fbda478fe6275d320e4a86d6f10f093c03bbd09a91309",
+          "target_weight": 0.1,
+          "ticker": "MSFT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "ef144a95e72ef9e9dc6678a4d1c4f9c83ab7f6f9df4c29a598be786e8e3f135b",
+          "target_weight": 0.1,
+          "ticker": "TSLA",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "132f1e582df5339c8e5b5ff5cbc81afb49330d8367f5bdfcb67e0208057a2f86",
+          "target_weight": 0.1,
+          "ticker": "WMT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "7371226415cd71c035c0ed0ff659581d4c8af73ae18661cbc1485987911d230d",
+          "target_weight": 0.0,
+          "ticker": "AAPL",
+          "verifier_decision": "reject"
         },
         {
           "admitted": false,
@@ -139,6 +219,106 @@
         },
         {
           "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "2a3fac1206e573faf5f3494ef12c61db69e55546602f73f99d6990068947f80b",
+          "target_weight": 0.0,
+          "ticker": "AVGO",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "0f4f06639f6d11e00b7b1da4db7b8b38584c4de0565b019722157125b437250e",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "e345b5a5598d7d67bf64b0e1fa3aad6802ccbe60e28d2e7a7bd315c53ec4bcc1",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "1995561a339bd23fee5062a1c1f1a0edb22651eaf65c634915492a6ebc64b6f3",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "374e93525d64df41c1f4c2b8154d0eaa85da221dbeea1f559e68fd30a6ed1c61",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "7f4d52c5f2d47e99b6348dd726deabd2e891cedf6fb665a9953ae4e78d93a425",
+          "target_weight": 0.0,
+          "ticker": "MSFT",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "fc4ac0dc14e2524e5699497ed5cafbfdf86931317527d3f6db00c2bc708ae732",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-02-17",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "c2b7348636b4e1c40e0e3e29686f146616fe38e474b1aa02146395603729d358",
+          "target_weight": 0.0,
+          "ticker": "WMT",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "2810e82eae05887674a74227976f0d9ec45deac494c6c2f01cfc66fae5a51a96",
+          "target_weight": 0.0,
+          "ticker": "AAPL",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "332f6ca556ec8ba9e8bea771cdc13bb5bacd5eed0a3978d2ef50b83a7a39248c",
+          "target_weight": 0.0,
+          "ticker": "AMZN",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
           "decision_session": "2026-03-03",
           "precheck_decision": "approved",
           "reason": "independent market forecast disagrees on direction/timing",
@@ -148,13 +328,153 @@
           "verifier_decision": "research_only"
         },
         {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "f1eec298ff6df24e14461122b7f0ec14433d2d46290eef1a8beb849638209083",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "66609f95a0670eaf83809d58687dd190b32ffebefc42f2480dbadfac7b11f872",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "84b05eff7f9d6241b56729d7da36f45ba39e21ecb0102cece2c2518a8df5feaa",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "e7148cce10a3ea65d6c0ef4be611fc8c2bf8699b2df3ad19d3f29ab96f21de23",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "f553880c92d42ffc3af744748f7c20ca4f5b3f89d7d274f4e273fa5c8f92f609",
+          "target_weight": 0.0,
+          "ticker": "MSFT",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "29f2c274c4c563a499a6c7ce4c482c933d1e1164503d5a30f66f41736bacf376",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-03",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "b30507fd9826009c60c25d1af761368344f18da96f59de37e53acbf6a19d59ec",
+          "target_weight": 0.0,
+          "ticker": "WMT",
+          "verifier_decision": "research_only"
+        },
+        {
           "admitted": true,
           "decision_session": "2026-03-17",
           "precheck_decision": "approved",
           "reason": "evidence ok; fundamental not contradicted; market agrees, material",
-          "receipt_hash": "f44ee183d3bd3e83ed5833f095de2500b1707a3da1719a192fc85170fca8e37b",
-          "target_weight": 0.07,
-          "ticker": "BRK-B",
+          "receipt_hash": "3e9bd968b2f371a2db0b8b76eb3c73d5760ccb83bbf6ac7f9c1445f9e90d3ebe",
+          "target_weight": 0.1,
+          "ticker": "AAPL",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "a7febfdacd5c9bf57efc66f686b23c361e089cc5b11a35b66d686c207eb6ea90",
+          "target_weight": 0.1,
+          "ticker": "AMZN",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "0ccc427e20e7ba040fd6db086b594a8953b3daaeec83f0fe3db2eff8e8d58f58",
+          "target_weight": 0.1,
+          "ticker": "AVGO",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "aa3927d8daf4a3cfe974de75296267aef6b652ad545642a75ccee9506ecee7b0",
+          "target_weight": 0.1,
+          "ticker": "JPM",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "94b21ba58f44334094dcb6589a6db35062522677f16691656c393c6538009ca9",
+          "target_weight": 0.1,
+          "ticker": "LLY",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "e8bd2b6e0720aee3b5950127dc1539affbc3ffb4f581cdc7d01ffd7f33cc4be3",
+          "target_weight": 0.1,
+          "ticker": "META",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "1fa1e933efb192044b5d308c7dc9338e12c413ce1accc9084cda6e013081e462",
+          "target_weight": 0.1,
+          "ticker": "TSLA",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "7aedd1a37f09da4ce7800291b84a20eeffdcc40c1bdf66bfe3e38d83eb34d93f",
+          "target_weight": 0.1,
+          "ticker": "WMT",
           "verifier_decision": "approved"
         },
         {
@@ -162,9 +482,79 @@
           "decision_session": "2026-03-31",
           "precheck_decision": "approved",
           "reason": "fundamental confirm-prob 0.10 contradicts claim",
-          "receipt_hash": "ef5b18137c8dbc13d3a8bcf856ca24ee47d22e0d86cd3408a2a11c66c7137fad",
+          "receipt_hash": "cb8dc9b239d86acceba3807143be059452722cb64f2e84e022cca661f6d59e39",
           "target_weight": 0.0,
-          "ticker": "COST",
+          "ticker": "AAPL",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "a7a1c1051f429426c67a9756722fa3d2215ff146d20ff2ecc47f8dbe7315a248",
+          "target_weight": 0.0,
+          "ticker": "AMZN",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "56efd342a6749548bd9a23cc2cd4c7387efe076f7e0a92c1c7eab8ab61861286",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "8a78ddca1196946bcaaf89aca7f1190fcc94523e404275fb969086f894758ffc",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "7494808f869d2ca7fca071ec8fbbb4d9b757dcf91b9cdfb53a97d6ba2f5f4901",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "4c6374e22ec41d85a1b3a5e9ad2f403feff9ffae806102ec1cd15ddbbcfdc12e",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "fbd67089a17550209ffe2cf59b84987d18afb375abdd1292980308537ed2d08c",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-03-31",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "5b6ff65003e3403abd3446e57e7c4d019b86181dd1dd3985e723a9b80bb158ce",
+          "target_weight": 0.0,
+          "ticker": "WMT",
           "verifier_decision": "reject"
         },
         {
@@ -172,9 +562,59 @@
           "decision_session": "2026-04-15",
           "precheck_decision": "approved",
           "reason": "independent market forecast disagrees on direction/timing",
-          "receipt_hash": "ad671431d3e67028b6495ea51122fd7f90b6e67d7238358d42a1664707922303",
+          "receipt_hash": "2461f9b86926d884fde948adb03dd265464cdd389609e508c5c75eea42b4f186",
           "target_weight": 0.0,
-          "ticker": "GOOGL",
+          "ticker": "AAPL",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-04-15",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "5f2870bcab1ce33fe01979c48e7f83ee0767a7f4b2bb7675feaca9455c7e9029",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-04-15",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "eeb8cf04bbaa5c16a68bed519ff45b0dc7cdd1b2d0e5e3a2a765be6c7c7281b4",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-04-15",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "0c4962b89999cffb4366f726ad8755c2114d8a4b5f3c3449edaa2009d66acbe2",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-04-15",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "01c154a0d663577bacc74f36879d98a8de9eccc055e57ec2424686768942e5de",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-04-15",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "e6eeaa68a470638ef370f77d85f1c7f389b569173bbaebcbff1dd79f1332deac",
+          "target_weight": 0.0,
+          "ticker": "WMT",
           "verifier_decision": "research_only"
         },
         {
@@ -182,10 +622,160 @@
           "decision_session": "2026-04-29",
           "precheck_decision": "approved",
           "reason": "evidence ok; fundamental not contradicted; market agrees, material",
-          "receipt_hash": "88941a7bba1c73c658cdac245237dd77540fd4e8eceb07ab259216e4e66c53a0",
-          "target_weight": 0.07,
-          "ticker": "HD",
+          "receipt_hash": "178f158993b73a19509f42b8afab6509e57326fdd8e5412797627e55293d49e4",
+          "target_weight": 0.09987809652390002,
+          "ticker": "AAPL",
           "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "3c8b67886db7432adeb5cf30cb047e3bbe9b6007bf3308d96edde48353382482",
+          "target_weight": 0.07366463907146611,
+          "ticker": "AMZN",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "c9d8cbcd81f0ab077cb00cbfdf3be2c171900233fcff73c3545c1765f3dc4324",
+          "target_weight": 0.09608765500434104,
+          "ticker": "AVGO",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "d861cde1f38d5125b7a0e7da570a4c0ece4182f5c4aa76d2099ee016441e3250",
+          "target_weight": 0.09987809652390002,
+          "ticker": "BRK-B",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "591ef406c7f16cefc10020f09d490a6073880ec6a2af62233a6e0be4f5317974",
+          "target_weight": 0.09987809652390002,
+          "ticker": "JPM",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "45ce3e818149ada1def6af4887654c8836e0a7a0a2b63d55956d233885e5a9a6",
+          "target_weight": 0.09987809652390002,
+          "ticker": "LLY",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "110a2998a111014ed372bbb57c67e4d6aa0756fe4047ab7418bf9315514a8494",
+          "target_weight": 0.09987809652390002,
+          "ticker": "META",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "e43f0b9ddb80d186bb2eab4e2d39e25feb1e05f0bceb166b9dcf1997cb6bf9e7",
+          "target_weight": 0.03000389897199295,
+          "ticker": "MSFT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "51066c9c714c3dba923eac09a6f543806ffa671a6a7cc95ea4d88ab5700bb30f",
+          "target_weight": 0.09987809652390002,
+          "ticker": "NFLX",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "5d9329a659fd0043e8e4d4d8bd77d1e290f533cf52a55a3d1cd88641aea958df",
+          "target_weight": 0.09987809652390002,
+          "ticker": "TSLA",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "01fa18feaa4365de0344ab39628d93b0e90718fe6d2657ea4594a7b4810ae9ff",
+          "target_weight": 0.09987809652390002,
+          "ticker": "WMT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "ae6f723d7f4b3eebc3890e5443ea450ea1610d2b2b0d327b7f2b5b9ea063ca1f",
+          "target_weight": 0.0,
+          "ticker": "AAPL",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "64b4779666b8239c7fc77fe4f431463871aa00494b8c80dfa0d0d1f1ab92c1c8",
+          "target_weight": 0.0,
+          "ticker": "AMZN",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "318db7601da8a168643731478fb9f6899aa0eef8d4f3b7bd2ff96283fd76d6b4",
+          "target_weight": 0.0,
+          "ticker": "AVGO",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "1850ba6498d2e19d3e77f39d95dab6143dbe98175bb1c9b1e6b6d98775db6d5c",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "340cca8893956b57cf1fbd76eb2e49c6aedb937ee6cf6f3e1221d6e1a627482e",
+          "target_weight": 0.0,
+          "ticker": "COST",
+          "verifier_decision": "reject"
         },
         {
           "admitted": false,
@@ -199,6 +789,126 @@
         },
         {
           "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "1b48917ba13edf6e433bda02c0ffb7ae5e46d16d0d0813f0680e3fd6bfa9e9cf",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "71a3ac63ff3df148c236a6023b4daa0122aab3e48e410b97e057ae63a330b18b",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "f9ca501444eeb7688eb7e07121e3e431b02498ddf2c556ed280e83f855200e5c",
+          "target_weight": 0.0,
+          "ticker": "MSFT",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "7c81c8eb18b9af10a9537b5c7d9d775ab2b7c1ab41aa373224634cc8db9ab59f",
+          "target_weight": 0.0,
+          "ticker": "NFLX",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-13",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "30481dac034b31a5cf3caa777df5bb28f86f0a7892df07cfaa15622effe114a1",
+          "target_weight": 0.0,
+          "ticker": "WMT",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "126fda01b7d9a334172200b89c3fd48adb69a8e6f8a55c0b3c6ec5d41f3f5638",
+          "target_weight": 0.0,
+          "ticker": "AAPL",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "4545df18dce20b4cb4cfafbdfef97879783c202f65fcf0a07deeec93047cce62",
+          "target_weight": 0.0,
+          "ticker": "AMZN",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "19b25a862c0e0a1f529d3a27f58c1cc251beb0f1a533c3f78766d951ce33ed26",
+          "target_weight": 0.0,
+          "ticker": "AVGO",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "cf86147e94748614d315b9f867b8d577913f872285a6a277a3023ddeeb7076a8",
+          "target_weight": 0.0,
+          "ticker": "BRK-B",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "47628a029a9a94fb9cc5d189fc6f6f4b0c3f517b9e0fde6d8bfa7535fd8eafb0",
+          "target_weight": 0.0,
+          "ticker": "COST",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "ca71f6a67e72a31561ad01f6c8828cbccedbcfce6dd1d7be64e4b06da850baf2",
+          "target_weight": 0.0,
+          "ticker": "GOOGL",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "1c32f8d06b3fe8878781778f5e2f9d65fb50620ac4c358ea330b25d737f25446",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
           "decision_session": "2026-05-28",
           "precheck_decision": "approved",
           "reason": "independent market forecast disagrees on direction/timing",
@@ -208,14 +918,274 @@
           "verifier_decision": "research_only"
         },
         {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "c179e6c4ff5283a49f9b94634718203fac4b2c2b8e9cfeff2dd06fa8fa6b8f71",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "b0fa22a3d2a65d2da102f58424e6bfcc16db0b5f3e820fb7dcbf3b8e4b74da9b",
+          "target_weight": 0.0,
+          "ticker": "MSFT",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "2473525084e445c0eb54c47acab1d44ee306fe5e9614cb8079d1a74ae962cbed",
+          "target_weight": 0.0,
+          "ticker": "NFLX",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "6c30160df417abad4dc6391f91996db292fb5da765702556028541831304a7a6",
+          "target_weight": 0.0,
+          "ticker": "NVDA",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "513c1647507e1912588be361189370a50d50b978f10593d195617c4e86465b59",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-05-28",
+          "precheck_decision": "approved",
+          "reason": "independent market forecast disagrees on direction/timing",
+          "receipt_hash": "4bc880ad2babe243cccc342520cdc8e4b785483c702fc790e4de6cafe5588f3e",
+          "target_weight": 0.0,
+          "ticker": "WMT",
+          "verifier_decision": "research_only"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "21ebec411d025472972da4070ba764328bed4e39a495d87a69564a07372bb44d",
+          "target_weight": 0.09985022366588953,
+          "ticker": "AAPL",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "e95cbc45d3c32c8cb8ca74215774ed5cbcb13d57d32baecb3c802c6070f0f7c4",
+          "target_weight": 0.09985022366588953,
+          "ticker": "AMZN",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "e9f7cddaefce488ea26ae0711ae64e45b832ca7f5c05fb1bab5ef0c978eaead0",
+          "target_weight": 0.0960256659700439,
+          "ticker": "AVGO",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "668ff93bde31a110fb5e401d2b7b0a91aa04643d5c26d8e6349120c748dc1e61",
+          "target_weight": 0.03591172126216329,
+          "ticker": "BRK-B",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "67623357bcbf733842acc858c499828a8348d69e592858dd89e1f7f7d1d18bdf",
+          "target_weight": 0.044782391739617435,
+          "ticker": "COST",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "8b6347553d95a549bc854612a8c7fb0cecea0d4138b5233e2d6a2a8fba1366e1",
+          "target_weight": 0.018581809687745445,
+          "ticker": "GOOGL",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "278469c4c363be9befa01872cd4111e3433f23aa196881fade6f62dba0d93418",
+          "target_weight": 0.08431803797608398,
+          "ticker": "JPM",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "9fbaad16cbfc88872a68586a39a3fb2ba24f7e5f73465f156772c5f7d0693376",
+          "target_weight": 0.0854933124183442,
+          "ticker": "LLY",
+          "verifier_decision": "approved"
+        },
+        {
           "admitted": true,
           "decision_session": "2026-06-11",
           "precheck_decision": "approved",
           "reason": "evidence ok; fundamental not contradicted; market agrees, material",
           "receipt_hash": "c19e2d2f026846dd84dcb909843fe2da362877b386687a235315f5f040da515c",
-          "target_weight": 0.07,
+          "target_weight": 0.09702429941907827,
           "ticker": "META",
           "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "c7bba303f5a757e964066db3004a9bae34d87a1ac46392b78c4d4e33d263b96b",
+          "target_weight": 0.07795323977363007,
+          "ticker": "MSFT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "fbad9e3cd95b1d9c6231edbba5e3d3a981c93bf03088c39ff9915f59538e8f02",
+          "target_weight": 0.05839943978140909,
+          "ticker": "NFLX",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "06e72b5b7591a97a64c42f6166920feb1cb012a652a537a6ce259f2618228c32",
+          "target_weight": 0.010295959768053527,
+          "ticker": "ORCL",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "1dc3f604d3fa98f8a9e315538b0871de770f1829b0691b61023d036328333feb",
+          "target_weight": 0.09985022366588953,
+          "ticker": "TSLA",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "precheck_decision": "approved",
+          "reason": "evidence ok; fundamental not contradicted; market agrees, material",
+          "receipt_hash": "95c56c02c7b0f3e6004e0b034c965eb01a33f61158613ca73672c3caf5df50bb",
+          "target_weight": 0.0901656878650574,
+          "ticker": "WMT",
+          "verifier_decision": "approved"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "19b58aa62e8018997845c2947703b13a22f7d510ba93d988f376c56c0574dd05",
+          "target_weight": 0.0,
+          "ticker": "AAPL",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "0e1e502069d91e578e6d292f2ac0298ffd1a9d34527c09c76a86f364c38e9c5e",
+          "target_weight": 0.0,
+          "ticker": "AMZN",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "59b8aa26df2276f4a79e38e4e8ae6d9489ca948c6bedefc59a47c3f6139f2fa2",
+          "target_weight": 0.0,
+          "ticker": "AVGO",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "56935ba6cf71738131078f380563d91691267b13fb1853004c5e5eb2ec26bceb",
+          "target_weight": 0.0,
+          "ticker": "GOOGL",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "7d2e816af907f21f217c39df151836ca9168de3de3b4acf6fb275099b7fc6ec2",
+          "target_weight": 0.0,
+          "ticker": "JPM",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "c94fb1dc15f12b63d020c9b8beeb31de65690235a244bab84229f0845fdb1d4c",
+          "target_weight": 0.0,
+          "ticker": "LLY",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "822f8b5e27a674f8a9e38b56438931915f139244f4ae6b3cb2983588fe6f7509",
+          "target_weight": 0.0,
+          "ticker": "META",
+          "verifier_decision": "reject"
         },
         {
           "admitted": false,
@@ -226,18 +1196,58 @@
           "target_weight": 0.0,
           "ticker": "MSFT",
           "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "209583ce7453f18f2bbdbc8681d54be47fbcfda13590dc0549158b9c5e765527",
+          "target_weight": 0.0,
+          "ticker": "NFLX",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "eee63142746053689fe2f390a9b8b36d86b37f3ab632b38cd30fe52afd360f1d",
+          "target_weight": 0.0,
+          "ticker": "ORCL",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "ae8c2b78a2e790df843334234158f8b79dd4b29293da13ee14f4f98c2b222d3b",
+          "target_weight": 0.0,
+          "ticker": "TSLA",
+          "verifier_decision": "reject"
+        },
+        {
+          "admitted": false,
+          "decision_session": "2026-06-26",
+          "precheck_decision": "approved",
+          "reason": "fundamental confirm-prob 0.10 contradicts claim",
+          "receipt_hash": "0cf23e893607a3bad8e219c3bd23dbd1b07bf2e525ac44c775c30be03f8a2687",
+          "target_weight": 0.0,
+          "ticker": "WMT",
+          "verifier_decision": "reject"
         }
       ],
-      "experiment_hash": "e3d369cf1c30a295d5a69ec9c5f385418ef5f7e3e553b999d5505ebee0c065dc",
-      "lineage_hash": "59ed2fa3bd7d95be50fc3a25b656d8eea0d5f4e0d92618366e198e3beebd0fdb",
+      "experiment_hash": "74579f954dfa26c8a34358ebb3825e6b02e768b72418e74e15d13c4f144d2a8c",
+      "lineage_hash": "11efa8b2b789004b8e22439d7ca260690399918ca29e677ed29bdc80f4884d0c",
       "post_cost_within_limit": true,
       "session_count": 109,
-      "slippage_costs": 1.0999576499986978,
+      "slippage_costs": 14.086788089361828,
       "strategy_id": "fusion",
       "tape_hash": "3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05",
-      "total_turnover": 0.552204031818523,
-      "trade_count": 8,
-      "transaction_costs": 3.8498517749954426
+      "total_turnover": 7.188911084985492,
+      "trade_count": 82,
+      "transaction_costs": 49.3037583127664
     },
     "pure_llm": {
       "admitted_count": 11,
@@ -479,7 +1489,7 @@
       "transaction_costs": 10.33045979357602
     },
     "pure_ml": {
-      "admitted_count": 11,
+      "admitted_count": 112,
       "benchmark_sessions": [
         "2026-02-02",
         "2026-02-03",
@@ -598,13 +1608,193 @@
         {
           "admitted": true,
           "decision_session": "2026-02-02",
+          "model_score": 0.009410024870793576,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AAPL",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.008658537093470833,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AMZN",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.004773068128042985,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AVGO",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.012292579599941043,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "JPM",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.008360463882553747,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "LLY",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.0005060091916426258,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "MSFT",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
           "model_score": 0.013101769524767925,
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.013101769524767925,
+          "target_weight": 0.1,
           "ticker": "TSLA",
           "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-02",
+          "model_score": 0.006226081276459019,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "WMT",
+          "train_rows": 1520,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.016633660872959553,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "AAPL",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.014418018963380597,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "AMZN",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.010367361450743707,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "AVGO",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.0011516824876657275,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "BRK-B",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.0171214665307268,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "JPM",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.008591117239322342,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "LLY",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.004826263933085458,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "META",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.006082464727762023,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "MSFT",
+          "train_rows": 1680,
           "verifier_decision": null
         },
         {
@@ -614,9 +1804,117 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.01930697161072581,
+          "target_weight": 0.09986410771508698,
           "ticker": "TSLA",
           "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-02-17",
+          "model_score": 0.007857906863702165,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09986410771508698,
+          "ticker": "WMT",
+          "train_rows": 1680,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.01766934604905193,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "AAPL",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.011489770982818392,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "AMZN",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.01058814229788913,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "AVGO",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.004135414943222717,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "BRK-B",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.018294617458791514,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "JPM",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.01478689168531202,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "LLY",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.007024732964700967,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "META",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 5.1007387175019524e-06,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "MSFT",
+          "train_rows": 1840,
           "verifier_decision": null
         },
         {
@@ -626,9 +1924,57 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.01877462915609466,
+          "target_weight": 0.09985021395483358,
           "ticker": "TSLA",
           "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-03",
+          "model_score": 0.013605231778697135,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985021395483358,
+          "ticker": "WMT",
+          "train_rows": 1840,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.00925990461726208,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AAPL",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.002874415094117653,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AMZN",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.0015294546729428976,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AVGO",
+          "train_rows": 2000,
           "verifier_decision": null
         },
         {
@@ -638,9 +1984,129 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.009634408933027272,
+          "target_weight": 0.1,
           "ticker": "JPM",
           "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.008185519970570734,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "LLY",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.004717255809128636,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "META",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.006360975574734272,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "TSLA",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-17",
+          "model_score": 0.004807185566801036,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "WMT",
+          "train_rows": 2000,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.008529279532478846,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AAPL",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.003963811413482947,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AMZN",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.00018536435021863484,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "BRK-B",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.007924573284336529,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "JPM",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.0036591417334285066,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "LLY",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.0016588207853469195,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "META",
+          "train_rows": 2160,
           "verifier_decision": null
         },
         {
@@ -650,9 +2116,57 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.013783413882574728,
+          "target_weight": 0.1,
           "ticker": "TSLA",
           "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-03-31",
+          "model_score": 0.004126153489604276,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "WMT",
+          "train_rows": 2160,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-15",
+          "model_score": 0.006904412889724168,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "AAPL",
+          "train_rows": 2320,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-15",
+          "model_score": 0.0014405678598277771,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "BRK-B",
+          "train_rows": 2320,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-15",
+          "model_score": 0.00675127635309045,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "JPM",
+          "train_rows": 2320,
           "verifier_decision": null
         },
         {
@@ -662,9 +2176,141 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.009135975946060687,
+          "target_weight": 0.1,
           "ticker": "LLY",
           "train_rows": 2320,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-15",
+          "model_score": 0.005714882018787291,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "TSLA",
+          "train_rows": 2320,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-15",
+          "model_score": 0.007366321804705088,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.1,
+          "ticker": "WMT",
+          "train_rows": 2320,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.008401274830802165,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "AAPL",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.002700146431680962,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07366463907146611,
+          "ticker": "AMZN",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.0035220526708459854,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09608765500434104,
+          "ticker": "AVGO",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.0036775534713679686,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "BRK-B",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.012126132826066645,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "JPM",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.010384864686224992,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "LLY",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.004719331839204297,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "META",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.0010997803256342004,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.03000389897199295,
+          "ticker": "MSFT",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.0065321471142818655,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "NFLX",
+          "train_rows": 2480,
           "verifier_decision": null
         },
         {
@@ -674,9 +2320,81 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.015688433220499606,
+          "target_weight": 0.09987809652390002,
           "ticker": "TSLA",
           "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-04-29",
+          "model_score": 0.004474256420259142,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09987809652390002,
+          "ticker": "WMT",
+          "train_rows": 2480,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.0038708461818126685,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "AAPL",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.008849251100135083,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "AMZN",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.0038714861873365355,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "AVGO",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.00016036819929565608,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.027270851884600586,
+          "ticker": "BRK-B",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.00042680808364136714,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07257935228589438,
+          "ticker": "COST",
+          "train_rows": 2640,
           "verifier_decision": null
         },
         {
@@ -686,9 +2404,225 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.011111500591255718,
+          "target_weight": 0.09985020417049498,
           "ticker": "JPM",
           "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.0008798952782827643,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "LLY",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.009998928503808091,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "META",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.0039060020871293025,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "MSFT",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.0008754746327864845,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "NFLX",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-13",
+          "model_score": 0.010144674166158805,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985020417049498,
+          "ticker": "WMT",
+          "train_rows": 2640,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.012256214987993813,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022367953493,
+          "ticker": "AAPL",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.012360238625860463,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022367953493,
+          "ticker": "AMZN",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.00950604840055905,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.08352954551346169,
+          "ticker": "AVGO",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.008242852852389891,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07242985975686564,
+          "ticker": "BRK-B",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.005372359309416885,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.04720686372943527,
+          "ticker": "COST",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.003510125299132424,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.030843433420199295,
+          "ticker": "GOOGL",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.01558668671847347,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022367953493,
+          "ticker": "JPM",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.007268495696511093,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.06386819386070222,
+          "ticker": "LLY",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.009136011694240734,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.0802780369370642,
+          "ticker": "META",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.0049348966488541824,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.04336288401502909,
+          "ticker": "MSFT",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.004699143436357768,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.04129132306105731,
+          "ticker": "NFLX",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.004147151759172174,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.0364409781038599,
+          "ticker": "NVDA",
+          "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-05-28",
+          "model_score": 0.015801151948645065,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022367953493,
+          "ticker": "TSLA",
+          "train_rows": 2800,
           "verifier_decision": null
         },
         {
@@ -698,9 +2632,153 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.016033815783223302,
+          "target_weight": 0.09985022367953493,
           "ticker": "WMT",
           "train_rows": 2800,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.013932108888237534,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366588953,
+          "ticker": "AAPL",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.012278941515739411,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366588953,
+          "ticker": "AMZN",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.009739229094277128,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.0960256659700439,
+          "ticker": "AVGO",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.0036422812277203034,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.03591172126216329,
+          "ticker": "BRK-B",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.004541972900014645,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.044782391739617435,
+          "ticker": "COST",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.0018846263622026545,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.018581809687745445,
+          "ticker": "GOOGL",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.008551804148749351,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.08431803797608398,
+          "ticker": "JPM",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.008671004228500864,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.0854933124183442,
+          "ticker": "LLY",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.009840513681508088,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09702429941907827,
+          "ticker": "META",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.007906266029264926,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07795323977363007,
+          "ticker": "MSFT",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.0059230573124691085,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.05839943978140909,
+          "ticker": "NFLX",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.0010442490548080692,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.010295959768053527,
+          "ticker": "ORCL",
+          "train_rows": 2960,
           "verifier_decision": null
         },
         {
@@ -710,9 +2788,141 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.015172957925543865,
+          "target_weight": 0.09985022366588953,
           "ticker": "TSLA",
           "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-11",
+          "model_score": 0.009144891438033063,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.0901656878650574,
+          "ticker": "WMT",
+          "train_rows": 2960,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.009153843439214892,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "AAPL",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.006705084589597897,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "AMZN",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.007241461059899942,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "AVGO",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.0016252917562318055,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.031710226656938435,
+          "ticker": "GOOGL",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.004187334742218707,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.08169692195577116,
+          "ticker": "JPM",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.002179948269668678,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.04253184295468451,
+          "ticker": "LLY",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.006532196870284612,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "META",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.003743760679077871,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07304257788037495,
+          "ticker": "MSFT",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.0036169838908637125,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.07056910154992818,
+          "ticker": "NFLX",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.00642340683645667,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "ORCL",
+          "train_rows": 3120,
           "verifier_decision": null
         },
         {
@@ -722,14 +2932,26 @@
           "precheck_decision": null,
           "reason": "structured weight",
           "receipt_hash": null,
-          "target_weight": 0.010209064261933446,
+          "target_weight": 0.09985022366589906,
           "ticker": "TSLA",
+          "train_rows": 3120,
+          "verifier_decision": null
+        },
+        {
+          "admitted": true,
+          "decision_session": "2026-06-26",
+          "model_score": 0.006885930481764722,
+          "precheck_decision": null,
+          "reason": "structured weight",
+          "receipt_hash": null,
+          "target_weight": 0.09985022366589906,
+          "ticker": "WMT",
           "train_rows": 3120,
           "verifier_decision": null
         }
       ],
-      "experiment_hash": "e02f85c40092556b8653de1a3b65dfa21f705d27f31172133fe3b55494969438",
-      "lineage_hash": "5e021c1067cf468553a65467018b5f2b25a1455a1588b4733326fcd7156bf572",
+      "experiment_hash": "ba6500a0adac1829429f3aaab0578064731bcd5c1115e4ccdfe965af9d1bb7f5",
+      "lineage_hash": "c0fdb1d38e633ebfaa4e3e2700c2097b5835634a001310f36a1811566e74ddbe",
       "model_binding": {
         "amd_compute_sha256": "87e4f48d3e10424c330a35197b22d6c8fd5ef4128425ce7f5db3486ef7c63384",
         "amd_evidence_sha256": {
@@ -740,25 +2962,25 @@
         },
         "horizon_sessions": 10,
         "model": "alpha.filing_alpha.fit_fusion_model",
-        "proposal_manifest_hash": "96a7808ccdcfea753ab3599e9d83d5d736e3f1fcb6cf781394e0bd3834d640b5",
+        "proposal_manifest_hash": "5faf85d5e5079a5cfa4e4874faad6152caba4dced11ce3fb0fccdea59c36f1c9",
         "ridge_alpha": 10.0,
-        "weight_rule": "structured_weight is the walk-forward filing ridge score clipped to max_position_weight"
+        "weight_rule": "positive walk-forward scores share max_gross_leverage in proportion to score, each name capped at max_position_weight, then scaled so post-cost gross leverage stays inside the cap"
       },
       "post_cost_within_limit": true,
       "session_count": 109,
-      "slippage_costs": 0.42583827969468385,
+      "slippage_costs": 7.041892715635335,
       "strategy_id": "pure_ml",
       "tape_hash": "3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05",
-      "total_turnover": 0.2127310667525901,
-      "trade_count": 18,
-      "transaction_costs": 1.4904339789313934
+      "total_turnover": 3.572825288976961,
+      "trade_count": 121,
+      "transaction_costs": 24.646624504723672
     }
   },
   "calibration_hash": "8b637997b4ab6b78931284a03a6e37d495e36c1e504abba1746b46126a099d30",
   "calibration_path": "results/fusion_policy_calibration.json",
   "claim_status": "controlled_software_ledger",
   "comparable_performance_claim": false,
-  "description": "Software ledger for every weekday session in the locked window 2026-02-02 through 2026-07-09, rebalanced every 10 sessions. LLM arms use the desk's first orchestrator seal. Fusion uses the pre-window calibration artifact and still requires a market head. Pure ML weights are walk-forward filing ridge scores clipped to the position cap and hash-bound to the AMD receipts. Prices are the evidence OHLCV tape. This is not a performance claim.",
+  "description": "Software ledger for every weekday session in the locked window 2026-02-02 through 2026-07-09, rebalanced every 10 sessions. LLM arms use the desk's first orchestrator seal. Fusion uses the pre-window calibration artifact and still requires a market head. Pure ML and market-approved fusion hold multi-name books: positive walk-forward scores share the gross budget under the locked position and gross caps, and are hash-bound to the AMD receipts. Prices are the evidence OHLCV tape. This is not a performance claim.",
   "price_source": {
     "paths": {
       "calendar": "evidence/replay/v1_source.json",
@@ -780,81 +3002,1111 @@
   "schema": "fusionfinance-controlled-three-arm-ledger-v1",
   "seals": [
     {
+      "arm": "fusion",
       "committed_at": "2026-02-02T20:00:00Z",
       "decision_session": "2026-02-02",
       "market_case": "approve",
       "outcome_ts": "2026-02-03T21:00:00Z",
-      "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427"
+      "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "79a10ffe3224da89185db3b13b8476c0474979701d0c4f1cda1b562d4120ceaa",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "cc9cd597d11c79f75dee0e06732517a47e6dd1acec2f08af18b0640b04889a4b",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "938700492faab5e7085f5070a201b9a59a696a1783a0e0235a190caea0342ec8",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "4341bc97f44011346153d1093e08628186f4e5b2c774a689381421d55dcc58a7",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "62f56cacbc35540bd15fbda478fe6275d320e4a86d6f10f093c03bbd09a91309",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "ef144a95e72ef9e9dc6678a4d1c4f9c83ab7f6f9df4c29a598be786e8e3f135b",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": "approve",
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "132f1e582df5339c8e5b5ff5cbc81afb49330d8367f5bdfcb67e0208057a2f86",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-02-02T20:00:00Z",
+      "decision_session": "2026-02-02",
+      "market_case": null,
+      "outcome_ts": "2026-02-03T21:00:00Z",
+      "receipt_hash": "fd126e201306c95a27d301f9ec1423260f529ff0f0fb3c98315af355a275c427",
+      "ticker": "AAPL"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-02-17T20:00:00Z",
       "decision_session": "2026-02-17",
       "market_case": "reject",
       "outcome_ts": "2026-02-18T21:00:00Z",
-      "receipt_hash": "89fc2fb493782043fe24277c1d7fafb7b190ea753667991311f6065c63ff23fe"
+      "receipt_hash": "7371226415cd71c035c0ed0ff659581d4c8af73ae18661cbc1485987911d230d",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "89fc2fb493782043fe24277c1d7fafb7b190ea753667991311f6065c63ff23fe",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "2a3fac1206e573faf5f3494ef12c61db69e55546602f73f99d6990068947f80b",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "0f4f06639f6d11e00b7b1da4db7b8b38584c4de0565b019722157125b437250e",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "e345b5a5598d7d67bf64b0e1fa3aad6802ccbe60e28d2e7a7bd315c53ec4bcc1",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "1995561a339bd23fee5062a1c1f1a0edb22651eaf65c634915492a6ebc64b6f3",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "374e93525d64df41c1f4c2b8154d0eaa85da221dbeea1f559e68fd30a6ed1c61",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "7f4d52c5f2d47e99b6348dd726deabd2e891cedf6fb665a9953ae4e78d93a425",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "fc4ac0dc14e2524e5699497ed5cafbfdf86931317527d3f6db00c2bc708ae732",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": "reject",
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "c2b7348636b4e1c40e0e3e29686f146616fe38e474b1aa02146395603729d358",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-02-17T20:00:00Z",
+      "decision_session": "2026-02-17",
+      "market_case": null,
+      "outcome_ts": "2026-02-18T21:00:00Z",
+      "receipt_hash": "89fc2fb493782043fe24277c1d7fafb7b190ea753667991311f6065c63ff23fe",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-03-03T20:00:00Z",
       "decision_session": "2026-03-03",
       "market_case": "research_only",
       "outcome_ts": "2026-03-04T21:00:00Z",
-      "receipt_hash": "910d22c6ac9e2105c115c9f3fdb61736456cfecec8f8be420290742d9b0a1b09"
+      "receipt_hash": "2810e82eae05887674a74227976f0d9ec45deac494c6c2f01cfc66fae5a51a96",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "332f6ca556ec8ba9e8bea771cdc13bb5bacd5eed0a3978d2ef50b83a7a39248c",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "910d22c6ac9e2105c115c9f3fdb61736456cfecec8f8be420290742d9b0a1b09",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "f1eec298ff6df24e14461122b7f0ec14433d2d46290eef1a8beb849638209083",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "66609f95a0670eaf83809d58687dd190b32ffebefc42f2480dbadfac7b11f872",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "84b05eff7f9d6241b56729d7da36f45ba39e21ecb0102cece2c2518a8df5feaa",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "e7148cce10a3ea65d6c0ef4be611fc8c2bf8699b2df3ad19d3f29ab96f21de23",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "f553880c92d42ffc3af744748f7c20ca4f5b3f89d7d274f4e273fa5c8f92f609",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "29f2c274c4c563a499a6c7ce4c482c933d1e1164503d5a30f66f41736bacf376",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": "research_only",
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "b30507fd9826009c60c25d1af761368344f18da96f59de37e53acbf6a19d59ec",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-03-03T20:00:00Z",
+      "decision_session": "2026-03-03",
+      "market_case": null,
+      "outcome_ts": "2026-03-04T21:00:00Z",
+      "receipt_hash": "910d22c6ac9e2105c115c9f3fdb61736456cfecec8f8be420290742d9b0a1b09",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-03-17T20:00:00Z",
       "decision_session": "2026-03-17",
       "market_case": "approve",
       "outcome_ts": "2026-03-18T21:00:00Z",
-      "receipt_hash": "f44ee183d3bd3e83ed5833f095de2500b1707a3da1719a192fc85170fca8e37b"
+      "receipt_hash": "3e9bd968b2f371a2db0b8b76eb3c73d5760ccb83bbf6ac7f9c1445f9e90d3ebe",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "a7febfdacd5c9bf57efc66f686b23c361e089cc5b11a35b66d686c207eb6ea90",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "0ccc427e20e7ba040fd6db086b594a8953b3daaeec83f0fe3db2eff8e8d58f58",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "aa3927d8daf4a3cfe974de75296267aef6b652ad545642a75ccee9506ecee7b0",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "94b21ba58f44334094dcb6589a6db35062522677f16691656c393c6538009ca9",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "e8bd2b6e0720aee3b5950127dc1539affbc3ffb4f581cdc7d01ffd7f33cc4be3",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "1fa1e933efb192044b5d308c7dc9338e12c413ce1accc9084cda6e013081e462",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": "approve",
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "7aedd1a37f09da4ce7800291b84a20eeffdcc40c1bdf66bfe3e38d83eb34d93f",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-03-17T20:00:00Z",
+      "decision_session": "2026-03-17",
+      "market_case": null,
+      "outcome_ts": "2026-03-18T21:00:00Z",
+      "receipt_hash": "f44ee183d3bd3e83ed5833f095de2500b1707a3da1719a192fc85170fca8e37b",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-03-31T20:00:00Z",
       "decision_session": "2026-03-31",
       "market_case": "reject",
       "outcome_ts": "2026-04-01T21:00:00Z",
-      "receipt_hash": "ef5b18137c8dbc13d3a8bcf856ca24ee47d22e0d86cd3408a2a11c66c7137fad"
+      "receipt_hash": "cb8dc9b239d86acceba3807143be059452722cb64f2e84e022cca661f6d59e39",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "a7a1c1051f429426c67a9756722fa3d2215ff146d20ff2ecc47f8dbe7315a248",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "56efd342a6749548bd9a23cc2cd4c7387efe076f7e0a92c1c7eab8ab61861286",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "8a78ddca1196946bcaaf89aca7f1190fcc94523e404275fb969086f894758ffc",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "7494808f869d2ca7fca071ec8fbbb4d9b757dcf91b9cdfb53a97d6ba2f5f4901",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "4c6374e22ec41d85a1b3a5e9ad2f403feff9ffae806102ec1cd15ddbbcfdc12e",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "fbd67089a17550209ffe2cf59b84987d18afb375abdd1292980308537ed2d08c",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": "reject",
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "5b6ff65003e3403abd3446e57e7c4d019b86181dd1dd3985e723a9b80bb158ce",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-03-31T20:00:00Z",
+      "decision_session": "2026-03-31",
+      "market_case": null,
+      "outcome_ts": "2026-04-01T21:00:00Z",
+      "receipt_hash": "ef5b18137c8dbc13d3a8bcf856ca24ee47d22e0d86cd3408a2a11c66c7137fad",
+      "ticker": "COST"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-04-15T20:00:00Z",
       "decision_session": "2026-04-15",
       "market_case": "research_only",
       "outcome_ts": "2026-04-16T21:00:00Z",
-      "receipt_hash": "ad671431d3e67028b6495ea51122fd7f90b6e67d7238358d42a1664707922303"
+      "receipt_hash": "2461f9b86926d884fde948adb03dd265464cdd389609e508c5c75eea42b4f186",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": "research_only",
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "5f2870bcab1ce33fe01979c48e7f83ee0767a7f4b2bb7675feaca9455c7e9029",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": "research_only",
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "eeb8cf04bbaa5c16a68bed519ff45b0dc7cdd1b2d0e5e3a2a765be6c7c7281b4",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": "research_only",
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "0c4962b89999cffb4366f726ad8755c2114d8a4b5f3c3449edaa2009d66acbe2",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": "research_only",
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "01c154a0d663577bacc74f36879d98a8de9eccc055e57ec2424686768942e5de",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": "research_only",
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "e6eeaa68a470638ef370f77d85f1c7f389b569173bbaebcbff1dd79f1332deac",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-04-15T20:00:00Z",
+      "decision_session": "2026-04-15",
+      "market_case": null,
+      "outcome_ts": "2026-04-16T21:00:00Z",
+      "receipt_hash": "ad671431d3e67028b6495ea51122fd7f90b6e67d7238358d42a1664707922303",
+      "ticker": "GOOGL"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-04-29T20:00:00Z",
       "decision_session": "2026-04-29",
       "market_case": "approve",
       "outcome_ts": "2026-04-30T21:00:00Z",
-      "receipt_hash": "88941a7bba1c73c658cdac245237dd77540fd4e8eceb07ab259216e4e66c53a0"
+      "receipt_hash": "178f158993b73a19509f42b8afab6509e57326fdd8e5412797627e55293d49e4",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "3c8b67886db7432adeb5cf30cb047e3bbe9b6007bf3308d96edde48353382482",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "c9d8cbcd81f0ab077cb00cbfdf3be2c171900233fcff73c3545c1765f3dc4324",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "d861cde1f38d5125b7a0e7da570a4c0ece4182f5c4aa76d2099ee016441e3250",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "591ef406c7f16cefc10020f09d490a6073880ec6a2af62233a6e0be4f5317974",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "45ce3e818149ada1def6af4887654c8836e0a7a0a2b63d55956d233885e5a9a6",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "110a2998a111014ed372bbb57c67e4d6aa0756fe4047ab7418bf9315514a8494",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "e43f0b9ddb80d186bb2eab4e2d39e25feb1e05f0bceb166b9dcf1997cb6bf9e7",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "51066c9c714c3dba923eac09a6f543806ffa671a6a7cc95ea4d88ab5700bb30f",
+      "ticker": "NFLX"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "5d9329a659fd0043e8e4d4d8bd77d1e290f533cf52a55a3d1cd88641aea958df",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": "approve",
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "01fa18feaa4365de0344ab39628d93b0e90718fe6d2657ea4594a7b4810ae9ff",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-04-29T20:00:00Z",
+      "decision_session": "2026-04-29",
+      "market_case": null,
+      "outcome_ts": "2026-04-30T21:00:00Z",
+      "receipt_hash": "88941a7bba1c73c658cdac245237dd77540fd4e8eceb07ab259216e4e66c53a0",
+      "ticker": "HD"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-05-13T20:00:00Z",
       "decision_session": "2026-05-13",
       "market_case": "reject",
       "outcome_ts": "2026-05-14T21:00:00Z",
-      "receipt_hash": "ac69dda28f7e6852fb81f682eaa7fea73dd561a55b103423b07203bd96be285f"
+      "receipt_hash": "ae6f723d7f4b3eebc3890e5443ea450ea1610d2b2b0d327b7f2b5b9ea063ca1f",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "64b4779666b8239c7fc77fe4f431463871aa00494b8c80dfa0d0d1f1ab92c1c8",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "318db7601da8a168643731478fb9f6899aa0eef8d4f3b7bd2ff96283fd76d6b4",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "1850ba6498d2e19d3e77f39d95dab6143dbe98175bb1c9b1e6b6d98775db6d5c",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "340cca8893956b57cf1fbd76eb2e49c6aedb937ee6cf6f3e1221d6e1a627482e",
+      "ticker": "COST"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "ac69dda28f7e6852fb81f682eaa7fea73dd561a55b103423b07203bd96be285f",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "1b48917ba13edf6e433bda02c0ffb7ae5e46d16d0d0813f0680e3fd6bfa9e9cf",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "71a3ac63ff3df148c236a6023b4daa0122aab3e48e410b97e057ae63a330b18b",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "f9ca501444eeb7688eb7e07121e3e431b02498ddf2c556ed280e83f855200e5c",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "7c81c8eb18b9af10a9537b5c7d9d775ab2b7c1ab41aa373224634cc8db9ab59f",
+      "ticker": "NFLX"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": "reject",
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "30481dac034b31a5cf3caa777df5bb28f86f0a7892df07cfaa15622effe114a1",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-05-13T20:00:00Z",
+      "decision_session": "2026-05-13",
+      "market_case": null,
+      "outcome_ts": "2026-05-14T21:00:00Z",
+      "receipt_hash": "ac69dda28f7e6852fb81f682eaa7fea73dd561a55b103423b07203bd96be285f",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-05-28T20:00:00Z",
       "decision_session": "2026-05-28",
       "market_case": "research_only",
       "outcome_ts": "2026-05-29T21:00:00Z",
-      "receipt_hash": "5112032d7e271ec9546b781b0d5b24b7521aeaeabd015190dd9843988d99b5dd"
+      "receipt_hash": "126fda01b7d9a334172200b89c3fd48adb69a8e6f8a55c0b3c6ec5d41f3f5638",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "4545df18dce20b4cb4cfafbdfef97879783c202f65fcf0a07deeec93047cce62",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "19b25a862c0e0a1f529d3a27f58c1cc251beb0f1a533c3f78766d951ce33ed26",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "cf86147e94748614d315b9f867b8d577913f872285a6a277a3023ddeeb7076a8",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "47628a029a9a94fb9cc5d189fc6f6f4b0c3f517b9e0fde6d8bfa7535fd8eafb0",
+      "ticker": "COST"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "ca71f6a67e72a31561ad01f6c8828cbccedbcfce6dd1d7be64e4b06da850baf2",
+      "ticker": "GOOGL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "1c32f8d06b3fe8878781778f5e2f9d65fb50620ac4c358ea330b25d737f25446",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "5112032d7e271ec9546b781b0d5b24b7521aeaeabd015190dd9843988d99b5dd",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "c179e6c4ff5283a49f9b94634718203fac4b2c2b8e9cfeff2dd06fa8fa6b8f71",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "b0fa22a3d2a65d2da102f58424e6bfcc16db0b5f3e820fb7dcbf3b8e4b74da9b",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "2473525084e445c0eb54c47acab1d44ee306fe5e9614cb8079d1a74ae962cbed",
+      "ticker": "NFLX"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "6c30160df417abad4dc6391f91996db292fb5da765702556028541831304a7a6",
+      "ticker": "NVDA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "513c1647507e1912588be361189370a50d50b978f10593d195617c4e86465b59",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": "research_only",
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "4bc880ad2babe243cccc342520cdc8e4b785483c702fc790e4de6cafe5588f3e",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-05-28T20:00:00Z",
+      "decision_session": "2026-05-28",
+      "market_case": null,
+      "outcome_ts": "2026-05-29T21:00:00Z",
+      "receipt_hash": "5112032d7e271ec9546b781b0d5b24b7521aeaeabd015190dd9843988d99b5dd",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-06-11T20:00:00Z",
       "decision_session": "2026-06-11",
       "market_case": "approve",
       "outcome_ts": "2026-06-12T21:00:00Z",
-      "receipt_hash": "c19e2d2f026846dd84dcb909843fe2da362877b386687a235315f5f040da515c"
+      "receipt_hash": "21ebec411d025472972da4070ba764328bed4e39a495d87a69564a07372bb44d",
+      "ticker": "AAPL"
     },
     {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "e95cbc45d3c32c8cb8ca74215774ed5cbcb13d57d32baecb3c802c6070f0f7c4",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "e9f7cddaefce488ea26ae0711ae64e45b832ca7f5c05fb1bab5ef0c978eaead0",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "668ff93bde31a110fb5e401d2b7b0a91aa04643d5c26d8e6349120c748dc1e61",
+      "ticker": "BRK-B"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "67623357bcbf733842acc858c499828a8348d69e592858dd89e1f7f7d1d18bdf",
+      "ticker": "COST"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "8b6347553d95a549bc854612a8c7fb0cecea0d4138b5233e2d6a2a8fba1366e1",
+      "ticker": "GOOGL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "278469c4c363be9befa01872cd4111e3433f23aa196881fade6f62dba0d93418",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "9fbaad16cbfc88872a68586a39a3fb2ba24f7e5f73465f156772c5f7d0693376",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "c19e2d2f026846dd84dcb909843fe2da362877b386687a235315f5f040da515c",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "c7bba303f5a757e964066db3004a9bae34d87a1ac46392b78c4d4e33d263b96b",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "fbad9e3cd95b1d9c6231edbba5e3d3a981c93bf03088c39ff9915f59538e8f02",
+      "ticker": "NFLX"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "06e72b5b7591a97a64c42f6166920feb1cb012a652a537a6ce259f2618228c32",
+      "ticker": "ORCL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "1dc3f604d3fa98f8a9e315538b0871de770f1829b0691b61023d036328333feb",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": "approve",
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "95c56c02c7b0f3e6004e0b034c965eb01a33f61158613ca73672c3caf5df50bb",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-06-11T20:00:00Z",
+      "decision_session": "2026-06-11",
+      "market_case": null,
+      "outcome_ts": "2026-06-12T21:00:00Z",
+      "receipt_hash": "c19e2d2f026846dd84dcb909843fe2da362877b386687a235315f5f040da515c",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
       "committed_at": "2026-06-26T20:00:00Z",
       "decision_session": "2026-06-26",
       "market_case": "reject",
       "outcome_ts": "2026-06-29T21:00:00Z",
-      "receipt_hash": "64f0beb042b3583d0a9cf73347b4a6f9958f6ff1058ba6927f7a32507649c6fe"
+      "receipt_hash": "19b58aa62e8018997845c2947703b13a22f7d510ba93d988f376c56c0574dd05",
+      "ticker": "AAPL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "0e1e502069d91e578e6d292f2ac0298ffd1a9d34527c09c76a86f364c38e9c5e",
+      "ticker": "AMZN"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "59b8aa26df2276f4a79e38e4e8ae6d9489ca948c6bedefc59a47c3f6139f2fa2",
+      "ticker": "AVGO"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "56935ba6cf71738131078f380563d91691267b13fb1853004c5e5eb2ec26bceb",
+      "ticker": "GOOGL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "7d2e816af907f21f217c39df151836ca9168de3de3b4acf6fb275099b7fc6ec2",
+      "ticker": "JPM"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "c94fb1dc15f12b63d020c9b8beeb31de65690235a244bab84229f0845fdb1d4c",
+      "ticker": "LLY"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "822f8b5e27a674f8a9e38b56438931915f139244f4ae6b3cb2983588fe6f7509",
+      "ticker": "META"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "64f0beb042b3583d0a9cf73347b4a6f9958f6ff1058ba6927f7a32507649c6fe",
+      "ticker": "MSFT"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "209583ce7453f18f2bbdbc8681d54be47fbcfda13590dc0549158b9c5e765527",
+      "ticker": "NFLX"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "eee63142746053689fe2f390a9b8b36d86b37f3ab632b38cd30fe52afd360f1d",
+      "ticker": "ORCL"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "ae8c2b78a2e790df843334234158f8b79dd4b29293da13ee14f4f98c2b222d3b",
+      "ticker": "TSLA"
+    },
+    {
+      "arm": "fusion",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": "reject",
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "0cf23e893607a3bad8e219c3bd23dbd1b07bf2e525ac44c775c30be03f8a2687",
+      "ticker": "WMT"
+    },
+    {
+      "arm": "pure_llm",
+      "committed_at": "2026-06-26T20:00:00Z",
+      "decision_session": "2026-06-26",
+      "market_case": null,
+      "outcome_ts": "2026-06-29T21:00:00Z",
+      "receipt_hash": "64f0beb042b3583d0a9cf73347b4a6f9958f6ff1058ba6927f7a32507649c6fe",
+      "ticker": "MSFT"
     }
   ],
   "session_count": 109,

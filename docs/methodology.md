@@ -116,9 +116,10 @@ statistics from that same wealth path are checked in at
 [`results/controlled_three_arm_metrics.json`](../results/controlled_three_arm_metrics.json).
 Prices are the checked-in OHLCV tape bound to that sealed calendar and to
 the sealed SPY returns. The desk is the offline lexical provider. Pure ML
-weights are walk-forward filing ridge scores, clipped to the position cap
-and hash-bound to the AMD receipts. `comparable_performance_claim` stays
-false.
+weights are a multi-name book: positive walk-forward scores share the
+gross budget under the locked position and gross caps, including post-cost
+leverage. The same book is used for fusion only after the market head
+approves. `comparable_performance_claim` stays false.
 
 ## Reproduction checks
 

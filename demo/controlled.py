@@ -452,8 +452,6 @@ def _validate_arm_shape(candidate: ArmInput) -> None:
         if candidate.receipt is None:
             raise ValueError("pure_llm requires a sealed evidence precheck")
         return
-    if candidate.structured_weight is not None:
-        raise ValueError("fusion cannot take a structured weight as an input")
     if candidate.receipt is None:
         raise ValueError("fusion requires a sealed evidence precheck")
 
@@ -552,8 +550,15 @@ def _gate_candidate(
         return _Gate(weight=0.0, reason="prospective seal required", **base)
     if adjudication.decision != "approved":
         return _Gate(weight=0.0, reason=adjudication.reason, **base)
+    # A structured weight is the score-book size. It is applied only after
+    # the market head approves. Missing that head still leaves the name in cash.
+    weight = (
+        candidate.structured_weight
+        if candidate.structured_weight is not None
+        else _signed_cap(receipt, config)
+    )
     return _Gate(
-        weight=_signed_cap(receipt, config),
+        weight=weight,
         reason=adjudication.reason,
         **base,
     )
