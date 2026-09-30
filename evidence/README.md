@@ -61,6 +61,11 @@ lexicon. `barebone_edgar_cik_map.json` is the frozen ticker-to-CIK map.
 gitignored `barebone_window_edgar.jsonl`. That file is metadata only and is
 not redistributed. `edgar_sha256` is its byte digest. Amendments are excluded.
 `acceptanceDateTime` is the availability timestamp.
+`scripts/ingest_barebone_form4.py` keeps exact Form 4 filings in gitignored
+`barebone_window_form4.jsonl`. That file stores accession metadata and
+open-market buy and sell counts. It does not store filing HTML or XML.
+`edgar_form4_sha256` is its byte digest. `periodOfReport` is not the
+availability timestamp.
 
 ## `amd/`
 

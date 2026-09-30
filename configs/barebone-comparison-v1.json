@@ -79,6 +79,8 @@
     "attention_scores": "evidence/narrative/barebone_window_attention.jsonl",
     "attention_sha256": "0e4d38235f19138f41244368e44b2cba9b8f78acd4ce9b713ac8d17dc0bd8227",
     "edgar_events": "evidence/narrative/barebone_window_edgar.jsonl",
-    "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e"
+    "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e",
+    "edgar_form4_events": "evidence/narrative/barebone_window_form4.jsonl",
+    "edgar_form4_sha256": "4f46fd974486d189300727e474cc856caf0927e783f3d912f39c9487b42c929d"
   }
 }

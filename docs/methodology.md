@@ -230,6 +230,26 @@ zero. Results are `results/barebone_edgar_arm_ledger.json` and
 `results/barebone_edgar_arm_metrics.json`. The momentum pure-ML book is
 unchanged. `comparable_performance_claim` stays false.
 
+Form 4 for a separate arm is SEC insider filings, not the 8-K/10-Q/10-K tape.
+`scripts/ingest_barebone_form4.py` reads `data.sec.gov` submissions JSON for
+the same frozen CIK map and keeps forms that are exactly 4. Amendments
+(`4/A`) are excluded. `available_ts` is `acceptanceDateTime` in UTC.
+`periodOfReport`, `transactionDate`, and `reportDate` are not availability
+timestamps. Open-market buys are transaction code P marked acquired. Sells
+are code S marked disposed. Other codes are ignored. The feature is that buy
+count minus that sell count. Notional is not used, because many Form 4 prices
+are blank. The raw ownership XML is read to obtain those codes and is not
+stored. Stylesheet HTML is refused. The events file
+`evidence/narrative/barebone_window_form4.jsonl` is gitignored.
+`edgar_form4_sha256` is the digest of that file. `edgar_sha256` stays the
+locked 8-K/10-Q/10-K digest. The score subtracts the cross-sectional median
+over the 63 sessions ending at the decision session. Zero nets stay in the
+cross-section. The book is cash unless expanding Spearman skill versus the
+next-session residual is strictly above zero. Results are
+`results/barebone_form4_arm_ledger.json` and
+`results/barebone_form4_arm_metrics.json`. The momentum pure-ML book is
+unchanged. `comparable_performance_claim` stays false.
+
 ## Reproduction checks
 
 ```bash
@@ -238,7 +258,7 @@ pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_barebone_comparison.py tests/test_barebone_tape.py \
   tests/test_barebone_run.py tests/test_barebone_narrative.py \
   tests/test_barebone_polarity.py tests/test_barebone_attention.py \
-  tests/test_barebone_edgar.py
+  tests/test_barebone_edgar.py tests/test_barebone_form4.py
 make artifacts
 make verify
 make test

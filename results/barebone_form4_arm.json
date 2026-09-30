@@ -1,0 +1,21 @@
+{
+  "cash_rebalances": 26,
+  "claim_status": "controlled_software_ledger",
+  "comparable_performance_claim": false,
+  "edgar_form4_events": "evidence/narrative/barebone_window_form4.jsonl",
+  "edgar_form4_sha256": "4f46fd974486d189300727e474cc856caf0927e783f3d912f39c9487b42c929d",
+  "edgar_sha256": "b40cf901de329d13605336943307d656dbe09785dd04601744d0e24025d0945e",
+  "event_count": 4710,
+  "experiment_id": "barebone-comparison-v1",
+  "ledger": "results/barebone_form4_arm_ledger.json",
+  "max_gross_leverage": 1.0,
+  "max_position_weight": 0.1,
+  "metrics": "results/barebone_form4_arm_metrics.json",
+  "narrative_sha256": "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9",
+  "schema": "fusionfinance-barebone-form4-arm-v1",
+  "score": "open-market buy count minus sell count; P counts only when marked acquired and S only when marked disposed; other codes and unsigned lines are ignored; notional is not used",
+  "signal_id": "edgar-form4-netcount-63s-v1",
+  "sized_rebalances": 0,
+  "strategy_id": "form4",
+  "tape_sha256": "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+}
