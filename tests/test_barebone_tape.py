@@ -87,7 +87,7 @@ def test_barebone_tape_names_are_the_config_universe_plus_spy_and_qqq() -> None:
     config = load_barebone_comparison_config()
     names = required_tickers(config)
 
-    assert len(config.experiment.universe) == 16
+    assert len(config.experiment.universe) == 50
     assert names == (*config.experiment.universe, "SPY", "QQQ")
     assert config.evidence.tape_sha256 not in (None, FAIR_RACE_TAPE_HASH)
     assert (

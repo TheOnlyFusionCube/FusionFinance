@@ -11,7 +11,10 @@ import pytest
 from pydantic import ValidationError
 
 from demo.barebone_comparison import (
+    BAREBONE_CORE_UNIVERSE,
     BAREBONE_OHLCV,
+    BAREBONE_SUPPLEMENTAL_UNIVERSE,
+    BAREBONE_UNIVERSE,
     FAIR_RACE_EXPERIMENT_ID,
     FAIR_RACE_TAPE_HASH,
     load_barebone_comparison_config,
@@ -54,7 +57,10 @@ def test_barebone_comparison_v1_config_locks_the_window_risk_and_claim() -> None
     assert config.secondary_benchmark_ticker == "QQQ"
     assert config.secondary_benchmark_ticker not in trading.universe
     assert trading.benchmark_ticker not in trading.universe
-    assert trading.universe == fair_race.universe
+    assert trading.universe == BAREBONE_UNIVERSE
+    assert trading.universe[: len(BAREBONE_CORE_UNIVERSE)] == fair_race.universe
+    assert trading.universe[len(BAREBONE_CORE_UNIVERSE) :] == BAREBONE_SUPPLEMENTAL_UNIVERSE
+    assert len(trading.universe) == 50
     assert trading.max_position_weight == fair_race.max_position_weight
     assert trading.max_gross_leverage == fair_race.max_gross_leverage
     assert config.evidence.ohlcv == BAREBONE_OHLCV

@@ -39,6 +39,61 @@ BAREBONE_OHLCV = "evidence/market/barebone_window_ohlcv.json"
 BAREBONE_PROVENANCE = "evidence/market/barebone_window_provenance.json"
 BAREBONE_LICENSE_NOTE = "not redistributed; local bind only"
 BAREBONE_WINDOW = ("2025-01-02", "2026-01-12")
+BAREBONE_CORE_UNIVERSE = (
+    "AAPL",
+    "AMZN",
+    "AVGO",
+    "BRK-B",
+    "COST",
+    "GOOGL",
+    "HD",
+    "JPM",
+    "LLY",
+    "META",
+    "MSFT",
+    "NFLX",
+    "NVDA",
+    "ORCL",
+    "TSLA",
+    "WMT",
+)
+BAREBONE_SUPPLEMENTAL_UNIVERSE = (
+    "AMD",
+    "CRM",
+    "ADBE",
+    "PEP",
+    "KO",
+    "XOM",
+    "CVX",
+    "UNH",
+    "V",
+    "MA",
+    "BAC",
+    "WFC",
+    "DIS",
+    "CMCSA",
+    "INTC",
+    "QCOM",
+    "TXN",
+    "AMAT",
+    "NOW",
+    "ISRG",
+    "BKNG",
+    "TMO",
+    "ABT",
+    "MRK",
+    "ACN",
+    "IBM",
+    "GE",
+    "CAT",
+    "HON",
+    "LOW",
+    "NKE",
+    "UPS",
+    "BA",
+    "PFE",
+)
+BAREBONE_UNIVERSE = BAREBONE_CORE_UNIVERSE + BAREBONE_SUPPLEMENTAL_UNIVERSE
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _EXPERIMENT_KEYS = (
     "schema_version",
@@ -146,6 +201,11 @@ class BareboneComparisonConfig(_FrozenModel):
         if window != BAREBONE_WINDOW:
             raise ValueError(
                 "barebone-comparison-v1 window is 2025-01-02 through 2026-01-12"
+            )
+        if experiment.universe != BAREBONE_UNIVERSE:
+            raise ValueError(
+                "barebone-comparison-v1 universe is the locked 16 names "
+                "plus the supplemental liquid list"
             )
         if experiment.benchmark_ticker != "SPY":
             raise ValueError("barebone-comparison-v1 benchmark is SPY")

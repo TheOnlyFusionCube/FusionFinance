@@ -29,7 +29,7 @@ from demo.barebone_run import (
     parse_barebone_ohlcv,
 )
 from demo.barebone_tape import required_tickers
-from demo.controlled import load_locked_config
+from demo.controlled import config_hash, load_locked_config
 from demo.pure_ml import (
     MOMENTUM_LOOKBACK_SESSIONS,
     _score_momentum,
@@ -37,7 +37,13 @@ from demo.pure_ml import (
 )
 
 _LOCKED_TAPE_SHA256 = (
+    "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
+)
+_PRIOR_16_NAME_TAPE_SHA256 = (
     "3bfacc31d366fd03c797c723686a5f528bd43b06e09284b8caca85709853caee"
+)
+_PRIOR_16_NAME_CONFIG_HASH = (
+    "526d6eabc37eab8650876991e3822987eb857621c36d84069d2888c1b6c1b9b4"
 )
 _LEGACY_METRICS_SHA256 = (
     "e7e5055ce9b4409d7941a71929f66261416b8d3c3f62423190edafd5bf5b1411"
@@ -378,6 +384,7 @@ def test_checked_in_barebone_three_arm_matches_the_locked_yahoo_tape() -> None:
     assert ledger["tape_sha256"] == _LOCKED_TAPE_SHA256
     assert metrics["tape_sha256"] == _LOCKED_TAPE_SHA256
     assert config.evidence.tape_sha256 == _LOCKED_TAPE_SHA256
+    assert _LOCKED_TAPE_SHA256 != _PRIOR_16_NAME_TAPE_SHA256
     assert ledger["comparable_performance_claim"] is False
     assert metrics["comparable_performance_claim"] is False
     assert ledger["experiment_id"] == "barebone-comparison-v1"
@@ -408,9 +415,11 @@ def test_checked_in_barebone_three_arm_matches_the_locked_yahoo_tape() -> None:
     assert binding["scorebook"] == "momentum"
     assert binding["lookback_sessions"] == 63
     assert binding["transform"] == "log_return_minus_cross_sectional_median"
-    assert ledger["arms"]["pure_ml"]["config_hash"] == (
-        "526d6eabc37eab8650876991e3822987eb857621c36d84069d2888c1b6c1b9b4"
+    assert ledger["arms"]["pure_ml"]["config_hash"] == config_hash(
+        config.as_experiment_config()
     )
+    assert ledger["arms"]["pure_ml"]["config_hash"] != _PRIOR_16_NAME_CONFIG_HASH
+    assert len(config.experiment.universe) == 50
     assert any(row.get("insufficient_history") is True for row in skill)
     for row in skill:
         if row.get("insufficient_history") is True or (
