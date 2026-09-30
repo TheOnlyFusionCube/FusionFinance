@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "barebone-comparison-v1",
+  "start_date": "2025-01-02",
+  "end_date": "2026-01-12",
+  "starting_capital": 10000.0,
+  "universe": [
+    "AAPL",
+    "AMZN",
+    "AVGO",
+    "BRK-B",
+    "COST",
+    "GOOGL",
+    "HD",
+    "JPM",
+    "LLY",
+    "META",
+    "MSFT",
+    "NFLX",
+    "NVDA",
+    "ORCL",
+    "TSLA",
+    "WMT"
+  ],
+  "benchmark_ticker": "SPY",
+  "secondary_benchmark_ticker": "QQQ",
+  "rebalance_frequency_sessions": 10,
+  "execution_lag_sessions": 1,
+  "transaction_cost_bps": 5.0,
+  "slippage_bps": 2.0,
+  "max_gross_leverage": 1.0,
+  "max_position_weight": 0.1,
+  "annualization_sessions": 252,
+  "annual_risk_free_rate": 0.0,
+  "comparable_performance_claim": false,
+  "evidence": {
+    "ohlcv": "evidence/market/barebone_window_ohlcv.json",
+    "tape_sha256": null
+  }
+}

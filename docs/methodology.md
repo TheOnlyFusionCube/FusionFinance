@@ -124,11 +124,24 @@ budget under the locked position and gross caps, including post-cost
 leverage. Fusion uses that score book only after the market head approves,
 and does not apply the skill gate. `comparable_performance_claim` stays false.
 
+`configs/barebone-comparison-v1.json` is a separate contract shell for the
+window 2025-01-02 through 2026-01-12. It keeps the controlled path's 0.10
+position cap and 1.0 gross cap, with SPY as the benchmark and QQQ as an
+optional secondary benchmark. Its evidence path is
+`evidence/market/barebone_window_ohlcv.json`. That file is not checked in.
+Resolving it fails closed when the file is missing, when `tape_sha256` is
+null, or when the bytes do not match the locked hash. The fair-race tape
+hash `3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05` and
+`evidence/market/locked_ohlcv.json` are not that tape. The fair-race ledger
+and fixture metrics are not a `barebone-comparison-v1` result.
+`comparable_performance_claim` stays false. This shell does not emit a ledger.
+
 ## Reproduction checks
 
 ```bash
 pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
-  tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py
+  tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
+  tests/test_barebone_comparison.py
 make artifacts
 make verify
 make test

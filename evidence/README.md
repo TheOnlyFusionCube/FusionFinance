@@ -24,6 +24,10 @@ every sealed session, and requires the SPY adjusted-close returns to
 reproduce `arms.benchmark.daily_returns`. A missing bar is an error. The
 builder does not fill one.
 
+`barebone-comparison-v1` points at `market/barebone_window_ohlcv.json`. That
+file is intentionally absent. The scaffold rejects this locked extract, and
+the fair-race tape hash, as a substitute.
+
 ## `amd/`
 
 The three JSON files are byte-preserved receipts from the recorded ROCm/HIP
