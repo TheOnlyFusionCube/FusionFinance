@@ -75,27 +75,51 @@ def walk_forward_filing_proposals(
     decision_dates: tuple[date, ...] | list[date],
     *,
     root: Path | None = None,
+    panel: pd.DataFrame | None = None,
+    tape_dates: tuple[date, ...] | None = None,
+    cash_when_untrained: bool = False,
 ) -> dict[str, object]:
-    """Score each locked rebalance from an expanding pre-decision ridge fit."""
+    """Score each locked rebalance from an expanding pre-decision ridge fit.
+
+    The default tape is the fair-race evidence extract. A caller may pass
+    ``panel`` and ``tape_dates`` for another locked extract. ``cash_when_untrained``
+    records an empty book when that extract has no completed pre-decision
+    label. It does not invent a price.
+    """
 
     if not decision_dates:
         raise ValueError("pure-ML proposals require at least one decision date")
-    locked = tuple(
-        session.session for session in evidence_price_sessions(config, root=root)
-    )
+    if panel is None:
+        if tape_dates is not None:
+            raise ValueError("tape_dates requires a caller-supplied panel")
+        locked = tuple(
+            session.session for session in evidence_price_sessions(config, root=root)
+        )
+        panel = _feature_panel(config, root=root)
+    else:
+        if tape_dates is None:
+            raise ValueError("a caller-supplied panel requires tape_dates")
+        locked = tuple(tape_dates)
     if any(day not in set(locked) for day in decision_dates):
         raise ValueError("pure-ML decisions must lie on the evidence tape")
     if len(set(decision_dates)) != len(list(decision_dates)):
         raise ValueError("pure-ML decisions must be unique")
     if list(decision_dates) != sorted(decision_dates):
         raise ValueError("pure-ML decisions must be chronological")
-    panel = _feature_panel(config, root=root)
     oos_pairs = _expanding_oos_pairs(panel, config)
     proposals: list[dict[str, object]] = []
     previous_ml: dict[str, float] = {}
     previous_fusion: dict[str, float] = {}
     for decision in decision_dates:
-        scored = _score_decision(config, panel, decision)
+        try:
+            scored = _score_decision(config, panel, decision)
+        except ValueError as exc:
+            if not (
+                cash_when_untrained
+                and str(exc).startswith("no pre-decision training rows")
+            ):
+                raise
+            scored = _untrained_decision(decision)
         scores = {
             str(item["ticker"]): float(item["score"])
             for item in scored["cross_section"]
@@ -105,6 +129,8 @@ def walk_forward_filing_proposals(
         )
         skill, pair_count = _skill_before(oos_pairs, decision_index)
         skill_pass = skill_allows_book(skill, _OOS_SKILL_THRESHOLD)
+        if scored.get("untrained") is True:
+            skill_pass = False
         fusion_book = allocate_positive_score_book(scores, config, previous_fusion)
         ml_book = (
             allocate_positive_score_book(scores, config, previous_ml)
@@ -146,10 +172,24 @@ def walk_forward_filing_proposals(
     return payload
 
 
-def _feature_panel(
-    config: ExperimentConfig, *, root: Path | None = None
+def _untrained_decision(decision: date) -> dict[str, object]:
+    """Cash book when the tape has no completed pre-decision label."""
+
+    return {
+        "decision_session": decision.isoformat(),
+        "train_rows": 0,
+        "intercept": None,
+        "coefficients": {},
+        "cross_section": [],
+        "untrained": True,
+    }
+
+
+def feature_panel_from_market(
+    config: ExperimentConfig, market: pd.DataFrame
 ) -> pd.DataFrame:
-    market = adjusted_market_frame(config, root=root)
+    """Filing-fixture features on a caller-supplied adjusted bar frame."""
+
     market = market.loc[market["ticker"].isin(config.universe)].copy()
     calendar = tuple(sorted({pd.Timestamp(value).date() for value in market["date"]}))
     index = {day: offset for offset, day in enumerate(calendar)}
@@ -186,6 +226,12 @@ def _feature_panel(
         lambda value: index[pd.Timestamp(value).date()]
     )
     return decayed
+
+
+def _feature_panel(
+    config: ExperimentConfig, *, root: Path | None = None
+) -> pd.DataFrame:
+    return feature_panel_from_market(config, adjusted_market_frame(config, root=root))
 
 
 def _score_decision(

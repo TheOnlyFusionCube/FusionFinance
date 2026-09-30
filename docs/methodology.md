@@ -134,7 +134,18 @@ null, or when the bytes do not match the locked hash. The fair-race tape
 hash `3a2a378ce29b387b84f5345a7953028d478507f204b9f7be6eee609e0dd20c05` and
 `evidence/market/locked_ohlcv.json` are not that tape. The fair-race ledger
 and fixture metrics are not a `barebone-comparison-v1` result.
-`comparable_performance_claim` stays false. This shell does not emit a ledger.
+`comparable_performance_claim` stays false. A locked local tape can run the
+same controlled three-arm path, including the multi-name book and the pure-ML
+out-of-sample skill gate. The results are
+`results/barebone_three_arm_ledger.json` and
+`results/barebone_three_arm_metrics.json`. Both record that file's
+`tape_sha256` and keep the claim false. The ledger does not carry Sharpe or
+return fields. Rebalances with no completed pre-decision label stay in cash,
+because the extract starts on the window start and no earlier price is
+invented. QQQ is a secondary adjusted-close index, not a tradable name.
+`make test` rebuilds those results when the gitignored extract is present and
+checks the checked-in JSON when it is absent. The fair-race three-arm files
+are left in place.
 
 `scripts/ingest_barebone_tape.py` can bind a local extract for that window.
 `--provider yfinance` reads Yahoo Finance daily bars through yfinance.
@@ -155,7 +166,8 @@ digest and does not set a performance claim.
 ```bash
 pytest -q tests/test_fusion_experiment.py tests/test_controlled_run.py \
   tests/test_fusion_evidence.py tests/test_filing_alpha_integration.py \
-  tests/test_barebone_comparison.py tests/test_barebone_tape.py
+  tests/test_barebone_comparison.py tests/test_barebone_tape.py \
+  tests/test_barebone_run.py
 make artifacts
 make verify
 make test

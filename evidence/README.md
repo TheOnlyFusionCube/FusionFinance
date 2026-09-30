@@ -32,7 +32,9 @@ sidecar has no prices. A Yahoo bind names that provider and keeps Yahoo's
 not-for-trading and no-redistribute disclaimer. The OHLCV file stays
 gitignored. The scaffold rejects the fair-race extract, and the fair-race
 tape hash, as a substitute. `--lock-config` stores the digest of the file
-just written.
+just written. `results/barebone_three_arm_ledger.json` and
+`results/barebone_three_arm_metrics.json` record that digest. They do not
+contain the OHLCV bars.
 
 ## `amd/`
 
