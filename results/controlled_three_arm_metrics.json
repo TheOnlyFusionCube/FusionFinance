@@ -754,6 +754,85 @@
       "config_hash": "a1ff3e0f7ba3627c4e5a0505ec28bb5b687b4c3a5ddcb632e701fc3cde19ef44",
       "experiment_hash": "ba6500a0adac1829429f3aaab0578064731bcd5c1115e4ccdfe965af9d1bb7f5",
       "lineage_hash": "c0fdb1d38e633ebfaa4e3e2700c2097b5835634a001310f36a1811566e74ddbe",
+      "oos_skill": [
+        {
+          "decision_session": "2026-02-02",
+          "oos_skill": 0.009083012574019575,
+          "oos_skill_pairs": 1488,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-02-17",
+          "oos_skill": 0.0037781833930190015,
+          "oos_skill_pairs": 1648,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-03-03",
+          "oos_skill": 0.008147594276366599,
+          "oos_skill_pairs": 1808,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-03-17",
+          "oos_skill": 0.00901502426953401,
+          "oos_skill_pairs": 1968,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-03-31",
+          "oos_skill": 0.008563324100058561,
+          "oos_skill_pairs": 2128,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-04-15",
+          "oos_skill": 0.011453087214370576,
+          "oos_skill_pairs": 2288,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-04-29",
+          "oos_skill": 0.011660943906182528,
+          "oos_skill_pairs": 2448,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-05-13",
+          "oos_skill": 0.014273766757775835,
+          "oos_skill_pairs": 2608,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-05-28",
+          "oos_skill": 0.01895898367368054,
+          "oos_skill_pairs": 2768,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-06-11",
+          "oos_skill": 0.019299907076041845,
+          "oos_skill_pairs": 2928,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        },
+        {
+          "decision_session": "2026-06-26",
+          "oos_skill": 0.016911425817861734,
+          "oos_skill_pairs": 3088,
+          "oos_skill_threshold": 0.0,
+          "sized": true
+        }
+      ],
       "portfolio_sessions": [
         "2026-02-02",
         "2026-02-03",
@@ -1125,7 +1204,7 @@
   },
   "claim_status": "controlled_software_fixture_metrics",
   "comparable_performance_claim": false,
-  "description": "Fixture metrics from the controlled three-arm evidence tape. Prices are the evidence OHLCV tape, the LLM desk is the offline lexical provider, and pure ML and market-approved fusion hold multi-name score-proportional books under the locked caps. Not a capital performance claim.",
+  "description": "Fixture metrics from the controlled three-arm evidence tape. Prices are the evidence OHLCV tape, the LLM desk is the offline lexical provider, and pure ML sizes a multi-name score-proportional book only when expanding out-of-sample skill is strictly above the locked threshold. Market-approved fusion uses that score book without the skill gate. Not a capital performance claim.",
   "fixture_context": {
     "amd_compute_sha256": "87e4f48d3e10424c330a35197b22d6c8fd5ef4128425ce7f5db3486ef7c63384",
     "calendar": "evidence/replay/v1_source.json",
@@ -1133,7 +1212,7 @@
     "llm_provider": "fusionfinance-offline-lexical-v1",
     "ohlcv_sha256": "52a6e2b1467f70faadf09918c81b8a17a137ee0ce23f62d0318719794635fe1b",
     "prices": "evidence/market/locked_ohlcv.json adjusted OHLC",
-    "proposal_manifest_hash": "5faf85d5e5079a5cfa4e4874faad6152caba4dced11ce3fb0fccdea59c36f1c9",
+    "proposal_manifest_hash": "2461d8cd405579d7d6c7f673a2191893a142defbd29e657ab7e800d88054ffed",
     "pure_ml_model": "alpha.filing_alpha.fit_fusion_model"
   },
   "schema": "fusionfinance-controlled-three-arm-metrics-v1",

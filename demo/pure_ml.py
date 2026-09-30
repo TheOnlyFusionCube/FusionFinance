@@ -2,8 +2,10 @@
 
 Prices come from the evidence tape. Scores come from
 ``alpha.filing_alpha.fit_fusion_model`` using only labels whose forward close
-is already in that tape and ends before the decision. The proposal manifest
-is hash-bound to the AMD receipts.
+is already in that tape and ends before the decision. Before sizing, an
+expanding walk-forward Spearman check scores names left out of that fold's
+fit against the next-session residual. Non-positive skill leaves the book in
+cash. The proposal manifest is hash-bound to the AMD receipts.
 """
 
 from __future__ import annotations
@@ -28,6 +30,8 @@ from demo.market_tape import adjusted_market_frame, evidence_price_sessions
 
 _HORIZON_SESSIONS = 10
 _RIDGE_ALPHA = 10.0
+_OOS_SKILL_THRESHOLD = 0.0
+_MIN_OOS_PAIRS = 8
 _AMD_PATHS = (
     "evidence/amd/environment.json",
     "evidence/amd/hardware.json",
@@ -86,38 +90,54 @@ def walk_forward_filing_proposals(
     if list(decision_dates) != sorted(decision_dates):
         raise ValueError("pure-ML decisions must be chronological")
     panel = _feature_panel(config, root=root)
+    oos_pairs = _expanding_oos_pairs(panel, config)
     proposals: list[dict[str, object]] = []
-    previous: dict[str, float] = {}
+    previous_ml: dict[str, float] = {}
+    previous_fusion: dict[str, float] = {}
     for decision in decision_dates:
         scored = _score_decision(config, panel, decision)
         scores = {
             str(item["ticker"]): float(item["score"])
             for item in scored["cross_section"]
         }
-        book = allocate_positive_score_book(scores, config, previous)
-        targets = [
-            {
-                "ticker": ticker,
-                "model_score": scores[ticker],
-                "structured_weight": weight,
-            }
-            for ticker, weight in sorted(book.items())
-        ]
+        decision_index = int(
+            panel.loc[panel["date"] == pd.Timestamp(decision), "session_index"].iloc[0]
+        )
+        skill, pair_count = _skill_before(oos_pairs, decision_index)
+        skill_pass = skill_allows_book(skill, _OOS_SKILL_THRESHOLD)
+        fusion_book = allocate_positive_score_book(scores, config, previous_fusion)
+        ml_book = (
+            allocate_positive_score_book(scores, config, previous_ml)
+            if skill_pass
+            else {}
+        )
         positive = sum(score > 0.0 for score in scores.values())
-        if positive > 1 and len(targets) < 2:
+        if positive > 1 and len(fusion_book) < 2:
             raise ValueError(
                 "positive scores support multiple names but the book has one"
             )
-        scored["targets"] = targets
-        scored["gross_exposure"] = float(sum(book.values()))
+        if skill_pass and positive > 1 and len(ml_book) < 2:
+            raise ValueError(
+                "positive scores support multiple names but the book has one"
+            )
+        scored["oos_skill"] = skill
+        scored["oos_skill_pairs"] = pair_count
+        scored["oos_skill_threshold"] = _OOS_SKILL_THRESHOLD
+        scored["skill_pass"] = skill_pass
+        scored["targets"] = _target_rows(ml_book, scores)
+        scored["fusion_targets"] = _target_rows(fusion_book, scores)
+        scored["gross_exposure"] = float(sum(ml_book.values()))
         proposals.append(scored)
-        previous = dict(book)
+        previous_ml = dict(ml_book)
+        previous_fusion = dict(fusion_book)
     amd = amd_evidence_sha256(root)
     payload = {
         "schema": "fusionfinance-pure-ml-proposal-manifest-v1",
         "model": "alpha.filing_alpha.fit_fusion_model",
         "ridge_alpha": _RIDGE_ALPHA,
         "horizon_sessions": _HORIZON_SESSIONS,
+        "oos_skill_threshold": _OOS_SKILL_THRESHOLD,
+        "oos_skill": "spearman_ic of held-out names versus next-session residual return",
         "amd_evidence_sha256": amd,
         "amd_compute_sha256": amd["results/amd_compute.json"],
         "proposals": proposals,
@@ -220,6 +240,152 @@ def _score_decision(
             for ticker, value in zip(live["ticker"], scores, strict=True)
         ],
     }
+
+
+def skill_allows_book(skill: float | None, threshold: float = _OOS_SKILL_THRESHOLD) -> bool:
+    """True only when measured out-of-sample skill is strictly above the gate."""
+
+    return skill is not None and skill > threshold
+
+
+def spearman_ic(left: list[float], right: list[float]) -> float | None:
+    """Spearman rank correlation. Undefined samples return ``None``."""
+
+    if len(left) != len(right) or len(left) < _MIN_OOS_PAIRS:
+        return None
+    xs = np.asarray(left, dtype=float)
+    ys = np.asarray(right, dtype=float)
+    if not np.isfinite(xs).all() or not np.isfinite(ys).all():
+        return None
+    rx = _average_ranks(xs)
+    ry = _average_ranks(ys)
+    if float(np.std(rx)) == 0.0 or float(np.std(ry)) == 0.0:
+        return None
+    return float(np.corrcoef(rx, ry)[0, 1])
+
+
+def _average_ranks(values: np.ndarray) -> np.ndarray:
+    order = np.argsort(values, kind="mergesort")
+    ranks = np.empty(len(values), dtype=float)
+    ordered = values[order]
+    start = 0
+    while start < len(values):
+        stop = start
+        while stop + 1 < len(values) and ordered[stop + 1] == ordered[start]:
+            stop += 1
+        ranks[order[start : stop + 1]] = 0.5 * (start + stop) + 1.0
+        start = stop + 1
+    return ranks
+
+
+def _target_rows(
+    book: dict[str, float], scores: dict[str, float]
+) -> list[dict[str, object]]:
+    return [
+        {
+            "ticker": ticker,
+            "model_score": scores[ticker],
+            "structured_weight": weight,
+        }
+        for ticker, weight in sorted(book.items())
+    ]
+
+
+def _expanding_oos_pairs(
+    panel: pd.DataFrame, config: ExperimentConfig
+) -> list[tuple[int, float, float]]:
+    """Score names that were excluded from each fold's fit.
+
+    Each pair is a held-out name's score at session ``j`` and that name's
+    next-session residual return. The fit uses only the other names, and
+    only labels that ended before ``j``. The residual itself is not a
+    training label.
+    """
+
+    universe = list(config.universe)
+    midpoint = len(universe) // 2
+    if midpoint < 1 or midpoint >= len(universe):
+        raise ValueError("OOS skill folds require at least two names")
+    folds = (universe[:midpoint], universe[midpoint:])
+    labeled = panel.copy()
+    labeled["label_index"] = labeled["session_index"] + _HORIZON_SESSIONS
+    future = panel.loc[:, ["ticker", "session_index", "close"]].rename(
+        columns={"session_index": "label_index", "close": "label_close"}
+    )
+    labeled = labeled.merge(future, on=["ticker", "label_index"], how="inner")
+    labeled["target"] = labeled["label_close"] / labeled["close"] - 1.0
+    closes = {
+        (str(ticker), int(index)): float(close)
+        for ticker, index, close in zip(
+            panel["ticker"], panel["session_index"], panel["close"], strict=True
+        )
+    }
+    indices = sorted({int(value) for value in panel["session_index"]})
+    index_set = set(indices)
+    pairs: list[tuple[int, float, float]] = []
+    for session_index in indices:
+        outcome_index = session_index + 1
+        if outcome_index not in index_set:
+            continue
+        raw: dict[str, float] = {}
+        for ticker in universe:
+            start = closes.get((ticker, session_index))
+            end = closes.get((ticker, outcome_index))
+            if start is None or end is None or start <= 0.0:
+                continue
+            raw[ticker] = end / start - 1.0
+        if len(raw) < 2:
+            continue
+        mean_return = sum(raw.values()) / len(raw)
+        residual = {ticker: value - mean_return for ticker, value in raw.items()}
+        live = panel.loc[panel["session_index"] == session_index]
+        for fit_names, score_names in ((folds[0], folds[1]), (folds[1], folds[0])):
+            if set(fit_names) & set(score_names):
+                raise ValueError("OOS score names overlap the fit names")
+            train = labeled.loc[
+                labeled["ticker"].isin(fit_names)
+                & (labeled["label_index"] < session_index)
+            ]
+            if train.empty:
+                continue
+            fitted = fit_fusion_model(
+                train,
+                "target",
+                ["trail_return"],
+                ["filing_signal_decayed"],
+                ridge_alpha=_RIDGE_ALPHA,
+            )
+            present = [
+                name
+                for name in score_names
+                if name in residual and name in set(live["ticker"])
+            ]
+            held_out = (
+                live.loc[live["ticker"].isin(present)]
+                .set_index("ticker")
+                .loc[present]
+                .reset_index()
+            )
+            if held_out.empty:
+                continue
+            predicted = fitted.predict(held_out)
+            for ticker, score in zip(held_out["ticker"], predicted, strict=True):
+                name = str(ticker)
+                if name in fit_names or name not in residual:
+                    continue
+                pairs.append((outcome_index, float(score), float(residual[name])))
+    return pairs
+
+
+def _skill_before(
+    pairs: list[tuple[int, float, float]], decision_index: int
+) -> tuple[float | None, int]:
+    usable = [pair for pair in pairs if pair[0] < decision_index]
+    skill = spearman_ic(
+        [pair[1] for pair in usable],
+        [pair[2] for pair in usable],
+    )
+    return skill, len(usable)
 
 
 def allocate_positive_score_book(

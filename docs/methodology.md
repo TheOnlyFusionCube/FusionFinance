@@ -115,11 +115,14 @@ three-arm file is a software ledger, not a performance claim. Fixture
 statistics from that same wealth path are checked in at
 [`results/controlled_three_arm_metrics.json`](../results/controlled_three_arm_metrics.json).
 Prices are the checked-in OHLCV tape bound to that sealed calendar and to
-the sealed SPY returns. The desk is the offline lexical provider. Pure ML
-weights are a multi-name book: positive walk-forward scores share the
-gross budget under the locked position and gross caps, including post-cost
-leverage. The same book is used for fusion only after the market head
-approves. `comparable_performance_claim` stays false.
+the sealed SPY returns. The desk is the offline lexical provider. Before
+pure ML sizes a book, an expanding walk-forward check measures Spearman
+skill of `fit_fusion_model` scores versus next-session residual returns on
+names that were not used to fit that fold. Skill at or below zero leaves
+that rebalance in cash. When skill passes, positive scores share the gross
+budget under the locked position and gross caps, including post-cost
+leverage. Fusion uses that score book only after the market head approves,
+and does not apply the skill gate. `comparable_performance_claim` stays false.
 
 ## Reproduction checks
 

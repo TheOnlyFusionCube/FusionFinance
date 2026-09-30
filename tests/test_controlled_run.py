@@ -30,6 +30,12 @@ from demo.controlled import (
     run_controlled_arm,
     run_three_arms,
 )
+from demo import pure_ml as pure_ml_module
+from demo.execution import (
+    assert_post_cost_bound,
+    reconcile_simulation,
+    simulate_portfolio,
+)
 from demo.market_tape import (
     evidence_file_sha256,
     evidence_paths,
@@ -38,12 +44,9 @@ from demo.market_tape import (
 from demo.pure_ml import (
     allocate_positive_score_book,
     amd_evidence_sha256,
+    skill_allows_book,
+    spearman_ic,
     walk_forward_filing_proposals,
-)
-from demo.execution import (
-    assert_post_cost_bound,
-    reconcile_simulation,
-    simulate_portfolio,
 )
 
 CALIBRATION = "ab" * 32
@@ -1025,6 +1028,63 @@ def test_positive_scores_fill_a_multi_name_book_inside_locked_risk() -> None:
     assert sum(two.values()) == pytest.approx(2 * config.max_position_weight)
 
 
+def test_oos_skill_gate_fails_closed_below_the_threshold() -> None:
+    ranks = [float(index) for index in range(8)]
+    assert spearman_ic(ranks, ranks) == pytest.approx(1.0)
+    assert spearman_ic(ranks, list(reversed(ranks))) == pytest.approx(-1.0)
+    assert spearman_ic(ranks[:3], ranks[:3]) is None
+    assert spearman_ic(ranks, ranks[:-1]) is None
+    assert skill_allows_book(None) is False
+    assert skill_allows_book(0.0) is False
+    assert skill_allows_book(-0.01) is False
+    assert skill_allows_book(0.01) is True
+    assert skill_allows_book(0.2, threshold=0.2) is False
+    assert skill_allows_book(0.21, threshold=0.2) is True
+
+
+def test_oos_folds_fit_only_the_names_they_do_not_score(monkeypatch: pytest.MonkeyPatch) -> None:
+    real = pure_ml_module.fit_fusion_model
+    seen: list[set[str]] = []
+
+    def wrapped(train, *args, **kwargs):
+        seen.append(set(train["ticker"].astype(str)))
+        return real(train, *args, **kwargs)
+
+    monkeypatch.setattr(pure_ml_module, "fit_fusion_model", wrapped)
+    config = load_locked_config()
+    decision = evidence_price_sessions(config)[0].session
+    manifest = walk_forward_filing_proposals(config, (decision,))
+    universe = list(config.universe)
+    midpoint = len(universe) // 2
+    folds = (frozenset(universe[:midpoint]), frozenset(universe[midpoint:]))
+    fold_fits = [frozenset(names) for names in seen if frozenset(names) in folds]
+    assert fold_fits
+    assert set(universe) in seen
+    assert all(names in folds for names in fold_fits)
+    row = manifest["proposals"][0]
+    assert row["skill_pass"] is skill_allows_book(row["oos_skill"])
+
+
+def test_nonpositive_oos_skill_keeps_pure_ml_in_cash(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        pure_ml_module,
+        "_skill_before",
+        lambda _pairs, _decision_index: (0.0, 32),
+    )
+    config = load_locked_config()
+    decision = evidence_price_sessions(config)[0].session
+    row = walk_forward_filing_proposals(config, (decision,))["proposals"][0]
+
+    assert row["oos_skill"] == 0.0
+    assert row["skill_pass"] is False
+    assert row["targets"] == []
+    assert len(row["fusion_targets"]) > 1
+    assert all(
+        0.0 < float(target["structured_weight"]) <= config.max_position_weight + 1e-12
+        for target in row["fusion_targets"]
+    )
+
+
 def _locked_three_arm_state() -> dict[str, object]:
     config = load_locked_config()
     sessions = evidence_price_sessions(config)
@@ -1055,16 +1115,16 @@ def _locked_three_arm_state() -> dict[str, object]:
         kind = ("approve", "reject", "research_only")[ordinal % 3]
         market = _fusion_market(decision, kind, thresholds.calibration_hash)
         for target in proposal["targets"]:
-            ticker = str(target["ticker"])
-            weight = float(target["structured_weight"])
             pure_ml.append(
                 ArmInput(
                     strategy_id="pure_ml",
                     decision_session=decision,
-                    ticker=ticker,
-                    structured_weight=weight,
+                    ticker=str(target["ticker"]),
+                    structured_weight=float(target["structured_weight"]),
                 )
             )
+        for target in proposal["fusion_targets"]:
+            ticker = str(target["ticker"])
             fusion_receipt = _seal_locked_receipt(ticker, decision)
             fusion.append(
                 ArmInput(
@@ -1074,7 +1134,7 @@ def _locked_three_arm_state() -> dict[str, object]:
                     receipt=fusion_receipt,
                     market=market,
                     outcome_ts=outcome,
-                    structured_weight=weight,
+                    structured_weight=float(target["structured_weight"]),
                 )
             )
             assert fusion_receipt.thesis is not None
@@ -1146,10 +1206,14 @@ def locked_three_arm_ledger() -> dict[str, object]:
             "2026-02-02 through 2026-07-09, rebalanced every 10 sessions. "
             "LLM arms use the desk's first orchestrator seal. Fusion uses the "
             "pre-window calibration artifact and still requires a market head. "
-            "Pure ML and market-approved fusion hold multi-name books: positive "
-            "walk-forward scores share the gross budget under the locked "
-            "position and gross caps, and are hash-bound to the AMD receipts. "
-            "Prices are the evidence OHLCV tape. This is not a performance claim."
+            "Pure ML sizes a multi-name book only after an expanding "
+            "walk-forward out-of-sample skill check on held-out names. "
+            "Non-positive skill leaves that rebalance in cash. When the gate "
+            "passes, positive walk-forward scores share the gross budget under "
+            "the locked position and gross caps. Market-approved fusion uses "
+            "the same score book without that skill gate. Both are hash-bound "
+            "to the AMD receipts. Prices are the evidence OHLCV tape. This is "
+            "not a performance claim."
         ),
         "price_source": {
             "paths": evidence_paths(),
@@ -1186,15 +1250,24 @@ def _bind_pure_ml_proposals(document: dict[str, object], manifest: dict[str, obj
         "proposal_manifest_hash": manifest["proposal_manifest_hash"],
         "amd_evidence_sha256": manifest["amd_evidence_sha256"],
         "amd_compute_sha256": manifest["amd_compute_sha256"],
+        "oos_skill_threshold": manifest["oos_skill_threshold"],
+        "oos_skill": manifest["oos_skill"],
         "weight_rule": (
-            "positive walk-forward scores share max_gross_leverage in "
-            "proportion to score, each name capped at max_position_weight, "
-            "then scaled so post-cost gross leverage stays inside the cap"
+            "an expanding walk-forward Spearman skill of held-out "
+            "fit_fusion_model scores versus next-session residual returns "
+            "must be strictly above oos_skill_threshold before sizing; "
+            "otherwise the book is cash. When the gate passes, positive "
+            "scores share max_gross_leverage in proportion to score, each "
+            "name capped at max_position_weight, then scaled so post-cost "
+            "gross leverage stays inside the cap"
         ),
     }
+    arm["oos_skill"] = _oos_skill_log(manifest)
     by_session = {row["decision_session"]: row for row in manifest["proposals"]}
     for decision in arm["decisions"]:
         proposal = by_session[decision["decision_session"]]
+        if not proposal["skill_pass"]:
+            raise AssertionError("pure_ml sized a book when OOS skill failed the gate")
         match = next(
             target
             for target in proposal["targets"]
@@ -1202,8 +1275,24 @@ def _bind_pure_ml_proposals(document: dict[str, object], manifest: dict[str, obj
         )
         decision["model_score"] = match["model_score"]
         decision["train_rows"] = proposal["train_rows"]
+        decision["oos_skill"] = proposal["oos_skill"]
+        decision["oos_skill_pairs"] = proposal["oos_skill_pairs"]
+        decision["oos_skill_threshold"] = proposal["oos_skill_threshold"]
         if not math.isclose(decision["target_weight"], match["structured_weight"]):
             raise AssertionError("executed pure_ml weight does not match the score book")
+
+
+def _oos_skill_log(manifest: dict[str, object]) -> list[dict[str, object]]:
+    return [
+        {
+            "decision_session": row["decision_session"],
+            "oos_skill": row["oos_skill"],
+            "oos_skill_pairs": row["oos_skill_pairs"],
+            "oos_skill_threshold": row["oos_skill_threshold"],
+            "sized": bool(row["skill_pass"]),
+        }
+        for row in manifest["proposals"]
+    ]
 
 
 def _seal_locked_receipt(ticker: str, decision: date) -> DecisionReceipt:
@@ -1324,7 +1413,7 @@ def locked_three_arm_metrics() -> dict[str, object]:
             raise AssertionError("metrics costs do not match the ledger")
         if not math.isclose(statistics["total_return"], values[-1] / values[0] - 1.0):
             raise AssertionError("cumulative return does not match the wealth path")
-        arms[name] = {
+        payload = {
             "strategy_id": name,
             "claim_status": _FIXTURE_METRICS_STATUS,
             "comparable_performance_claim": False,
@@ -1336,6 +1425,9 @@ def locked_three_arm_metrics() -> dict[str, object]:
             "portfolio_values": values,
             "statistics": statistics,
         }
+        if name == "pure_ml":
+            payload["oos_skill"] = _oos_skill_log(state["pure_ml_manifest"])
+        arms[name] = payload
     return {
         "schema": "fusionfinance-controlled-three-arm-metrics-v1",
         "claim_status": _FIXTURE_METRICS_STATUS,
@@ -1343,9 +1435,11 @@ def locked_three_arm_metrics() -> dict[str, object]:
         "description": (
             "Fixture metrics from the controlled three-arm evidence tape. "
             "Prices are the evidence OHLCV tape, the LLM desk is the "
-            "offline lexical provider, and pure ML and market-approved fusion "
-            "hold multi-name score-proportional books under the locked caps. "
-            "Not a capital performance claim."
+            "offline lexical provider, and pure ML sizes a multi-name "
+            "score-proportional book only when expanding out-of-sample skill "
+            "is strictly above the locked threshold. Market-approved fusion "
+            "uses that score book without the skill gate. Not a capital "
+            "performance claim."
         ),
         "source_ledger": _THREE_ARM_LEDGER.as_posix(),
         "fixture_context": {
@@ -1404,8 +1498,9 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         assert arm["post_cost_within_limit"] is True
         assert isinstance(arm["total_turnover"], float)
         assert isinstance(arm["transaction_costs"], float)
-        assert arm["total_turnover"] > 0.0
-        assert arm["transaction_costs"] > 0.0
+        if name != "pure_ml":
+            assert arm["total_turnover"] > 0.0
+            assert arm["transaction_costs"] > 0.0
         assert len(arm["config_hash"]) == 64
         assert len(arm["tape_hash"]) == 64
         assert len(arm["experiment_hash"]) == 64
@@ -1422,20 +1517,49 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         == binding["amd_evidence_sha256"]["results/amd_compute.json"]
     )
     assert len(binding["proposal_manifest_hash"]) == 64
+    assert binding["oos_skill_threshold"] == 0.0
     cap = config.max_position_weight
+    skill_log = pure["oos_skill"]
+    assert len(skill_log) == document["rebalance_count"]
     pure_groups: dict[str, list[dict[str, object]]] = {}
     for row in pure["decisions"]:
         pure_groups.setdefault(row["decision_session"], []).append(row)
-    assert len(pure_groups) == document["rebalance_count"]
+    sized_dates: list[str] = []
+    cash_dates: list[str] = []
+    pair_counts: list[int] = []
+    for record in skill_log:
+        skill = record["oos_skill"]
+        threshold = record["oos_skill_threshold"]
+        passes = skill is not None and skill > threshold
+        assert record["sized"] is passes
+        assert threshold == 0.0
+        pair_counts.append(record["oos_skill_pairs"])
+        if passes:
+            sized_dates.append(record["decision_session"])
+        else:
+            cash_dates.append(record["decision_session"])
+            assert record["decision_session"] not in pure_groups
+    assert pair_counts == sorted(pair_counts) and pair_counts[0] < pair_counts[-1]
+    assert set(pure_groups) == set(sized_dates)
     for rows in pure_groups.values():
         assert len(rows) > 1
         assert all(row["admitted"] is True for row in rows)
+        assert all(row["oos_skill"] > row["oos_skill_threshold"] for row in rows)
         gross = sum(abs(row["target_weight"]) for row in rows)
         assert gross <= config.max_gross_leverage + 1e-9
         assert all(0.0 < abs(row["target_weight"]) <= cap + 1e-12 for row in rows)
         assert len({row["train_rows"] for row in rows}) == 1
-    train_rows = [rows[0]["train_rows"] for rows in pure_groups.values()]
-    assert train_rows == sorted(train_rows) and train_rows[0] < train_rows[-1]
+    if sized_dates:
+        train_rows = [pure_groups[day][0]["train_rows"] for day in sized_dates]
+        assert train_rows == sorted(train_rows) and train_rows[0] < train_rows[-1]
+        assert pure["total_turnover"] > 0.0
+        assert pure["transaction_costs"] > 0.0
+    else:
+        assert pure["total_turnover"] == 0.0
+        assert pure["transaction_costs"] == 0.0
+    assert cash_dates == [
+        record["decision_session"] for record in skill_log if not record["sized"]
+    ]
     fusion_groups: dict[str, list[dict[str, object]]] = {}
     for row in document["arms"]["fusion"]["decisions"]:
         fusion_groups.setdefault(row["decision_session"], []).append(row)
@@ -1456,7 +1580,7 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
                 row["admitted"] is False and row["target_weight"] == 0.0 for row in rows
             )
     assert approved_books > 0
-    decision_dates = list(pure_groups)
+    decision_dates = [record["decision_session"] for record in skill_log]
     rebuilt = walk_forward_filing_proposals(
         config,
         [date.fromisoformat(day) for day in decision_dates],
@@ -1465,16 +1589,25 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     rebuilt_by_session = {
         row["decision_session"]: row for row in rebuilt["proposals"]
     }
-    for session, rows in pure_groups.items():
+    for record in skill_log:
+        session = record["decision_session"]
+        proposal = rebuilt_by_session[session]
+        assert proposal["skill_pass"] is record["sized"]
+        assert proposal["oos_skill"] == record["oos_skill"]
+        if not record["sized"]:
+            assert proposal["targets"] == []
+            continue
         targets = {
             target["ticker"]: target
-            for target in rebuilt_by_session[session]["targets"]
+            for target in proposal["targets"]
         }
+        rows = pure_groups[session]
         assert set(targets) == {row["ticker"] for row in rows}
         for row in rows:
             target = targets[row["ticker"]]
             assert math.isclose(row["model_score"], target["model_score"])
             assert math.isclose(row["target_weight"], target["structured_weight"])
+            assert row["oos_skill"] > 0.0
     assert _PERFORMANCE_KEYS.isdisjoint(_mapping_keys(document))
 
 
@@ -1545,6 +1678,13 @@ def test_checked_in_fixture_metrics_match_the_three_arm_ledger() -> None:
         for key in required:
             assert statistics[key] is not None
             assert isinstance(statistics[key], (int, float))
+    assert document["arms"]["pure_ml"]["oos_skill"] == ledger["arms"]["pure_ml"]["oos_skill"]
+    assert all(
+        record["sized"] is (
+            record["oos_skill"] is not None and record["oos_skill"] > record["oos_skill_threshold"]
+        )
+        for record in document["arms"]["pure_ml"]["oos_skill"]
+    )
 
 
 def _legacy_sessions():
