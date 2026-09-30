@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
 import subprocess
 import urllib.error
 import urllib.parse
 import urllib.request
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -45,6 +47,7 @@ from demo.barebone_narrative import (
 )
 
 _LEGACY_METRICS_SHA256 = "e7e5055ce9b4409d7941a71929f66261416b8d3c3f62423190edafd5bf5b1411"
+_LOCKED_NARRATIVE_SHA256 = "860cb1d3a86fd4a3353a876d421618d69e76228c65e44b6dac7e28c820b9d2a9"
 _LOCKED_TAPE_SHA256 = "c29f4810a8433e0de286da46409dbe95c17c1fa09d25e7809bb5f9e73ad8a205"
 _SESSIONS = (date(2025, 1, 2), date(2025, 1, 3), date(2025, 1, 6))
 _APPLE = "2025-01-02T15:00:00Z"
@@ -57,6 +60,7 @@ def _root() -> Path:
 def _config_copy(tmp_path: Path) -> Path:
     source = _root() / "configs" / "barebone-comparison-v1.json"
     payload = json.loads(source.read_text(encoding="utf-8"))
+    payload["evidence"]["narrative_sha256"] = None
     destination = tmp_path / "barebone-comparison-v1.json"
     destination.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     map_destination = tmp_path / NARRATIVE_MAP
@@ -338,16 +342,22 @@ def test_claim_true_is_refused(tmp_path: Path) -> None:
         )
 
 
-def test_reddit_and_x_skip_without_inventing_events(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path: Path) -> None:
+def test_reddit_and_x_skip_without_inventing_events(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     for name in ("REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_USER_AGENT", "X_BEARER_TOKEN"):
         monkeypatch.delenv(name, raising=False)
 
     events_path = _root() / NARRATIVE_EVENTS
     existed = events_path.exists()
-    assert main(["--provider", "reddit", "--lock-config"]) == 0
-    assert "reddit provider skipped" in capsys.readouterr().out
-    assert main(["--provider", "x"]) == 0
-    assert "recent search is not a full-window archive" in capsys.readouterr().out
+    out = io.StringIO()
+    with redirect_stdout(out):
+        assert main(["--provider", "reddit", "--lock-config"]) == 0
+    assert "reddit provider skipped" in out.getvalue()
+    out = io.StringIO()
+    with redirect_stdout(out):
+        assert main(["--provider", "x"]) == 0
+    assert "recent search is not a full-window archive" in out.getvalue()
     assert events_path.exists() is existed
     assert provider_skip_message("reddit", {}) is not None
     monkeypatch.setenv("REDDIT_CLIENT_ID", "id")
@@ -356,10 +366,14 @@ def test_reddit_and_x_skip_without_inventing_events(monkeypatch: pytest.MonkeyPa
     monkeypatch.setenv("X_BEARER_TOKEN", "token")
     assert provider_skip_message("reddit") is None
     assert provider_skip_message("x") is None
-    assert main(["--provider", "reddit"]) == 0
-    assert "does not call that API" in capsys.readouterr().out
-    assert main(["--provider", "x", "--lock-config"]) == 0
-    assert "does not invent a full-window archive" in capsys.readouterr().out
+    out = io.StringIO()
+    with redirect_stdout(out):
+        assert main(["--provider", "reddit"]) == 0
+    assert "does not call that API" in out.getvalue()
+    out = io.StringIO()
+    with redirect_stdout(out):
+        assert main(["--provider", "x", "--lock-config"]) == 0
+    assert "does not invent a full-window archive" in out.getvalue()
     assert not (tmp_path / NARRATIVE_EVENTS).exists()
 
 
@@ -408,13 +422,21 @@ def test_events_jsonl_is_gitignored_and_archive_skips_it() -> None:
             path.unlink()
 
 
-def test_checked_in_narrative_hash_stays_null_and_momentum_tape_is_unchanged(tmp_path: Path) -> None:
+def test_checked_in_narrative_hash_matches_provenance_and_momentum_tape_is_unchanged(
+    tmp_path: Path,
+) -> None:
     config = load_barebone_comparison_config()
     ledger = json.loads((_root() / "results" / "barebone_three_arm_ledger.json").read_text(encoding="utf-8"))
     metrics = json.loads((_root() / "results" / "barebone_three_arm_metrics.json").read_text(encoding="utf-8"))
+    provenance = json.loads((_root() / NARRATIVE_PROVENANCE).read_text(encoding="utf-8"))
     copy = _config_copy(tmp_path)
+    events_path = _root() / NARRATIVE_EVENTS
 
-    assert config.evidence.narrative_sha256 is None
+    assert config.evidence.narrative_sha256 == _LOCKED_NARRATIVE_SHA256
+    assert provenance["byte_sha256"] == _LOCKED_NARRATIVE_SHA256
+    assert provenance["provider"] == HN_PROVIDER
+    if events_path.is_file():
+        assert hashlib.sha256(events_path.read_bytes()).hexdigest() == _LOCKED_NARRATIVE_SHA256
     assert config.evidence.narrative_events == NARRATIVE_EVENTS
     assert config.evidence.tape_sha256 == _LOCKED_TAPE_SHA256
     assert ledger["tape_sha256"] == _LOCKED_TAPE_SHA256
@@ -426,7 +448,8 @@ def test_checked_in_narrative_hash_stays_null_and_momentum_tape_is_unchanged(tmp
     assert render_events_jsonl([]) == b""
     with pytest.raises(ValueError, match="fair-race"):
         write_locked_narrative_sha256(copy, FAIR_RACE_TAPE_HASH)
-    assert load_barebone_comparison_config().evidence.narrative_sha256 is None
+    assert load_barebone_comparison_config().evidence.narrative_sha256 == _LOCKED_NARRATIVE_SHA256
+    assert load_barebone_comparison_config(copy).evidence.narrative_sha256 is None
 
 
 def test_calendar_and_hn_transport_fail_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -466,12 +489,11 @@ def test_calendar_and_hn_transport_fail_closed(tmp_path: Path, monkeypatch: pyte
     assert cash_narrative_record(None, event_count=0)["sized"] is False
 
 
-def test_main_hn_refuses_a_missing_config(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    code = main(["--provider", "hn", "--config", str(tmp_path / "missing.json")])
-    captured = capsys.readouterr()
+def test_main_hn_refuses_a_missing_config(tmp_path: Path) -> None:
+    err = io.StringIO()
+    with redirect_stderr(err):
+        code = main(["--provider", "hn", "--config", str(tmp_path / "missing.json")])
 
     assert code == 1
-    assert captured.err
-    assert load_barebone_comparison_config().evidence.narrative_sha256 is None
+    assert err.getvalue()
+    assert load_barebone_comparison_config().evidence.narrative_sha256 == _LOCKED_NARRATIVE_SHA256

@@ -436,7 +436,8 @@ def fetch_hn_events(
     seen_ids: set[str] = set()
     for term in query_terms(map_payload):
         batch = collect_hn_query(term, start_i, end_i, get_json=getter, throttle_s=throttle_s)
-        print(f"hn {term}: {len(batch)} hits", file=sys.stderr)
+        if get_json is None:
+            print(f"hn {term}: {len(batch)} hits", file=sys.stderr)
         for hit in batch:
             object_id = str(hit.get("objectID", "")).strip()
             if object_id and object_id in seen_ids:
