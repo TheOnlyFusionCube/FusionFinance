@@ -27,7 +27,6 @@ from alpha.agents.models import DecisionReceipt, EvidenceAuditSummary
 from alpha.verifier.contract import ThesisContract, VerifierOutput
 from alpha.verifier.policy import PolicyThresholds, adjudicate
 from demo.contracts import (
-    AssetBar,
     BenchmarkMark,
     ExperimentConfig,
     LedgerReconciliation,
@@ -180,32 +179,6 @@ def locked_weekday_sessions(config: ExperimentConfig) -> tuple[date, ...]:
     if len(days) < 2 or days[0] != config.start_date or days[-1] != config.end_date:
         raise ValueError("locked window must start and end on weekday sessions")
     return tuple(days)
-
-
-def locked_software_tape(config: ExperimentConfig) -> tuple[MarketSession, ...]:
-    """Deterministic software marks for the full locked weekday calendar.
-
-    These prices are not a market reprint and are not a performance claim.
-    """
-
-    names = (*config.universe, config.benchmark_ticker)
-    sessions: list[MarketSession] = []
-    for index, day in enumerate(locked_weekday_sessions(config)):
-        level = 100.0 + float(index)
-        sessions.append(
-            MarketSession(
-                session=day,
-                bars=tuple(
-                    AssetBar(
-                        ticker=name,
-                        open=level,
-                        close=level + (1.0 if name == config.benchmark_ticker else 0.0),
-                    )
-                    for name in names
-                ),
-            )
-        )
-    return tuple(sessions)
 
 
 def load_policy_thresholds(path: str | Path | None = None) -> PolicyThresholds:

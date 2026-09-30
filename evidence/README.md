@@ -15,6 +15,15 @@ The source remains labeled `provisional_uncontrolled_legacy_race`. It is a
 product/replay artifact, not causal proof that the hybrid architecture
 outperformed either baseline.
 
+## `market/locked_ohlcv.json`
+
+Daily OHLC, volume, and vendor adjusted close for the locked universe and
+SPY. `demo/market_tape.py` builds the controlled tape from this file and from
+the sealed replay calendar. It scales OHLC by `adjclose/close`, requires
+every sealed session, and requires the SPY adjusted-close returns to
+reproduce `arms.benchmark.daily_returns`. A missing bar is an error. The
+builder does not fill one.
+
 ## `amd/`
 
 The three JSON files are byte-preserved receipts from the recorded ROCm/HIP

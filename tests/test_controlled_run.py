@@ -26,10 +26,13 @@ from demo.controlled import (
     benchmark_marks_from_closes,
     load_locked_config,
     load_policy_thresholds,
-    locked_software_tape,
-    locked_weekday_sessions,
     run_controlled_arm,
     run_three_arms,
+)
+from demo.market_tape import (
+    evidence_file_sha256,
+    evidence_paths,
+    evidence_price_sessions,
 )
 from demo.pure_ml import amd_evidence_sha256, walk_forward_filing_proposals
 from demo.execution import (
@@ -908,6 +911,9 @@ _FIXTURE_METRICS_STATUS = "controlled_software_fixture_metrics"
 _LEGACY_METRICS_SHA256 = (
     "e7e5055ce9b4409d7941a71929f66261416b8d3c3f62423190edafd5bf5b1411"
 )
+_PRIOR_SOFTWARE_TAPE_HASH = (
+    "bf9e85ea37099ab93d57e3d11951c055fb5d04577ec871d3bfe3156d9220f587"
+)
 
 
 def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
@@ -993,9 +999,8 @@ def test_calibrated_policy_still_requires_a_market_head_and_ood() -> None:
 
 def _locked_three_arm_state() -> dict[str, object]:
     config = load_locked_config()
-    sessions = locked_software_tape(config)
-    dates = locked_weekday_sessions(config)
-    assert tuple(session.session for session in sessions) == dates
+    sessions = evidence_price_sessions(config)
+    dates = tuple(session.session for session in sessions)
     marks = _marks(config, sessions)
     thresholds = load_policy_thresholds()
     clock = [
@@ -1097,8 +1102,12 @@ def locked_three_arm_ledger() -> dict[str, object]:
             "pre-window calibration artifact and still requires a market head. "
             "Pure ML weights are walk-forward filing ridge scores clipped to "
             "the position cap and hash-bound to the AMD receipts. Prices are "
-            "deterministic software marks. This is not a performance claim."
+            "the evidence OHLCV tape. This is not a performance claim."
         ),
+        "price_source": {
+            "paths": evidence_paths(),
+            "sha256": evidence_file_sha256(),
+        },
         "window": [config.start_date.isoformat(), config.end_date.isoformat()],
         "session_count": len(dates),
         "rebalance_frequency_sessions": config.rebalance_frequency_sessions,
@@ -1281,15 +1290,18 @@ def locked_three_arm_metrics() -> dict[str, object]:
         "claim_status": _FIXTURE_METRICS_STATUS,
         "comparable_performance_claim": False,
         "description": (
-            "Fixture metrics from the controlled three-arm software tape. "
-            "Prices are deterministic software marks, the LLM desk is the "
+            "Fixture metrics from the controlled three-arm evidence tape. "
+            "Prices are the evidence OHLCV tape, the LLM desk is the "
             "offline lexical provider, and pure ML weights are walk-forward "
             "filing ridge scores clipped to the position cap. Not a capital "
             "performance claim."
         ),
         "source_ledger": _THREE_ARM_LEDGER.as_posix(),
         "fixture_context": {
-            "prices": "deterministic software marks",
+            "prices": "evidence/market/locked_ohlcv.json adjusted OHLC",
+            "calendar": "evidence/replay/v1_source.json",
+            "ohlcv_sha256": evidence_file_sha256()[evidence_paths()["ohlcv"]],
+            "calendar_sha256": evidence_file_sha256()[evidence_paths()["calendar"]],
             "llm_provider": "fusionfinance-offline-lexical-v1",
             "pure_ml_model": state["pure_ml_manifest"]["model"],
             "proposal_manifest_hash": state["pure_ml_manifest"]["proposal_manifest_hash"],
@@ -1308,7 +1320,8 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     document = json.loads(rendered)
     checked = json.loads(path.read_text(encoding="utf-8"))
     config = load_locked_config()
-    dates = [day.isoformat() for day in locked_weekday_sessions(config)]
+    replay = json.loads((root / "evidence/replay/v1_source.json").read_text(encoding="utf-8"))
+    dates = list(replay["dates"])
     fusion_decisions = {
         row["verifier_decision"] for row in document["arms"]["fusion"]["decisions"]
     }
@@ -1316,11 +1329,15 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     assert path.read_text(encoding="utf-8") == rendered
     assert checked == document
     assert document["comparable_performance_claim"] is False
+    assert "deterministic software marks" not in rendered
     assert document["window"] == ["2026-02-02", "2026-07-09"]
-    assert document["session_count"] == len(dates) == 114
+    assert document["session_count"] == len(dates) == 109
     assert dates[0] == "2026-02-02" and dates[-1] == "2026-07-09"
+    for holiday in ("2026-02-16", "2026-04-03", "2026-05-25", "2026-06-19", "2026-07-03"):
+        assert holiday not in dates
+    assert document["price_source"]["sha256"] == evidence_file_sha256(root)
     assert document["rebalance_frequency_sessions"] == 10
-    assert document["rebalance_count"] == 12
+    assert document["rebalance_count"] == 11
     assert document["calibration_hash"] == load_policy_thresholds().calibration_hash
     assert len(document["calibration_hash"]) == 64
     assert "policy thresholds lack a calibration artifact" not in rendered
@@ -1330,7 +1347,8 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
     for name, arm in document["arms"].items():
         assert arm["comparable_performance_claim"] is False
         assert arm["benchmark_sessions"] == dates
-        assert arm["session_count"] == 114
+        assert arm["session_count"] == 109
+        assert arm["tape_hash"] != _PRIOR_SOFTWARE_TAPE_HASH
         assert arm["post_cost_within_limit"] is True
         assert isinstance(arm["total_turnover"], float)
         assert isinstance(arm["transaction_costs"], float)
@@ -1340,8 +1358,9 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         assert len(arm["tape_hash"]) == 64
         assert len(arm["experiment_hash"]) == 64
         assert arm["strategy_id"] == name
+    assert len({arm["tape_hash"] for arm in document["arms"].values()}) == 1
     assert document["arms"]["fusion"]["admitted_count"] > 0
-    assert document["arms"]["pure_llm"]["admitted_count"] == 12
+    assert document["arms"]["pure_llm"]["admitted_count"] == document["rebalance_count"]
     pure = document["arms"]["pure_ml"]
     binding = pure["model_binding"]
     assert binding["model"] == "alpha.filing_alpha.fit_fusion_model"
@@ -1364,10 +1383,6 @@ def test_checked_in_three_arm_ledger_covers_the_locked_window() -> None:
         clipped = min(cap, max(-cap, row["model_score"]))
         assert row["admitted"] is True
         assert math.isclose(row["target_weight"], clipped)
-    # On this software tape every ridge score exceeds the position cap, so
-    # the executed weight is the cap while the score and the held name vary.
-    assert all(score > cap for score in scores)
-    assert all(math.isclose(weight, cap) for weight in weights)
     rebuilt = walk_forward_filing_proposals(
         config,
         [date.fromisoformat(row["decision_session"]) for row in pure["decisions"]],
@@ -1405,6 +1420,10 @@ def test_checked_in_fixture_metrics_match_the_three_arm_ledger() -> None:
     assert checked == document
     assert document["claim_status"] == _FIXTURE_METRICS_STATUS
     assert document["comparable_performance_claim"] is False
+    assert "deterministic software marks" not in rendered
+    assert document["fixture_context"]["prices"] == (
+        "evidence/market/locked_ohlcv.json adjusted OHLC"
+    )
     assert document["source_ledger"] == _THREE_ARM_LEDGER.as_posix()
     assert "pure_ml_weight" not in document["fixture_context"]
     assert (
@@ -1431,7 +1450,7 @@ def test_checked_in_fixture_metrics_match_the_three_arm_ledger() -> None:
         assert len(arm["tape_hash"]) == 64
         assert len(arm["experiment_hash"]) == 64
         assert arm["portfolio_sessions"] == ledger_arm["benchmark_sessions"]
-        assert len(values) == document["session_count"] == 114
+        assert len(values) == document["session_count"] == 109
         assert statistics["trade_count"] == ledger_arm["trade_count"]
         assert math.isclose(statistics["total_turnover"], ledger_arm["total_turnover"])
         assert math.isclose(

@@ -206,7 +206,7 @@ alpha/          focused filing, agent, verifier, and AMD-backed quantitative mod
 configs/        frozen controlled-comparison contract
 demo/           no-auth UI plus shared execution and metrics kernel
 docs/           architecture, methodology, AMD evidence, and limitations
-evidence/       sealed replay input and three byte-preserved AMD receipts
+evidence/       sealed replay input, locked OHLCV tape, and three AMD receipts
 presentation/   submitted deck/video sources and artifacts
 results/        deterministic public outputs
 scripts/        artifact builder, AMD verifier, and curated archive builder

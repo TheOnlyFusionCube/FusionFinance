@@ -105,8 +105,8 @@ and the software ledger that consumes it are checked in at
 and
 [`results/controlled_software_ledger.json`](../results/controlled_software_ledger.json).
 The ledger carries experiment, config, and tape hashes and computed turnover
-and costs. It is not a performance claim. The full locked weekday calendar,
-rebalanced every 10 sessions, is checked in at
+and costs. It is not a performance claim. The sealed replay calendar for the locked window 2026-02-02 through
+2026-07-09, rebalanced every 10 sessions, is checked in at
 [`results/controlled_three_arm_ledger.json`](../results/controlled_three_arm_ledger.json).
 Fusion uses
 [`results/fusion_policy_calibration.json`](../results/fusion_policy_calibration.json),
@@ -114,9 +114,11 @@ a pre-window calibration receipt, and still requires a market head. That
 three-arm file is a software ledger, not a performance claim. Fixture
 statistics from that same wealth path are checked in at
 [`results/controlled_three_arm_metrics.json`](../results/controlled_three_arm_metrics.json).
-They use the software marks and the offline lexical desk. Pure ML weights
-are walk-forward filing ridge scores, clipped to the position cap and
-hash-bound to the AMD receipts. `comparable_performance_claim` stays false.
+Prices are the checked-in OHLCV tape bound to that sealed calendar and to
+the sealed SPY returns. The desk is the offline lexical provider. Pure ML
+weights are walk-forward filing ridge scores, clipped to the position cap
+and hash-bound to the AMD receipts. `comparable_performance_claim` stays
+false.
 
 ## Reproduction checks
 

@@ -1,15 +1,16 @@
 """Walk-forward filing scores for the controlled pure-ML arm.
 
-Prices stay on the locked software tape. Scores come from
-``alpha.filing_alpha.fit_fusion_model`` using only labels that end before
-the decision. The proposal manifest is hash-bound to the AMD receipts.
+Prices come from the evidence tape. Scores come from
+``alpha.filing_alpha.fit_fusion_model`` using only labels whose forward close
+is already in that tape and ends before the decision. The proposal manifest
+is hash-bound to the AMD receipts.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -21,10 +22,10 @@ from alpha.filing_alpha.filing_fusion import (
     point_in_time_filing_join,
 )
 from demo.contracts import ExperimentConfig
-from demo.controlled import canonical_hash, locked_weekday_sessions
+from demo.controlled import canonical_hash
+from demo.market_tape import adjusted_market_frame, evidence_price_sessions
 
 
-_WARMUP_SESSIONS = 80
 _HORIZON_SESSIONS = 10
 _RIDGE_ALPHA = 10.0
 _AMD_PATHS = (
@@ -37,17 +38,6 @@ _AMD_PATHS = (
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
-
-
-def _weekdays_before(day: date, count: int) -> list[date]:
-    found: list[date] = []
-    current = day
-    while len(found) < count:
-        current -= timedelta(days=1)
-        if current.weekday() < 5:
-            found.append(current)
-    found.reverse()
-    return found
 
 
 def amd_evidence_sha256(root: Path | None = None) -> dict[str, str]:
@@ -86,10 +76,12 @@ def walk_forward_filing_proposals(
 
     if not decision_dates:
         raise ValueError("pure-ML proposals require at least one decision date")
-    locked = locked_weekday_sessions(config)
+    locked = tuple(
+        session.session for session in evidence_price_sessions(config, root=root)
+    )
     if any(day not in set(locked) for day in decision_dates):
-        raise ValueError("pure-ML decisions must lie on the locked weekday tape")
-    panel = _feature_panel(config, locked)
+        raise ValueError("pure-ML decisions must lie on the evidence tape")
+    panel = _feature_panel(config, root=root)
     proposals: list[dict[str, object]] = []
     for decision in decision_dates:
         proposals.append(_score_decision(config, panel, decision))
@@ -99,7 +91,6 @@ def walk_forward_filing_proposals(
         "model": "alpha.filing_alpha.fit_fusion_model",
         "ridge_alpha": _RIDGE_ALPHA,
         "horizon_sessions": _HORIZON_SESSIONS,
-        "warmup_sessions": _WARMUP_SESSIONS,
         "amd_evidence_sha256": amd,
         "amd_compute_sha256": amd["results/amd_compute.json"],
         "proposals": proposals,
@@ -109,27 +100,14 @@ def walk_forward_filing_proposals(
 
 
 def _feature_panel(
-    config: ExperimentConfig, locked: tuple[date, ...]
+    config: ExperimentConfig, *, root: Path | None = None
 ) -> pd.DataFrame:
-    warmup = _weekdays_before(locked[0], _WARMUP_SESSIONS)
-    calendar = [*warmup, *locked]
-    index = {day: offset - len(warmup) for offset, day in enumerate(calendar)}
-    market_rows: list[dict[str, object]] = []
+    market = adjusted_market_frame(config, root=root)
+    market = market.loc[market["ticker"].isin(config.universe)].copy()
+    calendar = tuple(sorted({pd.Timestamp(value).date() for value in market["date"]}))
+    index = {day: offset for offset, day in enumerate(calendar)}
     filing_rows: list[dict[str, object]] = []
     for ticker_index, ticker in enumerate(config.universe):
-        for day in calendar:
-            level = 100.0 + float(index[day])
-            market_rows.append(
-                {
-                    "date": pd.Timestamp(day),
-                    "ticker": ticker,
-                    "open": level,
-                    "high": level,
-                    "low": level,
-                    "close": level,
-                    "volume": 1_000_000.0,
-                }
-            )
         for session_index, day in enumerate(calendar):
             if (session_index + ticker_index * 3) % 11 != 0:
                 continue
@@ -148,7 +126,6 @@ def _feature_panel(
                     "filing_signal": float(signal),
                 }
             )
-    market = pd.DataFrame(market_rows)
     market["trail_return"] = market.groupby("ticker", sort=False)["close"].pct_change(
         _HORIZON_SESSIONS
     )
@@ -170,17 +147,20 @@ def _score_decision(
     decision_ts = pd.Timestamp(decision)
     history = panel.loc[panel["date"] < decision_ts].copy()
     history["label_index"] = history["session_index"] + _HORIZON_SESSIONS
-    # A label is usable only after its horizon has finished, and only before
-    # this decision. That set grows on later rebalances inside the window.
+    # The forward close has to be a bar already stored in the evidence tape,
+    # and that bar has to fall before this decision. Missing labels are
+    # dropped; they are not filled with a synthetic price.
     decision_index = int(
         panel.loc[panel["date"] == decision_ts, "session_index"].iloc[0]
     )
+    future = panel.loc[:, ["ticker", "session_index", "close"]].rename(
+        columns={"session_index": "label_index", "close": "label_close"}
+    )
+    history = history.merge(future, on=["ticker", "label_index"], how="inner")
     history = history.loc[history["label_index"] < decision_index].copy()
     if history.empty:
         raise ValueError(f"no pre-decision training rows for {decision.isoformat()}")
-    start_close = history["close"].to_numpy(dtype=float)
-    label_close = 100.0 + history["label_index"].to_numpy(dtype=float)
-    history["target"] = label_close / start_close - 1.0
+    history["target"] = history["label_close"] / history["close"] - 1.0
     fitted = fit_fusion_model(
         history,
         "target",

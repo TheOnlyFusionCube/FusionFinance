@@ -60,8 +60,8 @@ controlled-run artifacts ──► replay payload ──► demo/index.html
 - `alpha/` retains only the filing transforms, focused agent runtime,
   verification layer, and quantitative modules needed to substantiate the
   AMD-backed workload.
-- `evidence/` contains the sealed legacy replay source and exactly three
-  byte-preserved AMD receipts.
+- `evidence/` contains the sealed legacy replay source, the locked-universe
+  OHLCV extract, and exactly three byte-preserved AMD receipts.
 - `scripts/` contains exactly three release tools: deterministic artifact
   build, AMD verification, and curated archive construction.
 - `tests/` covers the retained implementation, publication integrity, static

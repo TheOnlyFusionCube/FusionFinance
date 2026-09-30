@@ -147,8 +147,8 @@ fills to events and marked results, and requires benchmark wealth to be bound
 to portfolio session dates. Turnover and costs on that ledger are computed
 values.
 
-That software record is not a comparative performance claim. A full weekday
-calendar for the locked February–July window is checked in as a software
+That software record is not a comparative performance claim. The sealed
+replay calendar for the locked February–July window is checked in as a
 ledger, not as a published performance result. Uncalibrated policy thresholds
 abstain. A calibrated artifact does not approve fusion without a market head
 and an in-distribution score. A thesis sealed after its outcome does not reach
