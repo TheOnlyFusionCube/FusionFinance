@@ -45,14 +45,22 @@ the selected window.
   quotation can still accompany an unsupported qualitative conclusion.
 - The evidence auditor is implemented, but real source snapshots and audited
   citations have not been integrated into a regenerated three-arm run.
-- The kernel foundation validates proposed concentration and pre-cost gross
-  leverage, but still needs post-cost leverage enforcement and full
-  fill/event/result reconciliation.
-- The new agent precheck embeds the immutable proposal and source snapshot and
-  rederives their hashes, but the legacy execution result does not yet carry
-  experiment, config, and market-tape hashes.
-- Benchmark validation currently checks sequence length and values rather than
-  binding observations to explicit session dates.
+- The kernel records a single applied scale on each rebalance so that
+  post-cost gross leverage stays inside `max_gross_leverage`, and it
+  reconciles fills to cash and positions. The legacy replay still has no
+  trade ledger.
+- Controlled `SimulationResult` values carry `config_sha256` and
+  `tape_sha256`. Those seals detect a changed config or tape. They are not
+  signatures. The legacy replay result does not carry them.
+- Claim-bearing benchmark fields can be bound to portfolio session dates via
+  `benchmark_sessions`. Length-only benchmark wealth remains available to
+  kernel tests and is not sufficient for a comparative claim.
+- Sharpe and CAPM alpha are exposure-diluted when average holding-period
+  gross exposure is below 0.90. Quote `information_ratio` and
+  `selection_excess_return`. A gate that is an expanding correlation of the
+  same feature it trades times that feature. It is not an independent verifier.
+- The tradable universe has to be knowable at the start of the window.
+  Membership chosen after the window is selection bias, not a result.
 - The broader covariance-, liquidity-, and volatility-aware sizing engine in
   the product vision is not yet part of the controlled path.
 - No controlled live or paper-trading comparison has been completed with all

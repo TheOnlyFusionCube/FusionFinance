@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+from datetime import date
 from numbers import Real
 
 from demo.contracts import ExperimentConfig, PerformanceMetrics, SimulationResult
 
 
 _EPSILON = 1e-15
+_FLAT_GROSS = 1e-6
+# Below this average holding-period gross, Sharpe and CAPM alpha are cash-diluted.
+_FULL_BOOK = 0.90
 
 
 def compute_performance_metrics(
@@ -17,6 +21,7 @@ def compute_performance_metrics(
     *,
     config: ExperimentConfig,
     benchmark_values: Sequence[float] | None = None,
+    benchmark_sessions: Sequence[date] | None = None,
 ) -> PerformanceMetrics:
     """Compute statistics from successive wealth ratios, never return deltas."""
     values = _validated_strategy_values(result, config)
@@ -45,12 +50,16 @@ def compute_performance_metrics(
 
     benchmark_statistics = _benchmark_statistics(
         benchmark_values=benchmark_values,
+        benchmark_sessions=benchmark_sessions,
         strategy_returns=returns,
+        strategy_points=result.points,
         strategy_total_return=total_return,
         expected_length=len(values),
         annualization=annualization,
         risk_free_return=risk_free_return,
     )
+    holding_gross = tuple(point.gross_exposure for point in result.points[1:])
+    diluted = _mean(holding_gross) < _FULL_BOOK
     total_turnover = sum(event.turnover for event in result.rebalances)
     transaction_costs = result.total_cost
     ending_point = result.points[-1]
@@ -82,6 +91,7 @@ def compute_performance_metrics(
         ending_gross_exposure=ending_point.gross_exposure,
         ending_net_exposure=ending_point.net_exposure,
         ending_cash_balance=ending_point.cash_balance,
+        sharpe_exposure_diluted=diluted,
         **benchmark_statistics,
     )
 
@@ -124,12 +134,14 @@ def _validated_strategy_values(
 def _benchmark_statistics(
     *,
     benchmark_values: Sequence[float] | None,
+    benchmark_sessions: Sequence[date] | None,
     strategy_returns: tuple[float, ...],
+    strategy_points: tuple,
     strategy_total_return: float,
     expected_length: int,
     annualization: int,
     risk_free_return: float,
-) -> dict[str, float | None]:
+) -> dict[str, float | bool | None]:
     empty = {
         "benchmark_total_return": None,
         "benchmark_annualized_return": None,
@@ -138,11 +150,21 @@ def _benchmark_statistics(
         "information_ratio": None,
         "beta": None,
         "annualized_alpha": None,
+        "same_day_benchmark_total_return": None,
+        "selection_excess_return": None,
+        "cash_replaced_excess_return": None,
     }
     if benchmark_values is None:
+        if benchmark_sessions is not None:
+            raise ValueError("benchmark_sessions requires benchmark_values")
         return empty
-    if isinstance(benchmark_values, (str, bytes)):
-        raise ValueError("benchmark_values must be a numeric sequence")
+    if isinstance(benchmark_values, (str, bytes)) or isinstance(
+        benchmark_sessions, (str, bytes)
+    ):
+        raise ValueError("benchmark inputs must be sequences")
+    portfolio_sessions = tuple(point.session for point in strategy_points)
+    if benchmark_sessions is not None and tuple(benchmark_sessions) != portfolio_sessions:
+        raise ValueError("benchmark sessions must match portfolio sessions")
     values = tuple(
         _finite_positive(value, "benchmark value") for value in benchmark_values
     )
@@ -180,6 +202,7 @@ def _benchmark_statistics(
         if beta is not None
         else None
     )
+    exposure = _exposure_paths(strategy_points, strategy_returns, benchmark_returns)
     return {
         "benchmark_total_return": benchmark_total,
         "benchmark_annualized_return": _annualized_growth(
@@ -192,6 +215,43 @@ def _benchmark_statistics(
         "information_ratio": information_ratio,
         "beta": beta,
         "annualized_alpha": alpha,
+        **exposure,
+    }
+
+
+def _exposure_paths(
+    points: tuple,
+    strategy_returns: tuple[float, ...],
+    benchmark_returns: tuple[float, ...],
+) -> dict[str, float]:
+    """Separate cash-timing from stock selection.
+
+    A session is invested when either the book carried in or the book marked
+    at the close has gross exposure above dust. ``same_day`` earns the
+    benchmark on invested sessions and cash otherwise. ``replaced`` keeps the
+    strategy on invested sessions and earns the benchmark on flat sessions.
+    """
+
+    same = 1.0
+    replaced = 1.0
+    strategy = 1.0
+    benchmark = 1.0
+    for index, (strategy_return, benchmark_return) in enumerate(
+        zip(strategy_returns, benchmark_returns, strict=True)
+    ):
+        carried = points[index].gross_exposure
+        marked = points[index + 1].gross_exposure
+        invested = max(carried, marked) > _FLAT_GROSS
+        same *= 1.0 + (benchmark_return if invested else 0.0)
+        replaced *= 1.0 + (strategy_return if invested else benchmark_return)
+        strategy *= 1.0 + strategy_return
+        benchmark *= 1.0 + benchmark_return
+    if min(same, replaced, strategy, benchmark) <= 0.0:
+        raise ValueError("exposure paths must stay positive")
+    return {
+        "same_day_benchmark_total_return": same - 1.0,
+        "selection_excess_return": strategy / same - 1.0,
+        "cash_replaced_excess_return": replaced / benchmark - 1.0,
     }
 
 

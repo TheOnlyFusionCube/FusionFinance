@@ -26,9 +26,9 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://fusionfinance2.vercel.app"
-Repository = "https://github.com/FusionCube18712/FusionFinance"
-Documentation = "https://github.com/FusionCube18712/FusionFinance#readme"
-Issues = "https://github.com/FusionCube18712/FusionFinance/issues"
+Repository = "https://github.com/TheOnlyFusionCube/FusionFinance"
+Documentation = "https://github.com/TheOnlyFusionCube/FusionFinance#readme"
+Issues = "https://github.com/TheOnlyFusionCube/FusionFinance/issues"
 
 [project.scripts]
 fusionfinance = "alpha.fund.__main__:main"

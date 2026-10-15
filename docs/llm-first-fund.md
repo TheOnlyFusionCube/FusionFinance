@@ -84,6 +84,9 @@ across runs.
 | `fusion_single` (LLM-first, market-head gate) | +23.7% | 4.58 | −1.6% | 21.6 | 1.64% |
 | `fusion` (LLM-first, committee gate) | **+29.4%** | **5.12** | −1.9% | 21.6 | 1.71% |
 
+These Sharpes are mechanism-test figures on a planted world. If a book is not
+fully invested, read `selection_excess_return`, not Sharpe. See the README.
+
 Ideas the gate approved hit 63.9%; ideas it blocked hit 47.0%. In this mode the
 research pipeline already screens out most promotion: only 10 hype ideas
 reached the gate over the whole run (8 passed, 2 vetoed), against 62 genuine

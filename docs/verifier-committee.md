@@ -104,6 +104,9 @@ correctly earn no vote.
 | LLM-first, single market head | +23.7% / 4.58 / −1.6% | −2.9% / −1.43 / −4.0% |
 | **LLM-first, committee** | **+29.4% / 5.12** / −1.9% | **+1.1% / 0.58 / −1.6%** |
 
+These figures are a planted-signal mechanism test. A partly invested book
+should be read with `selection_excess_return`, not Sharpe.
+
 In narrative mode, where the LLM is fooled by promotion, the committee gate
 passed 59% of genuine ideas and 23% of hype. In dossier mode the research
 pipeline screens out most promotion before the LLM proposes anything: only 10

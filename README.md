@@ -25,6 +25,25 @@ ledger.
 - **[Research data collection and analysis pipeline](docs/research-pipeline.md)**
 - **[Verifier committee: twenty published methods, consensus rules, audit](docs/verifier-committee.md)**
 
+Canonical repository: [TheOnlyFusionCube/FusionFinance](https://github.com/TheOnlyFusionCube/FusionFinance).
+
+## Reading a result
+
+Sharpe and CAPM alpha are not the headline when the book is partly in cash.
+Cash days shrink volatility and beta and invent alpha. `demo/metrics.py`
+sets `sharpe_exposure_diluted` when average gross exposure over holding
+sessions is below 0.90. Quote `information_ratio` and
+`selection_excess_return` instead. Selection excess compares the strategy
+with a benchmark sleeve that is invested only on the same sessions.
+`cash_replaced_excess_return` earns the benchmark on flat sessions and asks
+whether any edge is left. An expanding rank correlation of the score being
+traded is a regime timer, not an independent verifier.
+
+The synthetic table below is a planted-signal mechanism test. It is not
+market evidence. The public replay further down is a provisional legacy
+race. Neither is a performance claim. A universe has to be knowable on the
+first session of the window. Do not freeze membership after the window ends.
+
 ## Quickstart
 
 ```bash
@@ -92,7 +111,7 @@ proposed and agents investigated. Its replay, evidence receipts, and claim
 boundaries are unchanged.
 
 **[Open the no-auth demo](https://fusionfinance2.vercel.app)** ·
-**[View the public repository](https://github.com/FusionCube18712/FusionFinance)**
+**[View the public repository](https://github.com/TheOnlyFusionCube/FusionFinance)**
 
 ![FusionFinance replay dashboard](docs/assets/dashboard.png)
 
