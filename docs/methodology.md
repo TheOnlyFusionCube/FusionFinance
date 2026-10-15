@@ -49,8 +49,11 @@ timing, or leverage model. Empty or rejected proposals remain cash.
 - Decisions are associated with a close and execute one full session later at
   the next open.
 - Proposals outside the shared rebalance clock, outside the universe, after the
-  final executable session, or above risk limits fail rather than being clipped
-  silently.
+  final executable session, or above the pre-cost gross or position caps fail.
+- If costs would push gross leverage through the cap, the kernel scales every
+  target by one factor, stores that factor as `applied_scale` on the rebalance,
+  and rejects the fill if the post-trade book still does not fit. The scale is
+  logged. It is not an unlogged clip.
 - A thesis must be committed before verification. Evidence sources must already
   be available at the thesis timestamp.
 
@@ -75,12 +78,16 @@ standard deviation; Sharpe and Sortino use the locked risk-free rate. The ledger
 also records fills, turnover, total execution costs, cash, gross exposure, and
 net exposure.
 
-When a same-length benchmark wealth sequence is supplied, the metrics layer additionally
-reports benchmark return, wealth-relative excess return, tracking error,
-information ratio, beta, and annualized alpha. Misaligned, non-finite, or
-non-positive benchmark wealth is rejected by length/value checks. Date-index
-alignment is currently the caller's responsibility and must be enforced inside
-the contract before a claim-bearing run.
+When a same-length benchmark wealth sequence is supplied, the metrics layer
+additionally reports benchmark return, wealth-relative excess return, tracking
+error, information ratio, beta, and annualized alpha. It also reports
+`selection_excess_return` (strategy versus the benchmark invested only on the
+same sessions) and `cash_replaced_excess_return` (flat sessions earn the
+benchmark). `sharpe_exposure_diluted` is true when average holding-period gross
+exposure is below 0.90. Do not quote Sharpe or CAPM alpha in that case: cash
+days shrink volatility and beta. Passing `benchmark_sessions` requires those
+dates to equal the portfolio sessions. Length-only benchmark wealth remains
+valid for kernel tests and is not sufficient for a comparative claim.
 
 ## Evidence levels
 
@@ -93,10 +100,11 @@ the contract before a claim-bearing run.
 | AMD training workload | Semantically cross-checked self-reported receipts; hashes protect integrity, not independent attestation |
 | Checked-in three-arm replay | Provisional legacy visualization only |
 
-Independent review also requires proposal/input lineage, config and market-tape
-hashes, post-cost leverage enforcement, ledger/result reconciliation, strict
-schema coercion, and date-bound benchmark alignment before this foundation can
-produce comparative evidence.
+Independent review also requires proposal and input lineage, strict schema
+coercion, and a point-in-time universe before this foundation can produce
+comparative evidence. Config and tape hashes, post-cost leverage, fill
+reconciliation, and optional date-bound benchmark checks are now part of the
+kernel. A same-signal rank gate is not an independent verifier.
 
 ## Reproduction checks
 

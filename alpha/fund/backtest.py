@@ -100,14 +100,27 @@ class BacktestReport:
         }
 
     def table(self) -> str:
-        header = f"{'arm':<16}{'return':>9}{'sharpe':>8}{'max_dd':>9}{'turnover':>10}{'costs':>9}"
+        header = (
+            f"{'arm':<16}{'return':>9}{'sharpe':>8}{'sel_xs':>9}"
+            f"{'max_dd':>9}{'turnover':>10}"
+        )
         lines = [header, "-" * len(header)]
+        diluted = False
         for arm in ARMS:
             m = self.arms[arm]
             sharpe = "n/a" if m["sharpe_ratio"] is None else f"{m['sharpe_ratio']:+.2f}"
+            if m.get("sharpe_exposure_diluted"):
+                sharpe = f"{sharpe}*"
+                diluted = True
+            selection = m.get("selection_excess_return")
+            selection_text = "n/a" if selection is None else f"{selection:>+8.2%}"
             lines.append(
-                f"{arm:<16}{m['total_return']:>+9.2%}{sharpe:>8}{m['max_drawdown']:>+9.2%}"
-                f"{m['total_turnover']:>10.2f}{m['transaction_cost_pct']:>9.3%}"
+                f"{arm:<16}{m['total_return']:>+9.2%}{sharpe:>8}{selection_text:>9}"
+                f"{m['max_drawdown']:>+9.2%}{m['total_turnover']:>10.2f}"
+            )
+        if diluted:
+            lines.append(
+                "* Sharpe is exposure-diluted. Quote information_ratio and selection_excess_return."
             )
         ideas = self.ideas
         lines += [
@@ -350,12 +363,24 @@ def run_backtest(
     )
     sessions = _sessions(world, first_decision)
     benchmark = [float(world.closes.at[world.dates[i], BENCHMARK]) for i in range(first_decision, total)]
+    benchmark_sessions = tuple(session.session for session in sessions)
     arms = {}
+    lineage = None
     for arm in ARMS:
         result = simulate_portfolio(
             config=experiment, sessions=sessions, proposals=targets[arm], strategy_id=arm
         )
-        metrics = compute_performance_metrics(result, config=experiment, benchmark_values=benchmark)
+        metrics = compute_performance_metrics(
+            result,
+            config=experiment,
+            benchmark_values=benchmark,
+            benchmark_sessions=benchmark_sessions,
+        )
+        if lineage is None:
+            lineage = {
+                "config_sha256": result.config_sha256,
+                "tape_sha256": result.tape_sha256,
+            }
         arms[arm] = {
             key: (round(value, 6) if isinstance(value, float) else value)
             for key, value in metrics.model_dump(mode="json").items()
@@ -381,6 +406,8 @@ def run_backtest(
             "gate_calibrated": config.thresholds.calibrated,
             "snapshots": config.snapshots,
             "committee": config.use_committee,
+            "config_sha256": None if lineage is None else lineage["config_sha256"],
+            "tape_sha256": None if lineage is None else lineage["tape_sha256"],
         },
         committee=[] if committee is None else committee.roster(),
     )

@@ -11,7 +11,7 @@ FusionFinance does not authorize real-money brokerage execution.
 
 Do not disclose exploitable details, credentials, private data, or tokens in
 a public issue. Use the repository's
-[private GitHub security-advisory channel](https://github.com/FusionCube18712/FusionFinance/security/advisories/new)
+[private GitHub security-advisory channel](https://github.com/TheOnlyFusionCube/FusionFinance/security/advisories/new)
 when available. If private reporting is unavailable, open a public issue that
 only requests a private maintainer contact and omits all vulnerability
 details. For non-sensitive hardening suggestions, a normal issue may include

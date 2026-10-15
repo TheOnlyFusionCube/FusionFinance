@@ -162,6 +162,7 @@ class RebalanceEvent(_FrozenModel):
     transaction_cost: float = Field(ge=0.0)
     slippage_cost: float = Field(ge=0.0)
     fills: tuple[Fill, ...] = Field(default_factory=tuple)
+    applied_scale: float = Field(default=1.0, ge=0.0, le=1.0)
 
 
 class PortfolioPoint(_FrozenModel):
@@ -179,6 +180,8 @@ class SimulationResult(_FrozenModel):
     starting_capital: float = Field(gt=0.0)
     points: tuple[PortfolioPoint, ...] = Field(min_length=1)
     rebalances: tuple[RebalanceEvent, ...] = Field(default_factory=tuple)
+    config_sha256: str | None = None
+    tape_sha256: str | None = None
 
     @property
     def portfolio_values(self) -> tuple[float, ...]:
@@ -228,3 +231,7 @@ class PerformanceMetrics(_FrozenModel):
     information_ratio: float | None = None
     beta: float | None = None
     annualized_alpha: float | None = None
+    same_day_benchmark_total_return: float | None = Field(default=None, gt=-1.0)
+    selection_excess_return: float | None = Field(default=None, gt=-1.0)
+    cash_replaced_excess_return: float | None = Field(default=None, gt=-1.0)
+    sharpe_exposure_diluted: bool = False

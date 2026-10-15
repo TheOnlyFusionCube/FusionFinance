@@ -116,9 +116,17 @@ def test_identical_weights_receive_identical_shared_execution_pnl() -> None:
 
     assert first.portfolio_values == second.portfolio_values
     assert first.period_returns == second.period_returns
-    assert tuple(event.turnover for event in first.rebalances) == (1.0,)
-    assert first.total_cost == pytest.approx(7.0)
-    assert first.points[1].portfolio_value == pytest.approx(10_993.0)
+    rate = (5.0 + 2.0) / 10_000.0
+    scale = 1.0 / (1.0 + rate)
+    cost = 10_000.0 * scale * rate
+    assert first.rebalances[0].applied_scale == pytest.approx(scale)
+    assert first.rebalances[0].turnover == pytest.approx(scale)
+    assert first.total_cost == pytest.approx(cost)
+    assert first.points[1].portfolio_value == pytest.approx(10_000.0 - cost + 1_000.0 * scale)
+    assert first.config_sha256 == second.config_sha256
+    assert first.tape_sha256 == second.tape_sha256
+    assert len(first.config_sha256) == 64
+    assert len(first.tape_sha256) == 64
 
 
 def test_future_market_mutation_cannot_change_earlier_execution() -> None:
@@ -160,6 +168,8 @@ def test_future_market_mutation_cannot_change_earlier_execution() -> None:
 
     assert mutated.points[:2] == baseline.points[:2]
     assert mutated.rebalances == baseline.rebalances
+    assert mutated.config_sha256 == baseline.config_sha256
+    assert mutated.tape_sha256 != baseline.tape_sha256
     assert baseline.rebalances[0].execution_session == date(2026, 2, 3)
     assert {fill.execution_price for fill in baseline.rebalances[0].fills} == {100.0}
 
@@ -217,7 +227,11 @@ def test_metrics_use_wealth_ratios_and_produce_benchmark_relative_fields() -> No
         benchmark_values=(10_000.0, 10_100.0, 10_200.0),
     )
 
-    expected_total = 11_993.0 / 10_000.0 - 1.0
+    rate = (5.0 + 2.0) / 10_000.0
+    scale = 1.0 / (1.0 + rate)
+    cost = 10_000.0 * scale * rate
+    final = 10_000.0 - cost + 2_000.0 * scale
+    expected_total = final / 10_000.0 - 1.0
     expected_benchmark = 10_200.0 / 10_000.0 - 1.0
     assert metrics.total_return == pytest.approx(expected_total)
     assert metrics.annualized_return == pytest.approx(expected_total)
@@ -227,8 +241,11 @@ def test_metrics_use_wealth_ratios_and_produce_benchmark_relative_fields() -> No
         (1.0 + expected_total) / (1.0 + expected_benchmark) - 1.0
     )
     assert metrics.trade_count == 2
-    assert metrics.transaction_costs == pytest.approx(7.0)
-    assert metrics.ending_cash_balance == pytest.approx(9_993.0)
+    assert metrics.transaction_costs == pytest.approx(cost)
+    assert metrics.ending_cash_balance == pytest.approx(10_000.0 - cost)
+    assert metrics.selection_excess_return == pytest.approx(
+        metrics.wealth_relative_excess_return
+    )
 
 
 def test_drawdown_is_measured_from_the_running_wealth_peak() -> None:

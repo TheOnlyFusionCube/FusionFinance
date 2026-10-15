@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from datetime import date
 
 from demo.contracts import (
+    AssetBar,
     ExperimentConfig,
     Fill,
     MarketSession,
@@ -20,6 +21,7 @@ from demo.contracts import (
     SimulationResult,
     WeightProposal,
 )
+from demo.lineage import config_sha256, tape_sha256
 
 
 def simulate_portfolio(
@@ -99,6 +101,8 @@ def simulate_portfolio(
         starting_capital=config.starting_capital,
         points=tuple(points),
         rebalances=tuple(rebalances),
+        config_sha256=config_sha256(config),
+        tape_sha256=tape_sha256(window),
     )
 
 
@@ -187,19 +191,127 @@ def _rebalance(
     pretrade_value: float,
 ) -> tuple[float, dict[str, float], RebalanceEvent]:
     bars = {bar.ticker: bar for bar in market.bars}
-    targets = {target.ticker: target.weight for target in proposal.targets}
+    requested = {target.ticker: target.weight for target in proposal.targets}
+    scale = _post_cost_scale(
+        config=config,
+        targets=requested,
+        bars=bars,
+        cash=cash,
+        shares=shares,
+        pretrade_value=pretrade_value,
+    )
+    new_cash, new_shares, fills = _apply_targets(
+        config=config,
+        proposal=proposal,
+        targets=requested,
+        scale=scale,
+        bars=bars,
+        cash=cash,
+        shares=shares,
+        pretrade_value=pretrade_value,
+        execution_session=market.session,
+    )
+    _reconcile_fills(
+        opening_cash=cash,
+        opening_shares=shares,
+        cash=new_cash,
+        shares=new_shares,
+        fills=fills,
+    )
+    post_gross, post_equity = _open_gross(new_cash, new_shares, bars)
+    if post_equity <= 0.0 or post_gross > config.max_gross_leverage + 1e-8:
+        raise ValueError("post-cost gross leverage exceeds max_gross_leverage")
+    turnover = sum(abs(fill.traded_notional) for fill in fills) / pretrade_value
+    event = RebalanceEvent(
+        strategy_id=proposal.strategy_id,
+        decision_session=proposal.decision_session,
+        execution_session=market.session,
+        turnover=turnover,
+        transaction_cost=sum(fill.transaction_cost for fill in fills),
+        slippage_cost=sum(fill.slippage_cost for fill in fills),
+        fills=tuple(fills),
+        applied_scale=scale,
+    )
+    return new_cash, new_shares, event
+
+
+def _post_cost_scale(
+    *,
+    config: ExperimentConfig,
+    targets: dict[str, float],
+    bars: dict[str, AssetBar],
+    cash: float,
+    shares: dict[str, float],
+    pretrade_value: float,
+) -> float:
+    """Largest scale in [0, 1] whose post-trade gross leverage fits the cap.
+
+    Costs are paid in cash, so a book sized to the cap on pre-trade value is
+    over the cap after costs. The scale is stored on the rebalance event.
+    """
+
+    if _scale_fits(config, targets, 1.0, bars, cash, shares, pretrade_value):
+        return 1.0
+    low = 0.0
+    high = 1.0
+    best = 0.0
+    for _ in range(48):
+        mid = (low + high) / 2.0
+        if _scale_fits(config, targets, mid, bars, cash, shares, pretrade_value):
+            best = mid
+            low = mid
+        else:
+            high = mid
+    return best
+
+
+def _scale_fits(
+    config: ExperimentConfig,
+    targets: dict[str, float],
+    scale: float,
+    bars: dict[str, AssetBar],
+    cash: float,
+    shares: dict[str, float],
+    pretrade_value: float,
+) -> bool:
+    new_cash, new_shares, _fills = _apply_targets(
+        config=config,
+        proposal=None,
+        targets=targets,
+        scale=scale,
+        bars=bars,
+        cash=cash,
+        shares=shares,
+        pretrade_value=pretrade_value,
+        execution_session=None,
+    )
+    gross, equity = _open_gross(new_cash, new_shares, bars)
+    return equity > 0.0 and gross <= config.max_gross_leverage + 1e-9
+
+
+def _apply_targets(
+    *,
+    config: ExperimentConfig,
+    proposal: WeightProposal | None,
+    targets: dict[str, float],
+    scale: float,
+    bars: dict[str, AssetBar],
+    cash: float,
+    shares: dict[str, float],
+    pretrade_value: float,
+    execution_session: date | None,
+) -> tuple[float, dict[str, float], list[Fill]]:
     names = tuple(sorted(set(shares) | set(targets)))
     transaction_rate = config.transaction_cost_bps / 10_000.0
     slippage_rate = config.slippage_bps / 10_000.0
     new_cash = cash
     new_shares = dict(shares)
     fills: list[Fill] = []
-
     for ticker in names:
         price = bars[ticker].open
         current_quantity = shares.get(ticker, 0.0)
         current_notional = current_quantity * price
-        desired_notional = targets.get(ticker, 0.0) * pretrade_value
+        desired_notional = targets.get(ticker, 0.0) * scale * pretrade_value
         traded_notional = desired_notional - current_notional
         if abs(traded_notional) <= 1e-12:
             continue
@@ -212,30 +324,59 @@ def _rebalance(
             new_shares.pop(ticker, None)
         else:
             new_shares[ticker] = next_quantity
+        if proposal is None or execution_session is None:
+            continue
         fills.append(
             Fill(
                 strategy_id=proposal.strategy_id,
                 decision_session=proposal.decision_session,
-                execution_session=market.session,
+                execution_session=execution_session,
                 ticker=ticker,
                 execution_price=price,
                 shares_delta=shares_delta,
                 traded_notional=traded_notional,
                 previous_weight=current_notional / pretrade_value,
-                target_weight=targets.get(ticker, 0.0),
+                target_weight=targets.get(ticker, 0.0) * scale,
                 transaction_cost=transaction_cost,
                 slippage_cost=slippage_cost,
             )
         )
+    return new_cash, new_shares, fills
 
-    turnover = sum(abs(fill.traded_notional) for fill in fills) / pretrade_value
-    event = RebalanceEvent(
-        strategy_id=proposal.strategy_id,
-        decision_session=proposal.decision_session,
-        execution_session=market.session,
-        turnover=turnover,
-        transaction_cost=sum(fill.transaction_cost for fill in fills),
-        slippage_cost=sum(fill.slippage_cost for fill in fills),
-        fills=tuple(fills),
+
+def _open_gross(
+    cash: float, shares: dict[str, float], bars: dict[str, AssetBar]
+) -> tuple[float, float]:
+    equity = cash + sum(quantity * bars[ticker].open for ticker, quantity in shares.items())
+    if not math.isfinite(equity) or equity <= 0.0:
+        return math.inf, equity
+    gross = sum(abs(quantity * bars[ticker].open) for ticker, quantity in shares.items())
+    return gross / equity, equity
+
+
+def _reconcile_fills(
+    *,
+    opening_cash: float,
+    opening_shares: dict[str, float],
+    cash: float,
+    shares: dict[str, float],
+    fills: list[Fill],
+) -> None:
+    cash_delta = -sum(
+        fill.traded_notional + fill.transaction_cost + fill.slippage_cost for fill in fills
     )
-    return new_cash, new_shares, event
+    if not math.isclose(cash, opening_cash + cash_delta, rel_tol=0.0, abs_tol=1e-6):
+        raise ValueError("fills do not reconcile to cash")
+    expected = dict(opening_shares)
+    for fill in fills:
+        quantity = expected.get(fill.ticker, 0.0) + fill.shares_delta
+        if abs(quantity) <= 1e-12:
+            expected.pop(fill.ticker, None)
+        else:
+            expected[fill.ticker] = quantity
+    if set(expected) != set(shares):
+        raise ValueError("fills do not reconcile to positions")
+    for ticker, quantity in expected.items():
+        if not math.isclose(quantity, shares[ticker], rel_tol=0.0, abs_tol=1e-8):
+            raise ValueError("fills do not reconcile to positions")
+
